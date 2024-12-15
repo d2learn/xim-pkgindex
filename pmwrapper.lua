@@ -11,8 +11,14 @@ pmwrapper = {
         winget = {"winget", "vim.vim"},
         ubuntu = {"apt", "vim"},
     },
+    ["visual-studio"] = {
+        windows = {"winget", "Microsoft.VisualStudio.2022.Community"},
+    },
     ["vscode"] = {
         windows = {"winget", "Microsoft.VisualStudioCode"},
         archlinux = {"pacman", "code"},
-    }
+    },
+    ["vs-build-tools"] = {
+        windows = {"winget", "Microsoft.VisualStudio.2022.BuildTools"},
+    },
 }

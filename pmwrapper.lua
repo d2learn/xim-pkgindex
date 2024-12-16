@@ -2,6 +2,9 @@
 -- for complex package/software/config, please use pkgs/xpm
 
 pmwrapper = {
+    ["dotnet-9"] = {
+        windows = {"winget", "microsoft.dotnet.sdk.9"},
+    },
     ["gcc"] = {
         ubuntu = {"apt", "gcc"},
         archlinux = {"pacman", "gcc"},
@@ -17,11 +20,17 @@ pmwrapper = {
         ubuntu = {"apt", "openjdk-8-jdk"},
         archlinux = {"pacman", "jdk8-openjdk"},
     },
+    ["python"] = {
+        windows = {"winget", "python.python.3.9"},
+        ubuntu = {"apt", "python3"},
+        archlinux = {"pacman", "python"},
+    },
     ["vim"] = {
         windows = {"winget", "vim.vim"},
         ubuntu = {"apt", "vim"},
     },
-    ["visual-studio"] = {
+    ["visual-studio"] = { ref = "vs2022" },
+    ["vs2022"] = {
         windows = {"winget", "Microsoft.VisualStudio.2022.Community"},
     },
     ["vscode"] = {
@@ -30,5 +39,8 @@ pmwrapper = {
     },
     ["vs-build-tools"] = {
         windows = {"winget", "Microsoft.VisualStudio.2022.BuildTools"},
+    },
+    ["wsl"] = {
+        windows = {"winget", "Microsoft.WSL"},
     },
 }

@@ -1,0 +1,1 @@
+package = { ref = "nodejs@22.12.0" }

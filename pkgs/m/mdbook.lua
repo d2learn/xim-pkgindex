@@ -50,9 +50,7 @@ local mdbook_file = {
 }
 
 function installed()
-    local output = os.iorun("mdbook --version")
-    local version = runtime.get_pkginfo().version
-    return output:find(version)
+    return os.iorun("mdbook --version")
 end
 
 function install()

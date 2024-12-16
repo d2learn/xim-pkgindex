@@ -2,13 +2,23 @@
 -- for complex package/software/config, please use pkgs/xpm
 
 pmwrapper = {
-    ["java"] = {
+    ["gcc"] = {
+        ubuntu = {"apt", "gcc"},
+        archlinux = {"pacman", "gcc"},
+    },
+    ["g++"] = { ref = "gcc" },
+    ["java"] = { ref = "openjdk8" },
+    ["java8"] = { ref = "openjdk8" },
+    ["jdk8"] = { ref = "openjdk8" },
+    ["msvc"] = { ref = "vs-build-tools" },
+    ["openjdk"] = { ref = "openjdk8" },
+    ["openjdk8"] = {
         windows = {"winget", "AdoptOpenJDK.OpenJDK.8"},
         ubuntu = {"apt", "openjdk-8-jdk"},
         archlinux = {"pacman", "jdk8-openjdk"},
     },
     ["vim"] = {
-        winget = {"winget", "vim.vim"},
+        windows = {"winget", "vim.vim"},
         ubuntu = {"apt", "vim"},
     },
     ["visual-studio"] = {

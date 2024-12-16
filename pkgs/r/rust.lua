@@ -34,6 +34,8 @@ package = {
     },
 }
 
+import("xim.xinstall")
+
 function installed()
     os.exec("rustc --version")
     os.exec("cargo --version")
@@ -98,8 +100,8 @@ function _choice_toolchain()
 
     if confirm == "2" then
         toolchain_abi = "x86_64-pc-windows-msvc"
-        -- TODO: install visual studio
-        --CmdProcessor.new("visual-studio", {"-y"}):install(true)
+        -- TODO: install msvc toolchain
+        xinstall("msvc")
     end
 
     return toolchain_abi

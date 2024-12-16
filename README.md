@@ -24,6 +24,7 @@ package = {
     docs = "https://example.com/docs",
 
     -- xim pkg info
+    type = "package" -- package, auto-config
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"category1", "category2"},
@@ -159,9 +160,7 @@ local mdbook_file = {
 }
 
 function installed()
-    local output = os.iorun("mdbook --version")
-    local version = runtime.get_pkginfo().version
-    return output:find(version)
+    return os.iorun("mdbook --version")
 end
 
 function install()

@@ -38,7 +38,7 @@ local pkginfo = runtime.get_pkginfo()
 
 function installed()
     if pkginfo.version == "msvc" then
-        return toolchain.load("mingw"):check()
+        return toolchain.load("msvc"):check()
     elseif pkginfo.version == "gnu" then
         local output = os.iorun("gcc --version")
         return string.find(output, "gcc", 1, true) ~= nil

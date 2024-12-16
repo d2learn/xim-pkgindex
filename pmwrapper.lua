@@ -10,6 +10,9 @@ pmwrapper = {
     ["java"] = { ref = "openjdk8" },
     ["java8"] = { ref = "openjdk8" },
     ["jdk8"] = { ref = "openjdk8" },
+    ["mdbook"] = {
+        archlinux = {"pacman", "mdbook"}
+    },
     ["msvc"] = { ref = "vs-build-tools" },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {
@@ -17,9 +20,13 @@ pmwrapper = {
         ubuntu = {"apt", "openjdk-8-jdk"},
         archlinux = {"pacman", "jdk8-openjdk"},
     },
+    ["rust"] = {
+        archlinux = {"pacman", "rustup"}
+    },
     ["vim"] = {
         windows = {"winget", "vim.vim"},
         ubuntu = {"apt", "vim"},
+        archlinux = {"pacman", "vim"}
     },
     ["visual-studio"] = {
         windows = {"winget", "Microsoft.VisualStudio.2022.Community"},

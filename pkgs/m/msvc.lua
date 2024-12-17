@@ -10,19 +10,21 @@ package = {
     keywords = { "msvc", "c++", "c" },
 
     xpm = {
-        deps = { "vs-buildtools@2022" },
         windows = {
+            deps = { "vs-buildtools@2022" },
             ["latest"] = { ref = "2022" },
             ["2022"] = { } -- v143
         },
     }
 }
 
+import("core.tool.toolchain")
+
 -- https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
 local msvc_component = "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
 
 function installed()
-    return toolchain.load("msvc"):check()
+    return toolchain.load("msvc"):check() == "2022"
 end
 
 function install()
@@ -36,6 +38,7 @@ function install()
         -- " --norestart " ..
         " --wait " -- ..
     )
+    return true
 end
 
 function uninstall()
@@ -45,4 +48,5 @@ function uninstall()
         " --passive " ..
         " --wait "
     )
+    return true
 end

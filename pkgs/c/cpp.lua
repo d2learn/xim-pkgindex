@@ -15,7 +15,7 @@ package = {
 
     xpm = {
         windows = {
-            deps = {"msvc"},
+            deps = {"msvc@2022"},
             ["latest"] = { ref = "msvc" },
             ["msvc"] = {},
         },
@@ -38,7 +38,7 @@ local pkginfo = runtime.get_pkginfo()
 
 function installed()
     if pkginfo.version == "msvc" then
-        return toolchain.load("msvc"):check()
+        return toolchain.load("msvc"):check() == "2022"
     elseif pkginfo.version == "gnu" then
         local output = os.iorun("gcc --version")
         return string.find(output:trim(), "gcc", 1, true) ~= nil

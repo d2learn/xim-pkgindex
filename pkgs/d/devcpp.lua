@@ -23,6 +23,7 @@ package = {
     },
 }
 
+import("xim.base.utils")
 import("xim.base.runtime")
 
 local pkginfo = runtime.get_pkginfo()
@@ -43,8 +44,11 @@ function install()
 end
 
 function uninstall()
-    if os.isfile("C:\\Program Files (x86)\\Dev-Cpp\\uninstall.exe") then
-        os.exec("C:\\Program Files (x86)\\Dev-Cpp\\uninstall.exe")
+    local uninstall_exe = "C:\\Program Files (x86)\\Dev-Cpp\\uninstall.exe"
+    os.cd(path.directory(uninstall_exe))
+    while os.isfile(uninstall_exe) do
+        os.exec("uninstall.exe")
+        utils.prompt("等待卸载/waiting uninstall...", "")
     end
     return true
 end

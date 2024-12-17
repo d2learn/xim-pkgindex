@@ -19,6 +19,11 @@ package = {
     keywords = {"cross-platform", ".net", "dotnet"},
 
     xpm = {
+        windows = {
+            deps = { "dotnet-9@winget" },
+            ["latest"] = { ref = "9.0" },
+            ["9.0"] = { },
+        },
         debain = {
             ["latest"] = { ref = "9.0" },
             ["9.0"] = { url = installer_url, sha256 = nil },
@@ -31,29 +36,40 @@ package = {
 
 import("xim.base.utils")
 import("xim.base.runtime")
+import("xim.xuninstall")
 
 local pkginfo = runtime.get_pkginfo()
 local dotnetdir = path.join(os.getenv("HOME"), ".dotnet")
 
 function installed()
-    os.addenv("PATH", dotnetdir)
     return os.iorun("dotnet --version")
 end
 
 function install()
+    if is_host("windows") then
+        return true -- install by deps
+    end
+
     os.exec("chmod +x " .. pkginfo.install_file)
     local cmd = pkginfo.install_file .. " --channel " .. pkginfo.version
     print("exec: " .. cmd)
     os.exec(cmd)
+
     return true
 end
 
 function config()
-    utils.add_env_path(dotnetdir)
+    if not is_host("windows") then
+        utils.add_env_path(dotnetdir)
+    end
     return true
 end
 
 function uninstall()
-    os.exec("rm -r " .. dotnetdir)
+    if is_host("windows") then
+        xuninstall("dotnet-9@winget")
+    else
+        os.exec("rm -r " .. dotnetdir)
+    end
     return true
 end

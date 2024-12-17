@@ -41,7 +41,7 @@ function installed()
         return toolchain.load("msvc"):check()
     elseif pkginfo.version == "gnu" then
         local output = os.iorun("gcc --version")
-        return string.find(output, "gcc", 1, true) ~= nil
+        return string.find(output:trim(), "gcc", 1, true) ~= nil
     else
         return true
     end

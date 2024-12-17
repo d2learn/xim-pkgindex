@@ -13,7 +13,6 @@ pmwrapper = {
     ["java"] = { ref = "openjdk8" },
     ["java8"] = { ref = "openjdk8" },
     ["jdk8"] = { ref = "openjdk8" },
-    ["msvc"] = { ref = "vs-build-tools" },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {
         windows = {"winget", "AdoptOpenJDK.OpenJDK.8"},
@@ -36,9 +35,6 @@ pmwrapper = {
     ["vscode"] = {
         windows = {"winget", "Microsoft.VisualStudioCode"},
         archlinux = {"pacman", "code"},
-    },
-    ["vs-build-tools"] = {
-        windows = {"winget", "Microsoft.VisualStudio.2022.BuildTools"},
     },
     ["wsl"] = {
         windows = {"winget", "Microsoft.WSL"},

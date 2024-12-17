@@ -39,6 +39,7 @@ import("xim.xinstall")
 function installed()
     os.exec("rustc --version")
     os.exec("cargo --version")
+    os.exec("rustup --version")
     return true
 end
 

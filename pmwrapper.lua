@@ -3,7 +3,7 @@
 
 pmwrapper = {
     ["dotnet-9"] = {
-        windows = {"winget", "microsoft.dotnet.sdk.9"},
+        windows = {"winget", "Microsoft.DotNet.SDK.9"},
     },
     ["gcc"] = {
         ubuntu = {"apt", "gcc"},
@@ -20,7 +20,7 @@ pmwrapper = {
         archlinux = {"pacman", "jdk8-openjdk"},
     },
     ["python"] = {
-        windows = {"winget", "python.python.3.9"},
+        windows = {"winget", "Python.Python.3.13"},
         ubuntu = {"apt", "python3"},
         archlinux = {"pacman", "python"},
     },

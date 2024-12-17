@@ -18,17 +18,19 @@ package = {
     }
 }
 
+import("common")
 import("core.tool.toolchain")
 
 -- https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
 local msvc_component = "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
 
 function installed()
-    return toolchain.load("msvc"):check() == "2022"
+    local msvc_path = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC]]
+    return os.isdir(msvc_path) or toolchain.load("msvc"):check() == "2022"
 end
 
 function install()
-    os.exec(
+    common.xlings_exec(
         "vs_BuildTools.exe" ..
         -- " --installPath " .. vs_install_path ..
         " --add " .. msvc_component ..
@@ -42,7 +44,7 @@ function install()
 end
 
 function uninstall()
-    os.exec(
+    common.xlings_exec(
         "vs_BuildTools.exe" ..
         " --remove " .. msvc_component ..
         " --passive " ..

@@ -23,6 +23,7 @@ package = {
     },
 }
 
+import("common")
 import("xim.base.utils")
 import("xim.base.runtime")
 
@@ -39,15 +40,17 @@ function install()
     print("\t 1.先选English")
     print("\t 2.使用默认选项安装")
     print("\t 3.打开Dev-C++(这里可以重新选择IDE语言)")
-    os.exec(pkginfo.install_file)
+    common.xlings_exec(pkginfo.install_file)
+    utils.prompt("waiting install...", "")
     return true
 end
 
 function uninstall()
     local uninstall_exe = "C:\\Program Files (x86)\\Dev-Cpp\\uninstall.exe"
-    os.cd(path.directory(uninstall_exe))
     while os.isfile(uninstall_exe) do
-        os.exec("uninstall.exe")
+        --os.exec(uninstall_exe) -- failed for windows
+        print("\n\t**请查看系统提示/please check system notification**\n")
+        common.xlings_exec("\"" .. uninstall_exe .. "\"")
         utils.prompt("等待卸载/waiting uninstall...", "")
     end
     return true

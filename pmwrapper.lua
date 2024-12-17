@@ -16,11 +16,17 @@ pmwrapper = {
     ["mdbook"] = {
         archlinux = {"pacman", "mdbook"}
     },
+    ["nodejs"] = {
+        archlinux = {"pacman", "nodejs"}
+    },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {
         windows = {"winget", "AdoptOpenJDK.OpenJDK.8"},
         ubuntu = {"apt", "openjdk-8-jdk"},
         archlinux = {"pacman", "jdk8-openjdk"},
+    },
+    ["pnpm"] = {
+        archlinux = {"pacman", "pnpm"}
     },
     ["python"] = {
         windows = {"winget", "python.python.3.9"},

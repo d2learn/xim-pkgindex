@@ -60,7 +60,7 @@ function install()
     else if is_host("linux") and utils.os_info().name == "archlinux" then
         local dir = path.join(os.tmpdir(), "nvm-installing")
         os.tryrm(dir)
-        os.exec("git", {"clone", "https://aur.archlinux.org/nvm.git", dir})
+        os.execv("git", {"clone", "https://aur.archlinux.org/nvm.git", dir})
         os.cd(dir)
         os.exec("makepkg", {"-si"})
         os.cd("-")

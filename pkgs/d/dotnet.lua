@@ -60,7 +60,8 @@ end
 
 function config()
     if not is_host("windows") then
-        utils.add_env_path(dotnetdir)
+        --utils.add_env_path(dotnetdir)
+        utils.append_bashrc("export PATH=$PATH:" .. dotnetdir)
     end
     return true
 end

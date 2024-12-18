@@ -34,7 +34,6 @@ package = {
                 sha256 = "9ef07fd288ba58ff3b99d1c94e6d414d431c9a61fdb20348e5beb74b823d546b"
             },
         },
-        archlinux = { ref = "debain" },
         ubuntu = { ref = "debain" },
     },
 }

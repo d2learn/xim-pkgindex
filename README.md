@@ -4,7 +4,7 @@ software, library, environment install/config ...
 
 ---
 
-## 添加一个XPackage包文件到索引仓库
+## 如何添加一个XPackage包文件到索引仓库?
 
 - 第一步: 创建个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) & 填写基础信息
 - 第二步: 复制一份[包模板文件](docs/xpackage-template.lua)
@@ -35,4 +35,4 @@ software, library, environment install/config ...
 ## 社区&交流
 
 - [论坛](https://forum.d2learn.org/category/9/xlings)
-- [交流群]: 1006282943
+- 交流群(Q): 1006282943

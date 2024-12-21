@@ -14,7 +14,7 @@
 
 ## 第二步: 复制一份[包模板文件](docs/xpackage-template.lua)
 
-复制一份包模板文件。一个包文件有两大部分组成: package + hooks/actions, 并且包文件的语法对应的就是lua语言的基础语法。
+复制一份包模板文件。一个包文件有两大部分组成: package + hooks/actions, 并且包文件的语法对应的就是lua语言的基础语法(**并不需要特殊学习lua, 只要参考已有的包里的用法即可**)
 
 ### package域
 
@@ -83,7 +83,7 @@ package = {
 >
 >    1.latest版本一般会使用ref引用到一个具体的版本上
 >
->    2.如果没有网络资源时(例如是auto-config包)可以填写一个空列表。如: `[1.0.1] = { },`
+>    2.如果没有网络资源时(例如是auto-config包)可以填写一个空列表。如: `["1.0.1"] = { },`
 >
 
 ### hooks/actions域
@@ -176,7 +176,7 @@ package = {
 - 由于mdbook的压缩包解压出来就是一个mdbook的可执行文件, windows上为`mdbook.exe`, linux上为`mdbook`。所以使用lua语法定义局部变量mdbook_file用于表示不同平台下的对应的文件名
 - 实现`installed`函数: mdbook本身可以用`mdbook --version`查询当前版本, 所以这里就执行返回`os.iorun("mdbook --version")`这个命令运行后的字符串就可以了
 - 实现`install`函数: 并且xim的框架会自动的解压下载的压缩包, 所以实际的安装就是复制这个可执行文件到bin目录
-- 实现`uninstall`函数: 同理卸载mdbook, 就是直接把这个文化删除
+- 实现`uninstall`函数: 同理卸载mdbook, 就是直接把这个文件删除
 
 ```lua
 -- package...
@@ -217,12 +217,36 @@ end
 xim --add-xpkg yourLocalPath/mdbook.lua
 ```
 
+**示例**
+
+```bash
+speak@speak-pc:~$ xim --add-xpkg mdbook.lua
+[xlings:xim]: convert xpkg-file to runtime path - mdbook.lua
+[xlings:xim]: add xpkg - /home/speak/mdbook.lua
+[xlings:xim]: update index database
+```
+
 ### 搜索测试
 
 > 检测是是否能正常显示包可安装的版本
 
 ```lua
 xim -s mdbook
+```
+
+**示例**
+
+```bash
+speak@speak-pc:~$ xim -s mdbook
+[xlings:xim]: search for *mdbook* ...
+
+{ 
+  "mdbook@0.4.40" = { },
+  "mdbook@0.4.43" = { 
+    "mdbook",
+    "mdbook@latest" 
+  } 
+}
 ```
 
 ### 安装测试
@@ -233,12 +257,34 @@ xim -s mdbook
 xim -i mdbook
 ```
 
+**示例**
+
+```bash
+speak@speak-pc:~$ xim -i mdbook
+[xlings:xim]: create pm executor for mdbook ... 
+
+--- [package] info
+
+name: mdbook
+version: 0.4.43
+authors: Mathieu David, Michael-F-Bryan, Matt Ickstadt
+contributors: https://github.com/rust-lang/mdBook/graphs/contributors
+license: MPL-2.0
+repo: https://github.com/rust-lang/mdBook
+docs: https://rust-lang.github.io/mdBook
+
+	Create book from markdown files. Like Gitbook but implemented in Rust
+
+-> install mdbook? (y/n)
+```
+
 命令会执行如下动作
 
 - installed
-- download
-- build
+- download - 不需要实现
+- build - 可选
 - install
+- config - 可选
 
 安装完成后可以, 重新打开一个窗口(刷新环境), 再次运行安装看是否会重复安装
 
@@ -251,12 +297,49 @@ xim -i mdbook
 xim -l mdbook
 ```
 
+```bash
+speak@speak-pc:~$ xim -l mdbook
+-> mdbook@0.4.43 (mdbook@latest, mdbook)
+```
+
 ### 卸载测试
 
 > 测试卸载功能
 
 ```lua
 xim -r mdbook
+```
+
+示例
+
+```lua
+speak@speak-pc:~$ xim -r mdbook
+[xlings:xim]: create pm executor for mdbook ... 
+
+--- [package] info
+
+name: mdbook
+version: 0.4.43
+authors: Mathieu David, Michael-F-Bryan, Matt Ickstadt
+contributors: https://github.com/rust-lang/mdBook/graphs/contributors
+license: MPL-2.0
+repo: https://github.com/rust-lang/mdBook
+docs: https://rust-lang.github.io/mdBook
+
+	Create book from markdown files. Like Gitbook but implemented in Rust
+
+-> uninstall/remove mdbook? (y/n)
+y
+xxx
+[xlings:xim]: mdbook - removed
+
+	     反馈 & 交流 | Feedback & Discourse
+	(if encounter any problem, please report it)
+
+	https://forum.d2learn.org/category/9/xlings
+	https://github.com/d2learn/xlings/issues
+
+[xlings:xim]: update index database
 ```
 
 同理, 卸载后可以在此执行卸载命令进行测试是否能检测到包已经被卸载
@@ -280,3 +363,13 @@ fork包索引仓库[xim-pkgindex](https://github.com/d2learn/xim-pkgindex), 并�
 - 在评论区@项目维护人员
 
 ## 第八步: TODO (reviewer本地验证&approval)
+
+交流讨论 & 验证通过后合入仓库
+
+## 第九步: 更新本地索引数据库
+
+> xim会自动同步最新的包索引数据库到本地, 然后就可以对该包进行管理了 
+
+```bash
+xim --update index
+```

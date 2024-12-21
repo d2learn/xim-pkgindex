@@ -4,172 +4,35 @@ software, library, environment install/config ...
 
 ---
 
-## XPackage Spec
+## 添加一个XPackage包文件到索引仓库
 
-> format: `name-maintainer.lua`
+- 第一步: 创建个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) & 填写基础信息
+- 第二步: 复制一份[包模板文件](docs/xpackage-template.lua)
+- 第三步: 修改文件名和包内容 (可以参考仓库中的包或[xpackage规范示例](docs/xpackage-spec.md))
+- 第四步: 对包内容进行测试
+  - 添加包到索引数据库: `xim --add-xpkg yourLocalPath/filename.lua`
+  - 搜索测试: `xim -s filename`
+  - 安装测试: `xim -i filename`
+  - 已经安装测试: `xim -i filename` (会显示包已安装)
+  - 安装列表测试: `xim -l filename`
+  - 卸载测试: `xim -r filename`
+  - 已卸载测试: `xim -r filename` (会显示包没有安装)
+- 第五步: 当第四步通过后, 把测试信息补充到第一步中创建的问题里
+- 第六步: [fork项目](https://github.com/d2learn/xim-pkgindex), 并把包文件放到`pkgs`目录下的对应位置
+- 第七步: 发起合入Pull-Request, 把PR地址补充到问题里并在评论区@项目维护人员
+- 第八步: TODO (reviewer本地验证&approval)
 
-```lua
-package = {
-    -- base info
-    homepage = "https://example.com",
+[详细文档](docs/add-xpackage.md)
 
-    name = "package-name",
-    description = "Package description",
+## 参与项目贡献
 
-    authors = "Author Name",
-    maintainers = "Maintainer Name or url",
-    contributors = "Contributor Name or url",
-    license = "MIT",
-    repo = "https://example.com/repo",
-    docs = "https://example.com/docs",
+- 1.包的多平台适配和验证
+- 2.添加工具/软件/配置的包文件到仓库
+- 3.编写文档或制作视频教程等方式,帮助新手用户快速上手
+- 4.帮助社区中遇到问题的用户及相关issues的处理
+- 5.以及其他关于项目提升优化和社区中的相关活动...
 
-    -- xim pkg info
-    type = "package" -- package, auto-config
-    archs = {"x86_64"},
-    status = "stable", -- dev, stable, deprecated
-    categories = {"category1", "category2"},
-    keywords = {"keyword1", "keyword2"},
-    date = "2024-12-01",
+## 社区&交流
 
-    -- env info - todo
-    xvm_type = "", -- unused
-    xvm_support = false, -- unused
-    xvm_default = false,
-
-    xpm = {
-        windows = {
-            deps = {"dep1", "dep2"},
-            ["1.0.1"] = {"url", "sha256"},
-            ["1.0.0"] = {"url", "sha256"},
-        },
-        ubuntu = {
-            deps = {"dep3", "dep4"},
-            ["latest"] = { ref = "1.0.1"},
-            ["1.0.1"] = {"url", "sha256"},
-            ["1.0.0"] = {"url", "sha256"},
-        },
-    },
-}
-
--- xim: hooks for package manager
-
-import("xim.base.runtime")
-
--- pkginfo = runtime.get_pkginfo()
--- pkginfo = {install_file = "", version = "x.x.x"}
-
--- step 1: support check - package attribute
-
--- step 2: installed check
-function installed()
-    return true
-end
-
--- step 2.5: download resources/package
--- step 3: process dependencies - package attribute
-
--- step 4: build package
-function build()
-    return true
-end
-
--- step 5: install package
-function install()
-    return true
-end
-
--- step 6: configure package
-function config()
-    return true
-end
-
--- step 7: uninstall package
-function uninstall()
-    return true
-end
-```
-
-## Examples
-
-### java's package file - pm wrapper
-
-```lua
-pmwrapper = {
-    -- ...
-    ["java"] = {
-        windows = {"winget", "AdoptOpenJDK.OpenJDK.8"},
-        ubuntu = {"apt", "openjdk-8-jdk"},
-        archlinux = {"pacman", "jdk8-openjdk"},
-    },
-    -- ...
-}
-```
-
-### mdbook's pakcage file - xpm
-
-```lua
-package = {
-    -- base info
-    name = "mdbook",
-    description = "Create book from markdown files. Like Gitbook but implemented in Rust",
-
-    authors = "Mathieu David, Michael-F-Bryan, Matt Ickstadt",
-    contributors = "https://github.com/rust-lang/mdBook/graphs/contributors",
-    license = "MPL-2.0",
-    repo = "https://github.com/rust-lang/mdBook",
-    docs = "https://rust-lang.github.io/mdBook",
-
-    -- xim pkg info
-    archs = {"x86_64"},
-    status = "stable", -- dev, stable, deprecated
-    categories = {"book", "markdown"},
-    keywords = {"book", "gitbook", "rustbook", "markdown"},
-
-    xpm = {
-        windows = {
-            ["latest"] = { ref = "0.4.40" },
-            ["0.4.40"] = {
-                url = "https://gitee.com/sunrisepeak/xlings-pkg/releases/download/mdbook/mdbook-v0.4.40-x86_64-pc-windows-msvc.zip",
-                sha256 = nil
-            }
-        },
-        debain = {
-            ["latest"] = { ref = "0.4.43" },
-            ["0.4.43"] = {
-                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-unknown-linux-gnu.tar.gz",
-                sha256 = "d20c2f20eb1c117dc5ebeec120e2d2f6455c90fe8b4f21b7466625d8b67b9e60"
-            },
-            ["0.4.40"] = {
-                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz",
-                sha256 = "9ef07fd288ba58ff3b99d1c94e6d414d431c9a61fdb20348e5beb74b823d546b"
-            },
-        },
-        archlinux = { ref = "debain" },
-        ubuntu = { ref = "debain" },
-    },
-}
-
-import("platform")
-import("xim.base.runtime")
-
-local bindir = platform.get_config_info().bindir
-
-local mdbook_file = {
-    windows = "mdbook.exe",
-    linux = "mdbook",
-}
-
-function installed()
-    return os.iorun("mdbook --version")
-end
-
-function install()
-    os.cp(mdbook_file[os.host()], bindir)
-    return true
-end
-
-function uninstall()
-    os.tryrm(path.join(bindir, mdbook_file[os.host()]))
-    return true
-end
-```
+- [论坛](https://forum.d2learn.org/category/9/xlings)
+- [交流群]: 1006282943

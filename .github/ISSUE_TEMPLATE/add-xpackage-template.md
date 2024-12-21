@@ -1,5 +1,5 @@
 ---
-name: Add XPackage
+name: Add XPackage | 添加 XPackage
 about: add xpackage to xim's package index repository
 title: "[XPackage]: "
 labels: add-xpackage
@@ -33,15 +33,27 @@ assignees: ''
 
 ...
 
-**step4: `xim -l xpackage`**
+**step4: `xim -i xpackage`**
 
-> test list/installed for xpackage
+> test installed for xpackage
 
 ...
 
-**step5: `xim -r xpackage`**
+**step5: `xim -l xpackage`**
+
+> test list for xpackage
+
+...
+
+**step6: `xim -r xpackage`**
 
 > test remove/uninstall for xpackage
+
+...
+
+**step7: `xim -r xpackage`**
+
+> test uninstalled for xpackage
 
 ...
 

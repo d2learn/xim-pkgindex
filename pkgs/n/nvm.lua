@@ -30,7 +30,10 @@ package = {
         },
         archlinux = {
             ["latest"] = { ref = "0.40.1" },
-            ["0.40.1"] = {}
+            ["0.40.1"] = {
+                url = "https://aur.archlinux.org/nvm.git",
+                sha256 = nil,
+            }
         }
     },
 }
@@ -57,15 +60,9 @@ function install()
         -- update path
         os.addenv("PATH", nvm_home)
         os.addenv("PATH", node_home)
-    else if is_host("linux") and utils.os_info().name == "archlinux" then
-        print("GitHub may be accessed during the process, please keep your internet connection open")
-        local dir = path.join(os.tmpdir(), "nvm-installing")
-        os.tryrm(dir)
-        os.execv("git", {"clone", "https://aur.archlinux.org/nvm.git", dir})
-        os.cd(dir)
+    elseif utils.os_info().name == "archlinux" then
+        os.cd("nvm")
         os.execv("makepkg", {"-si"})
-        os.cd("-")
-        os.tryrm(dir)
     else
         os.exec("sh " .. pkginfo.install_file)
         utils.append_bashrc([[

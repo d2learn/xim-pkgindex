@@ -35,6 +35,7 @@ package = {
             },
         },
         ubuntu = { ref = "debain" },
+        archlinux = { ref = "debain" },
     },
 }
 

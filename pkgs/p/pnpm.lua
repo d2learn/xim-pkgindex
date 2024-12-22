@@ -23,6 +23,7 @@ package = {
             ["9.15.0"] = { },
         },
         debian = { ref = "ubuntu" },
+        archlinux = { ref = "ubuntu" },
     },
 }
 

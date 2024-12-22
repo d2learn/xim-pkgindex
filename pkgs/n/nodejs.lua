@@ -28,6 +28,7 @@ package = {
             },
         },
         debian = { ref = "ubuntu" },
+        archlinux = { ref = "ubuntu" },
     },
 }
 

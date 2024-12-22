@@ -29,8 +29,7 @@ package = {
             },
         },
         archlinux = {
-            ["latest"] = { ref = "0.40.1" },
-            ["0.40.1"] = {
+            ["latest"] = {
                 url = "https://aur.archlinux.org/nvm.git",
                 sha256 = nil,
             }

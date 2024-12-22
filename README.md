@@ -4,6 +4,13 @@ software, library, environment install/config ...
 
 ---
 
+## 最近动态
+
+- 从xlings中分离包文件, 形成[xim-pkgindex](https://github.com/d2learn/xim-pkgindex)索引仓库 - 2024/12/16
+- 更多动态和讨论 -> [More](https://forum.d2learn.org/category/9/xlings)
+
+[![Star History Chart](https://api.star-history.com/svg?repos=d2learn/xlings,d2learn/xim-pkgindex&type=Date)](https://star-history.com/#d2learn/xlings&d2learn/xim-pkgindex&Date)
+
 ## 如何添加一个XPackage包文件到索引仓库?
 
 - 第一步: 创建个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) & 填写基础信息

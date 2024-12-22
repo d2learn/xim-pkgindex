@@ -78,6 +78,8 @@ end
 function uninstall()
     if is_host("windows") then
         -- TODO: uninstall nvm-windows
+    elseif utils.os_info().name == "archlinux" then
+        os.execv("sudo", {"pacman", "-R", "nvm"})
     else
         local nvm_home = path.join(os.getenv("HOME"), ".nvm")
         os.tryrm(nvm_home)

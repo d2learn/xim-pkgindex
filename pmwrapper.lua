@@ -14,10 +14,10 @@ pmwrapper = {
     ["java8"] = { ref = "openjdk8" },
     ["jdk8"] = { ref = "openjdk8" },
     ["mdbook"] = {
-        archlinux = {"pacman", "mdbook"}
+        archlinux = {"pacman", "mdbook"},
     },
     ["nodejs"] = {
-        archlinux = {"pacman", "nodejs"}
+        archlinux = {"pacman", "nodejs"},
     },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {
@@ -26,7 +26,7 @@ pmwrapper = {
         archlinux = {"pacman", "jdk8-openjdk"},
     },
     ["pnpm"] = {
-        archlinux = {"pacman", "pnpm"}
+        archlinux = {"pacman", "pnpm"},
     },
     ["python"] = {
         windows = {"winget", "Python.Python.3.13"},
@@ -34,7 +34,7 @@ pmwrapper = {
         archlinux = {"pacman", "python"},
     },
     ["rust"] = {
-        archlinux = {"pacman", "rustup"}
+        archlinux = {"pacman", "rustup"},
     },
     ["vim"] = {
         windows = {"winget", "vim.vim"},

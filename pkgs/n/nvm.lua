@@ -29,6 +29,7 @@ package = {
             },
         },
         archlinux = {
+            ["via-script"] = { ref = "ubuntu" },
             ["latest"] = { ref = "0.40.1" },
             ["0.40.1"] = {
                 url = "https://aur.archlinux.org/nvm.git",

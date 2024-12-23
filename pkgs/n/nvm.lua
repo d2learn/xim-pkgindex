@@ -28,6 +28,7 @@ package = {
                 sha256 = nil,
             },
         },
+        archlinux = { ref = "ubuntu" },
     },
 }
 
@@ -57,7 +58,7 @@ function install()
         os.exec("sh " .. pkginfo.install_file)
         utils.append_bashrc([[
 # nvm config by xlings-xim
-export NVM_DIR="$HOME/.nvm"
+if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; end
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
         ]])
@@ -68,6 +69,8 @@ end
 function uninstall()
     if is_host("windows") then
         -- TODO: uninstall nvm-windows
+    elseif utils.os_info().name == "archlinux" then
+        os.execv("sudo", {"pacman", "-R", "nvm"})
     else
         local nvm_home = path.join(os.getenv("HOME"), ".nvm")
         os.tryrm(nvm_home)

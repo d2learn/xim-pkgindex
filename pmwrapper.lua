@@ -19,6 +19,9 @@ pmwrapper = {
     ["nodejs"] = {
         archlinux = {"pacman", "nodejs"},
     },
+    ["nvm"] = {
+        archlinux = {"aur", "https://aur.archlinux.org/nvm.git"},
+    },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {
         windows = {"winget", "AdoptOpenJDK.OpenJDK.8"},

@@ -28,14 +28,7 @@ package = {
                 sha256 = nil,
             },
         },
-        archlinux = {
-            ["via-script"] = { ref = "ubuntu" },
-            ["latest"] = { ref = "0.40.1" },
-            ["0.40.1"] = {
-                url = "https://aur.archlinux.org/nvm.git",
-                sha256 = nil,
-            }
-        }
+        archlinux = { ref = "ubuntu" },
     },
 }
 
@@ -61,13 +54,6 @@ function install()
         -- update path
         os.addenv("PATH", nvm_home)
         os.addenv("PATH", node_home)
-    elseif utils.os_info().name == "archlinux" then
-        os.cd("nvm")
-        os.execv("makepkg", {"-si"})
-        utils.append_bashrc([[
-# nvm config by xlings-xim
-[ -s "/usr/share/nvm/init-nvm.sh" ] && \. "/usr/share/nvm/init-nvm.sh"
-        ]])
     else
         os.exec("sh " .. pkginfo.install_file)
         utils.append_bashrc([[

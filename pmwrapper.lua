@@ -13,20 +13,36 @@ pmwrapper = {
     ["java"] = { ref = "openjdk8" },
     ["java8"] = { ref = "openjdk8" },
     ["jdk8"] = { ref = "openjdk8" },
+    ["mdbook"] = {
+        archlinux = {"pacman", "mdbook"},
+    },
+    ["nodejs"] = {
+        archlinux = {"pacman", "nodejs"},
+    },
+    ["nvm"] = {
+        archlinux = {"aur", "https://aur.archlinux.org/nvm.git"},
+    },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {
         windows = {"winget", "AdoptOpenJDK.OpenJDK.8"},
         ubuntu = {"apt", "openjdk-8-jdk"},
         archlinux = {"pacman", "jdk8-openjdk"},
     },
+    ["pnpm"] = {
+        archlinux = {"pacman", "pnpm"},
+    },
     ["python"] = {
         windows = {"winget", "Python.Python.3.13"},
         ubuntu = {"apt", "python3"},
         archlinux = {"pacman", "python"},
     },
+    ["rust"] = {
+        archlinux = {"pacman", "rustup"},
+    },
     ["vim"] = {
         windows = {"winget", "vim.vim"},
         ubuntu = {"apt", "vim"},
+        archlinux = {"pacman", "vim"}
     },
     ["visual-studio"] = { ref = "vs2022" },
     ["vs2022"] = {

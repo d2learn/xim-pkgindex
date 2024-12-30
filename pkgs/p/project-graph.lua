@@ -52,6 +52,7 @@ package = {
     },
 }
 
+import("common")
 import("platform")
 import("xim.base.utils")
 import("xim.base.runtime")
@@ -77,6 +78,10 @@ end
 
 function install()
     if os.host() == "windows" then
+        print("安装tips:")
+        print("\t 0.打开安装提示")
+        print("\t 1.选择对应语言")
+        print("\t 2.点击“下一步”直到安装完成")
         common.xlings_exec(pkginfo.install_file .. " /SILENT")
     elseif os.host() == "linux" then
         if os_info.name == "archlinux" then
@@ -96,7 +101,8 @@ end
 
 function uninstall()
     if os.host() == "windows" then
-        common.xlings_exec("C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe /SILENT")
+        utils.prompt("等待卸载/waiting uninstall...")
+        common.xlings_exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
     elseif os.host() == "linux" then
         if os_info.name == "archlinux" then
             os.tryrm(path.join(bindir, binname.linux))

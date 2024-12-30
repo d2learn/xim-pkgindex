@@ -49,6 +49,7 @@ package = {
         },
         ubuntu = { ref = "debian" },
         archlinux = { ref = "debian" },
+        manjaro = { ref = "debian" },
     },
 }
 
@@ -84,14 +85,15 @@ function install()
         print("\t 2.点击“下一步”直到安装完成")
         common.xlings_exec(pkginfo.install_file .. " /SILENT")
     elseif os.host() == "linux" then
-        if os_info.name == "archlinux" then
+        if os_info.name == "archlinux" or os_info.name == "manjaro" then
             -- https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD
             os.exec("mkdir -p project-graph && cd project-graph")
             os.exec("ar x " .. pkginfo.install_file)
-            os.exec("tar -xvf data.tar.xz")
+            os.exec("tar -xvf data.tar.gz")
             os.cp("usr/bin/project-graph", bindir)
-            os.exec("gtk-update-icon-cache -q -t -f usr/share/icons/hicolor")
-            os.exec("update-desktop-database -q")
+            -- TODO: config icon
+            --os.exec("gtk-update-icon-cache -q -t -f usr/share/icons/hicolor")
+            --os.exec("update-desktop-database -q")
         else
             os.exec("sudo dpkg -i " .. pkginfo.install_file)
         end
@@ -104,10 +106,10 @@ function uninstall()
         utils.prompt("等待卸载/waiting uninstall...")
         common.xlings_exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
     elseif os.host() == "linux" then
-        if os_info.name == "archlinux" then
+        if os_info.name == "archlinux" or os_info.name == "manjaro" then
             os.tryrm(path.join(bindir, binname.linux))
             os.tryrm(path.join(datadir, "project-graph"))
-            os.exec("update-desktop-database -q")
+            --os.exec("update-desktop-database -q")
         else
             os.exec("sudo dpkg -r project-graph")
         end

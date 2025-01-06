@@ -16,6 +16,13 @@ package = {
     keywords = {"rust", "cross-platform", "version-management"},
 
     xpm = {
+        windows = {
+            ["latest"] = { ref = "dev" },
+            ["dev"] = {
+                url = "%.zip$", -- url pattern
+                github_release_tag = "xvm-dev",
+            }
+        },
         debain = {
             ["latest"] = { ref = "dev" },
             ["dev"] = {

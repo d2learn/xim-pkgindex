@@ -39,6 +39,7 @@ import("platform")
 import("xim.base.runtime")
 
 local bindir = platform.get_config_info().bindir
+local pkginfo = runtime.get_pkginfo()
 
 local xvm_file = {
     windows = "xvm.exe",
@@ -51,6 +52,7 @@ end
 
 function install()
     os.cp(xvm_file[os.host()], bindir)
+    os.tryrm(pkginfo.install_file)
     return true
 end
 

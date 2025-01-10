@@ -32,10 +32,10 @@ pmwrapper = {
         archlinux = {"pacman", "pnpm"},
     },
     ["project-graph"] = {
-        archlinux = {"aur", "https://aur.archlinux.org/project-graph.git"},
+        archlinux = {"aur", "project-graph"},
     },
     ["project-graph-nightly"] = {
-        archlinux = {"aur", "https://aur.archlinux.org/project-graph-nightly.git"}
+        archlinux = {"aur", "project-graph-nightly"}
     },
     ["python"] = {
         windows = {"winget", "Python.Python.3.13"},

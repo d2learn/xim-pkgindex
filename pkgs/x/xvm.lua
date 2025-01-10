@@ -23,15 +23,17 @@ package = {
                 github_release_tag = "xvm-dev",
             }
         },
-        debain = {
+        linux = {
             ["latest"] = { ref = "dev" },
             ["dev"] = {
                 url = "%.tar.gz$", -- url pattern
                 github_release_tag = "xvm-dev",
             }
         },
-        ubuntu = { ref = "debain" },
-        archlinux = { ref = "debain" },
+        debian = { ref = "linux" },
+        ubuntu = { ref = "linux" },
+        archlinux = { ref = "linux" },
+        manjaro = { ref = "linux" },
     },
 }
 
@@ -52,7 +54,6 @@ end
 
 function install()
     os.cp(xvm_file[os.host()], bindir)
-    os.tryrm(pkginfo.install_file)
     return true
 end
 

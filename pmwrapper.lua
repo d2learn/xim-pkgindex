@@ -20,7 +20,7 @@ pmwrapper = {
         archlinux = {"pacman", "nodejs"},
     },
     ["nvm"] = {
-        archlinux = {"aur", "https://aur.archlinux.org/nvm.git"},
+        archlinux = {"aur", "nvm"},
     },
     ["openjdk"] = { ref = "openjdk8" },
     ["openjdk8"] = {

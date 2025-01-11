@@ -15,6 +15,9 @@ package = {
     categories = {"book", "markdown"},
     keywords = {"book", "gitbook", "rustbook", "markdown"},
 
+    -- xvm: xlings version management
+    xvm_enable = true,
+
     xpm = {
         windows = {
             ["latest"] = { ref = "0.4.40" },
@@ -39,10 +42,9 @@ package = {
     },
 }
 
-import("platform")
 import("xim.base.runtime")
 
-local bindir = platform.get_config_info().bindir
+local pkginfo = runtime.get_pkginfo()
 
 local mdbook_file = {
     windows = "mdbook.exe",
@@ -50,15 +52,23 @@ local mdbook_file = {
 }
 
 function installed()
-    return os.iorun("mdbook --version")
+    return os.iorun("xvm list mdbook")
 end
 
 function install()
-    os.cp(mdbook_file[os.host()], bindir)
+    return os.trymv(mdbook_file[os.host()], pkginfo.install_dir)
+end
+
+function config()
+    -- config xvm
+    os.exec(format(
+        "xvm add mdbook %s --path %s",
+        pkginfo.version, pkginfo.install_dir
+    ))
     return true
 end
 
 function uninstall()
-    os.tryrm(path.join(bindir, mdbook_file[os.host()]))
+    os.exec("xvm remove mdbook " .. pkginfo.version)
     return true
 end

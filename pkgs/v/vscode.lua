@@ -1,3 +1,5 @@
+local _vscode_linux_url_template = "https://update.code.visualstudio.com/%s/linux-x64/stable"
+
 package = {
     homepage = "https://code.visualstudio.com",
 
@@ -14,38 +16,50 @@ package = {
     date = "2024-9-01",
 
     xpm = {
-        ubuntu = {
-            ["latest"] = { ref = "1.93.1" },
+        linux = {
+            ["latest"] = { ref = "1.96.2" },
+            ["1.96.2"] = {
+                url = string.format(_vscode_linux_url_template, "1.96.2"),
+                sha256 = "2681040089faf143bed37246f2b0bc0787f6d342d878b1ec4b3737b38833c088"
+            },
             ["1.93.1"] = {
-                url = "https://vscode.download.prss.microsoft.com/dbazure/download/stable/38c31bc77e0dd6ae88a4e9cc93428cc27a56ba40/code_1.93.1-1726079302_amd64.deb",
-                sha256 = "29a9431daea5307cf9a22f6a95cbbe328f48ace6bda126457e1171390dc84aed"
-            }
+                url = string.format(_vscode_linux_url_template, "1.93.1"),
+                sha256 = nil,
+            },
         },
+        debian = { ref = "linux" },
+        ubuntu = { ref = "linux" },
+        archlinux = { ref = "linux" },
+        manjaro = { ref = "linux" },
     }
 }
 
 import("xim.base.runtime")
 
+local pkginfo = runtime.get_pkginfo()
+
 function installed()
-    os.exec("code --version")
-    return true
+    return os.iorun("xvm list code")
 end
 
 function install()
-    local pkginfo = runtime.get_pkginfo()
+    os.exec("tar -xvf stable")
+    os.tryrm(pkginfo.install_dir)
+    os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir)
+    os.tryrm("stable")
+    return true
+end
 
-    os.exec("sudo dpkg -i " .. pkginfo.install_file)
-
-    -- tips
-    print([[
-[xlings]: vscode Tips/小提示:
-- auto save settings: File -> Auto Save
-- 自动保存设置: 文件 -> 自动保存
-    ]])
-
+function config()
+    local xvm_cmd_template1 = "xvm add code %s --path %s/bin"
+    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code"
+    os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
+    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
     return true
 end
 
 function uninstall()
-    os.exec("sudo dpkg --remove code")
+    os.exec("xvm remove code " .. pkginfo.version)
+    os.exec("xvm remove vscode " .. pkginfo.version)
+    return true
 end

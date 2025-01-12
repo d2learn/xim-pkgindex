@@ -21,10 +21,14 @@ package = {
     xpm = {
         windows = {
             ["latest"] = { ref = "0.4.40" },
+            ["0.4.43"] = {
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-pc-windows-msvc.zip",
+                sha256 = nil
+            },
             ["0.4.40"] = {
                 url = "https://gitee.com/sunrisepeak/xlings-pkg/releases/download/mdbook/mdbook-v0.4.40-x86_64-pc-windows-msvc.zip",
                 sha256 = nil
-            }
+            },
         },
         debain = {
             ["latest"] = { ref = "0.4.43" },
@@ -39,6 +43,7 @@ package = {
         },
         ubuntu = { ref = "debain" },
         archlinux = { ref = "debain" },
+        manjaro = { ref = "debain" },
     },
 }
 

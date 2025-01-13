@@ -46,15 +46,21 @@ function install()
     os.exec("tar -xvf stable")
     os.tryrm(pkginfo.install_dir)
     os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir)
+    -- https://github.com/flathub/com.visualstudio.code/issues/223
+    -- set the correct permissions for chrome-sandbox, and as root
+    print("https://github.com/flathub/com.visualstudio.code/issues/223")
+    print("setting permissions for chrome-sandbox...")
+    os.exec("sudo chown root:root " .. pkginfo.install_dir .. "/chrome-sandbox")
+    os.exec("sudo chmod 4755 " .. pkginfo.install_dir .. "/chrome-sandbox")
     os.tryrm("stable")
     return true
 end
 
 function config()
     local xvm_cmd_template1 = "xvm add code %s --path %s/bin"
-    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code"
+    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code --icon %s/resources/app/resources/linux/code.png"
     os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
-    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
+    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir, pkginfo.install_dir))
     return true
 end
 

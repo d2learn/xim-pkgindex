@@ -13,6 +13,22 @@ software, library, environment install/config ...
 
 [![Star History Chart](https://api.star-history.com/svg?repos=d2learn/xlings,d2learn/xim-pkgindex&type=Date)](https://star-history.com/#d2learn/xlings&d2learn/xim-pkgindex&Date)
 
+## 基本用法
+
+**同步最新索引**
+
+```bash
+xim --update index
+```
+
+**添加本地包文件**
+
+> 把本地包文件添加到索引数据库, 即可通过xim进行安装管理
+
+```bash
+xim --add-xpkg yourPath/xxx.lua
+```
+
 ## 如何添加一个XPackage包文件到索引仓库?
 
 - 第一步: 创建个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) & 填写基础信息

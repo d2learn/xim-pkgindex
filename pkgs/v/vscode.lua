@@ -86,7 +86,6 @@ function install()
         -- unzip the stable by powershell
         os.mv("stable", "stable.zip")
         os.exec(string.format([[powershell -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir))
-        os.mv("VSCode-win32-x64-" .. pkginfo.version, pkginfo.install_dir)
         os.tryrm("stable.zip")
     else
         os.exec("tar -xvf stable")
@@ -115,7 +114,7 @@ function config()
             lnk_filename,
             path.join(pkginfo.install_dir, "code.exe"),
             path.join(pkginfo.install_dir, "code.exe"),
-            pkginfo.install_dir,
+            pkginfo.install_dir
         )
         os.cp(lnk_filename .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
         os.mv(lnk_filename .. ".lnk", shortcut_dir[os.host()])
@@ -167,7 +166,7 @@ function desktop_shortcut_info()
     }
 end
 
-local function create_windows_shortcut(name, target, icon, working_dir, arguments)
+function create_windows_shortcut(name, target, icon, working_dir, arguments)
     -- 创建一个 .vbs 脚本的内容
     local vbs_content = string.format([[
 Set WshShell = WScript.CreateObject("WScript.Shell")

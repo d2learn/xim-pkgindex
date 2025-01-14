@@ -85,7 +85,7 @@ function install()
     if os.host() == "windows" then
         -- unzip the stable by powershell
         os.mv("stable", "stable.zip")
-        os.exec('powershell -Command "Expand-Archive -Path stable.zip -DestinationPath . -Force"')
+        os.exec(string.format([[powershell -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir))
         os.mv("VSCode-win32-x64-" .. pkginfo.version, pkginfo.install_dir)
         os.tryrm("stable.zip")
     else
@@ -113,10 +113,11 @@ function config()
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
         create_windows_shortcut(
             lnk_filename,
-            pkginfo.install_dir .. "/bin/code.cmd",
-            pkginfo.install_dir .. "/resources/app/resources/win32/code_150x150.png",
-            pkginfo.install_dir .. "/bin"
+            path.join(pkginfo.install_dir, "code.exe"),
+            path.join(pkginfo.install_dir, "code.exe"),
+            pkginfo.install_dir,
         )
+        os.cp(lnk_filename .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
         os.mv(lnk_filename .. ".lnk", shortcut_dir[os.host()])
     else
         local desktop_info = desktop_shortcut_info()
@@ -137,6 +138,7 @@ function uninstall()
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
         local lnk_path = path.join(shortcut_dir[os.host()], lnk_filename .. ".lnk")
         print("removing desktop shortcut - %s", lnk_path)
+        os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))
         os.tryrm(lnk_path)
     else
         local desktop_info = desktop_shortcut_info()
@@ -179,7 +181,7 @@ shortcut.Save
     ]], name, target, icon, working_dir, arguments or "", name)
 
     -- 保存为一个临时 .vbs 文件
-    local vbs_path = name .. ".xim.vbs"
+    local vbs_path = "vscode.xim.vbs"
     local file = io.open(vbs_path, "w")
     file:write(vbs_content)
     file:close()
@@ -188,7 +190,7 @@ shortcut.Save
     os.exec("wscript " .. vbs_path)
 
     -- 删除临时的 .vbs 文件
-    os.remove(vbs_path)
+    os.tryrm(vbs_path)
 
     print("Shortcut created: " .. name .. ".lnk")
 end

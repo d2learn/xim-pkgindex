@@ -81,16 +81,24 @@ function installed()
 end
 
 function install()
-    os.exec("tar -xvf stable")
     os.tryrm(pkginfo.install_dir)
-    os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir)
-    -- https://github.com/flathub/com.visualstudio.code/issues/223
-    -- set the correct permissions for chrome-sandbox, and as root
-    print("https://github.com/flathub/com.visualstudio.code/issues/223")
-    print("setting permissions for chrome-sandbox...")
-    os.exec("sudo chown root:root " .. pkginfo.install_dir .. "/chrome-sandbox")
-    os.exec("sudo chmod 4755 " .. pkginfo.install_dir .. "/chrome-sandbox")
-    os.tryrm("stable")
+    if os.host() == "windows" then
+        -- unzip the stable by powershell
+        os.mv("stable", "stable.zip")
+        os.exec('powershell -Command "Expand-Archive -Path stable.zip -DestinationPath . -Force"')
+        os.mv("VSCode-win32-x64-" .. pkginfo.version, pkginfo.install_dir)
+        os.tryrm("stable.zip")
+    else
+        os.exec("tar -xvf stable")
+        os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir)
+        -- https://github.com/flathub/com.visualstudio.code/issues/223
+        -- set the correct permissions for chrome-sandbox, and as root
+        print("https://github.com/flathub/com.visualstudio.code/issues/223")
+        print("setting permissions for chrome-sandbox...")
+        os.exec("sudo chown root:root " .. pkginfo.install_dir .. "/chrome-sandbox")
+        os.exec("sudo chmod 4755 " .. pkginfo.install_dir .. "/chrome-sandbox")
+        os.tryrm("stable")
+    end
     return true
 end
 
@@ -102,7 +110,14 @@ function config()
     -- config desktop entry
     if os.host() == "windows" then
         -- create desktop shortcut
-
+        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
+        create_windows_shortcut(
+            lnk_filename,
+            pkginfo.install_dir .. "/bin/code.cmd",
+            pkginfo.install_dir .. "/resources/app/resources/win32/code_150x150.png",
+            pkginfo.install_dir .. "/bin"
+        )
+        os.mv(lnk_filename .. ".lnk", shortcut_dir[os.host()])
     else
         local desktop_info = desktop_shortcut_info()
         if not os.isfile(desktop_info.filepath) then
@@ -117,10 +132,18 @@ end
 function uninstall()
     os.exec("xvm remove code " .. pkginfo.version)
     os.exec("xvm remove vscode " .. pkginfo.version)
-    local desktop_info = desktop_shortcut_info()
-    if os.isfile(desktop_info.filepath) then
-        print("removing desktop shortcut...")
-        os.tryrm(desktop_info.filepath)
+    if os.host() == "windows" then
+        -- remove desktop shortcut
+        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
+        local lnk_path = path.join(shortcut_dir[os.host()], lnk_filename .. ".lnk")
+        print("removing desktop shortcut - %s", lnk_path)
+        os.tryrm(lnk_path)
+    else
+        local desktop_info = desktop_shortcut_info()
+        if os.isfile(desktop_info.filepath) then
+            print("removing desktop shortcut - %s", desktop_info.filepath)
+            os.tryrm(desktop_info.filepath)
+        end
     end
     return true
 end

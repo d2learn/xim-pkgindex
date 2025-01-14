@@ -38,6 +38,32 @@ import("xim.base.runtime")
 
 local pkginfo = runtime.get_pkginfo()
 
+local shortcut_dir = {
+    linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
+    windows = tostring(os.getenv("APPDATA")) .. "/Microsoft/Windows/Start Menu/Programs"
+}
+
+local shortcut_template = {
+    linux = [[
+[Desktop Entry]
+Name=Visual Studio Code - [%s] - XIM
+Comment=Code Editing. Redefined.
+GenericName=Text Editor
+Exec=%s
+Icon=%s
+Type=Application
+StartupNotify=false
+StartupWMClass=Code
+Categories=TextEditor;Development;IDE;
+MimeType=application/x-code-workspace;
+Actions=new-empty-window;
+Keywords=vscode;
+]],
+    windows = [[
+TODO
+]],
+}
+
 function installed()
     return os.iorun("xvm list code")
 end
@@ -58,14 +84,42 @@ end
 
 function config()
     local xvm_cmd_template1 = "xvm add code %s --path %s/bin"
-    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code --icon %s/resources/app/resources/linux/code.png"
+    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code"
     os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
-    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir, pkginfo.install_dir))
+    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
+    -- config desktop entry
+    local desktop_info = desktop_shortcut_info()
+    if not os.isfile(desktop_info.filepath) then
+        print("creating desktop shortcut...")
+        io.writefile(desktop_info.filepath, desktop_info.content)
+    end
     return true
 end
 
 function uninstall()
     os.exec("xvm remove code " .. pkginfo.version)
     os.exec("xvm remove vscode " .. pkginfo.version)
+    local desktop_info = desktop_shortcut_info()
+    if os.isfile(desktop_info.filepath) then
+        print("removing desktop shortcut...")
+        os.tryrm(desktop_info.filepath)
+    end
     return true
+end
+
+---
+
+function desktop_shortcut_info()
+    local filename = "vscode." .. pkginfo.version .. ".xvm.desktop"
+    local filepath = path.join(shortcut_dir[os.host()], filename)
+    local exec_path = string.format("%s/bin/code", pkginfo.install_dir)
+    local icon_path = string.format("%s/resources/app/resources/linux/code.png", pkginfo.install_dir)
+
+    return {
+        filepath = filepath,
+        content = string.format(
+            shortcut_template[os.host()],
+            pkginfo.version, exec_path, icon_path
+        )
+    }
 end

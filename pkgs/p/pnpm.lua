@@ -32,15 +32,25 @@ import("xim.base.runtime")
 local pkginfo = runtime.get_pkginfo()
 
 function installed()
-    return os.iorun("pnpm --version")
+    return os.iorun("xvm list pnpm")
 end
 
 function install()
     os.iorun("npm install -g pnpm@" .. pkginfo.version)
+    local node_path = os.iorun("npm root -g")
+    -- get up level directory
+    node_path = path.directory(node_path)
+    node_path = path.directory(node_path)
+    node_bin_path = path.join(node_path, "bin")
+
+    print("node_bin_path: ", node_bin_path)
+    os.exec(string.format("xvm add pnpm %s --path %s", pkginfo.version, node_bin_path))
+
     return true
 end
 
 function uninstall()
-    os.iorun("npm uninstall -g pnpm")
+    os.exec("npm uninstall -g pnpm@" .. pkginfo.version)
+    os.exec("xvm remove pnpm " .. pkginfo.version)
     return true
 end

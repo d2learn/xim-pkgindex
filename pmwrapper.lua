@@ -16,6 +16,10 @@ pmwrapper = {
     ["mdbook"] = {
         archlinux = {"pacman", "mdbook"},
     },
+    ["make"] = {
+        ubuntu = {"apt", "make"},
+        archlinux = {"pacman", "make"},
+    },
     ["nodejs"] = {
         archlinux = {"pacman", "nodejs"},
     },

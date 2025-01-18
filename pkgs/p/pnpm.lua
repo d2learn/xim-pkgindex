@@ -36,21 +36,19 @@ function installed()
 end
 
 function install()
-    os.iorun("npm install -g pnpm@" .. pkginfo.version)
-    local node_path = os.iorun("npm root -g")
-    -- get up level directory
-    node_path = path.directory(node_path)
-    node_path = path.directory(node_path)
-    node_bin_path = path.join(node_path, "bin")
+    local pnpm_installcmd_template = "npm install -g pnpm@%s --prefix %s"
+    os.iorun(string.format(pnpm_installcmd_template, pkginfo.version, pkginfo.install_dir))
+    return true
+end
 
-    print("node_bin_path: ", node_bin_path)
-    os.exec(string.format("xvm add pnpm %s --path %s", pkginfo.version, node_bin_path))
-
+function config()
+    print("config xvm...")
+    local xvm_pnpm_template = "xvm add pnpm %s --path %s/bin"
+    os.exec(string.format(xvm_pnpm_template, pkginfo.version, pkginfo.install_dir))
     return true
 end
 
 function uninstall()
-    os.exec("npm uninstall -g pnpm@" .. pkginfo.version)
     os.exec("xvm remove pnpm " .. pkginfo.version)
     return true
 end

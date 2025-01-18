@@ -72,10 +72,10 @@ function config()
     print("Configuring Node.js ...")
     local node_xvm_cmd_template1 = "xvm add node %s --path %s/bin"
     local node_xvm_cmd_template2 = "xvm add nodejs %s --path %s/bin --alias node"
-    local npm_xvm_cmd_template = "xvm add npm %s --path %s/bin"
+    local npm_xvm_cmd_template = "xvm add npm node-%s --path %s/bin"
     os.exec(string.format(node_xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
     os.exec(string.format(node_xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
-    os.exec(string.format(npm_xvm_cmd_template, get_npm_version(), pkginfo.install_dir))
+    os.exec(string.format(npm_xvm_cmd_template, pkginfo.version, pkginfo.install_dir))
     return true
 end
 
@@ -83,7 +83,7 @@ function uninstall()
     print("Uninstalling Node.js from %s ...", pkginfo.install_dir)
     os.exec("xvm remove node " .. pkginfo.version)
     os.exec("xvm remove nodejs " .. pkginfo.version)
-    os.exec("xvm remove npm " .. get_npm_version())
+    os.exec("xvm remove npm node-" .. pkginfo.version)
     return true
 end
 

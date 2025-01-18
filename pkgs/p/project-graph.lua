@@ -1,3 +1,5 @@
+function _linux_donwload_url(version) return string.format("https://github.com/LiRenTech/project-graph/releases/download/v%s/Project.Graph_%s_amd64.deb", version, version) end
+
 package = {
     homepage = "https://project-graph.top",
     name = "project-graph",
@@ -18,7 +20,7 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "1.1.0" },
+            ["latest"] = { ref = "1.2.6" },
             ["nightly"] = {
                 url = "%.exe$", -- url pattern
                 github_release_tag = "nightly",
@@ -32,12 +34,16 @@ package = {
                 sha256 = nil,
             }
         },
-        debian = {
-            ["latest"] = { ref = "1.1.0" },
+        linux = {
+            deps = { "webkit2gtk" },
+            ["latest"] = { ref = "1.2.6" },
             ["nightly"] = {
                 url = "%.deb$", -- url pattern
                 github_release_tag = "nightly",
             },
+            ["1.2.6"] = { url = _linux_donwload_url("1.2.6"), sha256 = nil },
+            ["1.2.5"] = { url = _linux_donwload_url("1.2.5"), sha256 = nil },
+            ["1.2.0"] = { url = _linux_donwload_url("1.2.0"), sha256 = nil },
             ["1.1.0"] = {
                 url = "https://github.com/LiRenTech/project-graph/releases/download/v1.1.0/Project.Graph_1.1.0_amd64.deb",
                 sha256 = "220ffb27c20f15008b77138612a237eefea22691638f09b351d276085af02d32",
@@ -47,9 +53,10 @@ package = {
                 sha256 = nil,
             },
         },
-        ubuntu = { ref = "debian" },
-        archlinux = { ref = "debian" },
-        manjaro = { ref = "debian" },
+        debian = { ref = "linux" },
+        ubuntu = { ref = "linux" },
+        archlinux = { ref = "linux" },
+        manjaro = { ref = "linux" },
     },
 }
 
@@ -69,12 +76,7 @@ local binname = {
 }
 
 function installed()
-    if os.host() == "windows" then
-        local pgraph_exe_file = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\project-graph.exe"
-        return os.isfile(pgraph_exe_file)
-    else
-        return os.iorun("which project-graph") ~= nil
-    end
+    return os.iorun("xvm list project-graph")
 end
 
 function install()
@@ -85,19 +87,27 @@ function install()
         print("\t 2.点击“下一步”直到安装完成")
         common.xlings_exec(pkginfo.install_file .. " /SILENT")
     elseif os.host() == "linux" then
-        if os_info.name == "archlinux" or os_info.name == "manjaro" then
-            -- https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD
-            os.exec("mkdir -p project-graph && cd project-graph")
-            os.exec("ar x " .. pkginfo.install_file)
-            os.exec("tar -xvf data.tar.gz")
-            os.cp("usr/bin/project-graph", bindir)
-            -- TODO: config icon
-            --os.exec("gtk-update-icon-cache -q -t -f usr/share/icons/hicolor")
-            --os.exec("update-desktop-database -q")
-        else
-            os.exec("sudo dpkg -i " .. pkginfo.install_file)
-        end
+        os.tryrm("project-graph")
+        os.tryrm(pkginfo.install_dir)
+        os.mkdir("project-graph")
+        os.cd("project-graph")
+        os.exec("ar x " .. pkginfo.install_file)
+        os.exec("tar -xvf data.tar.gz")
+        os.mv("usr", pkginfo.install_dir)
+        os.tryrm(pkginfo.install_file)
     end
+    return true
+end
+
+function config()
+    local xvm_cmd_template = [[xvm add project-graph %s --path "%s"]]
+    local project_graph_path = path.join(pkginfo.install_dir, "bin")
+    if os.host() == "windows" then
+        project_graph_path = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph"
+    else
+        config_desktop_shortcut("create")
+    end
+    os.exec(string.format(xvm_cmd_template, pkginfo.version, project_graph_path))
     return true
 end
 
@@ -106,13 +116,40 @@ function uninstall()
         utils.prompt("等待卸载/waiting uninstall...")
         common.xlings_exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
     elseif os.host() == "linux" then
-        if os_info.name == "archlinux" or os_info.name == "manjaro" then
-            os.tryrm(path.join(bindir, binname.linux))
-            os.tryrm(path.join(datadir, "project-graph"))
-            --os.exec("update-desktop-database -q")
-        else
-            os.exec("sudo dpkg -r project-graph")
-        end
+        config_desktop_shortcut("delete")
+        os.exec("xvm remove project-graph " .. pkginfo.version)
     end
     return true
+end
+
+function config_desktop_shortcut(action)
+    action = action or "delete" -- create, delete
+    if os.host() == "linux" then
+        local filename = "project-graph-" .. pkginfo.version .. ".xvm.desktop"
+        local shortcut_file = path.join(os.getenv("HOME"), ".local/share/applications", filename)
+        local desktop_entry = [[
+[Desktop Entry]
+Name=Project Graph - [%s] - XIM
+Comment=Diagram creator
+Exec=%s
+Icon=%s
+Type=Application
+StartupNotify=false
+StartupWMClass=project-graph
+        ]]
+
+        print("[%s] - %s", action, shortcut_file)
+
+        if action == "create" then
+            io.writefile(filename, string.format(
+                desktop_entry,
+                pkginfo.version,
+                path.join(pkginfo.install_dir, "bin", "project-graph"),
+                path.join(pkginfo.install_dir, "share/icons/hicolor/128x128/apps/project-graph.png"
+            )))
+            os.mv(filename, shortcut_file)
+        elseif action == "delete" then
+            os.tryrm(shortcut_file)
+        end
+    end
 end

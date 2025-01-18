@@ -62,6 +62,10 @@ pmwrapper = {
         windows = {"winget", "Microsoft.VisualStudioCode"},
         archlinux = {"pacman", "code"},
     },
+    ["webkit2gtk"] = {
+        ubuntu = {"apt", "libwebkit2gtk-4.0-37"},
+        archlinux = {"pacman", "webkit2gtk"},
+    },
     ["wsl"] = {
         windows = {"winget", "Microsoft.WSL"},
     },

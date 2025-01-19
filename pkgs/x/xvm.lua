@@ -53,7 +53,7 @@ function installed()
 end
 
 function install()
-    os.cp(xvm_file[os.host()], bindir)
+    os.mv(xvm_file[os.host()], bindir)
     return true
 end
 

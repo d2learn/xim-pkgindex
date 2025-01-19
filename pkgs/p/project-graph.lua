@@ -20,10 +20,14 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "1.2.6" },
+            ["latest"] = { ref = "1.2.7" },
             ["nightly"] = {
                 url = "%.exe$", -- url pattern
                 github_release_tag = "nightly",
+            },
+            ["1.2.7"] = {
+                url = "https://github.com/LiRenTech/project-graph/releases/download/v1.2.7/Project.Graph_1.2.7_x64-setup.exe",
+                sha256 = nil,
             },
             ["1.1.0"] = {
                 url = "https://github.com/LiRenTech/project-graph/releases/download/v1.1.0/Project.Graph_1.1.0_x64-setup.exe",
@@ -36,11 +40,12 @@ package = {
         },
         linux = {
             deps = { "webkit2gtk" },
-            ["latest"] = { ref = "1.2.6" },
+            ["latest"] = { ref = "1.2.7" },
             ["nightly"] = {
                 url = "%.deb$", -- url pattern
                 github_release_tag = "nightly",
             },
+            ["1.2.7"] = { url = _linux_donwload_url("1.2.7"), sha256 = nil },
             ["1.2.6"] = { url = _linux_donwload_url("1.2.6"), sha256 = nil },
             ["1.2.5"] = { url = _linux_donwload_url("1.2.5"), sha256 = nil },
             ["1.2.0"] = { url = _linux_donwload_url("1.2.0"), sha256 = nil },
@@ -103,6 +108,9 @@ function config()
     local xvm_cmd_template = [[xvm add project-graph %s --path "%s"]]
     local project_graph_path = path.join(pkginfo.install_dir, "bin")
     if os.host() == "windows" then
+        -- TODO: support multi-version for windows
+        print("remove old version...")
+        os.exec("xvm remove project-graph --yes") -- remove old version
         project_graph_path = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph"
     else
         config_desktop_shortcut("create")
@@ -112,12 +120,14 @@ function config()
 end
 
 function uninstall()
+    local xvm_rm = "xvm remove project-graph "
     if os.host() == "windows" then
-        utils.prompt("等待卸载/waiting uninstall...")
         common.xlings_exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
+        utils.prompt("等待卸载/waiting uninstall...")
+        os.exec(xvm_rm)
     elseif os.host() == "linux" then
         config_desktop_shortcut("delete")
-        os.exec("xvm remove project-graph " .. pkginfo.version)
+        os.exec(xvm_rm .. pkginfo.version)
     end
     return true
 end

@@ -102,8 +102,8 @@ function install()
 end
 
 function config()
-    local xvm_cmd_template1 = "xvm add code %s --path %s/bin"
-    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code"
+    local xvm_cmd_template1 = "xvm add code %s --path %s/bin --alias code.cmd"
+    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code.cmd"
     os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
     os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
     -- config desktop entry

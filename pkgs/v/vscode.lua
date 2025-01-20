@@ -102,12 +102,13 @@ function install()
 end
 
 function config()
-    local xvm_cmd_template1 = "xvm add code %s --path %s/bin --alias code.cmd"
-    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias code.cmd"
-    os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
-    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
+    local xvm_cmd_template1 = "xvm add code %s --path %s/bin --alias %s"
+    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias %s"
+    local code_alias = "code"
+
     -- config desktop entry
     if os.host() == "windows" then
+        code_alias = "code.cmd"
         -- create desktop shortcut
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
         create_windows_shortcut(
@@ -125,6 +126,9 @@ function config()
             io.writefile(desktop_info.filepath, desktop_info.content)
         end
     end
+
+    os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir, code_alias))
+    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir, code_alias))
 
     return true
 end

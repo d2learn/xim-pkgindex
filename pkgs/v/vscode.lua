@@ -85,7 +85,8 @@ function install()
     if os.host() == "windows" then
         -- unzip the stable by powershell
         os.mv("stable", "stable.zip")
-        os.exec(string.format([[powershell -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir))
+        -- avoid warning info by -ExecutionPolicy Bypass
+        os.exec(string.format([[powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir))
         os.tryrm("stable.zip")
     else
         os.exec("tar -xvf stable")

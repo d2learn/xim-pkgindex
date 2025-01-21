@@ -47,7 +47,7 @@ end
 function install()
     local install_cmd = ""
     if is_host("windows") then
-        install_cmd = pkginfo.install_file ..
+        install_cmd = [[powershell -ExecutionPolicy Bypass -File ]] .. pkginfo.install_file ..
             " -Channel " .. pkginfo.version ..
             " -InstallDir " .. pkginfo.install_dir
     else

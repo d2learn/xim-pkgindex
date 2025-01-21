@@ -1,7 +1,9 @@
 -- https://learn.microsoft.com/en-gb/dotnet/core/install/linux-scripted-manual
+-- https://learn.microsoft.com/en-gb/dotnet/core/tools/dotnet-install-script
 -- https://learn.microsoft.com/en-us/dotnet/core/install/remove-runtime-sdk-versions?pivots=os-linux#scripted-or-manual
 
-local installer_url = "https://dot.net/v1/dotnet-install.sh"
+local linux_install_script = "https://dot.net/v1/dotnet-install.sh"
+local windows_install_script = "https://dot.net/v1/dotnet-install.ps1"
 
 package = {
     name = "dotnet",
@@ -20,57 +22,52 @@ package = {
 
     xpm = {
         windows = {
-            deps = { "dotnet-9@winget" },
             ["latest"] = { ref = "9.0" },
-            ["9.0"] = { },
+            ["9.0"] = { url = windows_install_script, sha256 = nil },
+            ["8.0"] = { url = windows_install_script, sha256 = nil },
         },
         debain = {
             ["latest"] = { ref = "9.0" },
-            ["9.0"] = { url = installer_url, sha256 = nil },
-            ["8.0"] = { url = installer_url, sha256 = nil },
+            ["9.0"] = { url = linux_install_script, sha256 = nil },
+            ["8.0"] = { url = linux_install_script, sha256 = nil },
         },
         ubuntu = { ref = "debain" },
         archlinux = { ref = "debain" },
     },
 }
 
-import("xim.base.utils")
 import("xim.base.runtime")
-import("xim.xuninstall")
 
 local pkginfo = runtime.get_pkginfo()
-local dotnetdir = path.join(os.getenv("HOME"), ".dotnet")
 
 function installed()
-    return os.iorun("dotnet --version")
+    return os.iorun("xvm list dotnet")
 end
 
 function install()
+    local install_cmd = ""
     if is_host("windows") then
-        return true -- install by deps
+        install_cmd = pkginfo.install_file ..
+            " -Channel " .. pkginfo.version ..
+            " -InstallDir " .. pkginfo.install_dir
+    else
+        os.exec("chmod +x " .. pkginfo.install_file)
+        install_cmd = pkginfo.install_file ..
+            " --channel " .. pkginfo.version ..
+            " --install-dir " .. pkginfo.install_dir
     end
-
-    os.exec("chmod +x " .. pkginfo.install_file)
-    local cmd = pkginfo.install_file .. " --channel " .. pkginfo.version
-    print("exec: " .. cmd)
-    os.exec(cmd)
-
+    print("exec: " .. install_cmd)
+    os.exec(install_cmd)
     return true
 end
 
 function config()
-    if not is_host("windows") then
-        --utils.add_env_path(dotnetdir)
-        utils.append_bashrc("export PATH=$PATH:" .. dotnetdir)
-    end
+    local xvm_dotnet_cmd = "xvm add dotnet %s --path %s"
+    os.exec(string.format(xvm_dotnet_cmd, pkginfo.version, pkginfo.install_dir))
     return true
 end
 
 function uninstall()
-    if is_host("windows") then
-        xuninstall("dotnet-9@winget")
-    else
-        os.exec("rm -r " .. dotnetdir)
-    end
+    os.exec("xvm remove dotnet " .. pkginfo.version)
     return true
 end

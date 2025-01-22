@@ -92,7 +92,7 @@ end
 
 ## Examples
 
-> mdbook's xpakcage file
+> mdbook's xpakcage file - [latest](https://github.com/d2learn/xim-pkgindex/blob/main/pkgs/m/mdbook.lua)
 
 ```lua
 package = {
@@ -112,13 +112,20 @@ package = {
     categories = {"book", "markdown"},
     keywords = {"book", "gitbook", "rustbook", "markdown"},
 
+    -- xvm: xlings version management
+    xvm_enable = true,
+
     xpm = {
         windows = {
             ["latest"] = { ref = "0.4.40" },
+            ["0.4.43"] = {
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-pc-windows-msvc.zip",
+                sha256 = nil
+            },
             ["0.4.40"] = {
                 url = "https://gitee.com/sunrisepeak/xlings-pkg/releases/download/mdbook/mdbook-v0.4.40-x86_64-pc-windows-msvc.zip",
                 sha256 = nil
-            }
+            },
         },
         debain = {
             ["latest"] = { ref = "0.4.43" },
@@ -131,15 +138,15 @@ package = {
                 sha256 = "9ef07fd288ba58ff3b99d1c94e6d414d431c9a61fdb20348e5beb74b823d546b"
             },
         },
-        archlinux = { ref = "debain" },
         ubuntu = { ref = "debain" },
+        archlinux = { ref = "debain" },
+        manjaro = { ref = "debain" },
     },
 }
 
-import("platform")
 import("xim.base.runtime")
 
-local bindir = platform.get_config_info().bindir
+local pkginfo = runtime.get_pkginfo()
 
 local mdbook_file = {
     windows = "mdbook.exe",
@@ -147,16 +154,24 @@ local mdbook_file = {
 }
 
 function installed()
-    return os.iorun("mdbook --version")
+    return os.iorun("xvm list mdbook")
 end
 
 function install()
-    os.cp(mdbook_file[os.host()], bindir)
+    return os.trymv(mdbook_file[os.host()], pkginfo.install_dir)
+end
+
+function config()
+    -- config xvm
+    os.exec(format(
+        "xvm add mdbook %s --path %s",
+        pkginfo.version, pkginfo.install_dir
+    ))
     return true
 end
 
 function uninstall()
-    os.tryrm(path.join(bindir, mdbook_file[os.host()]))
+    os.exec("xvm remove mdbook " .. pkginfo.version)
     return true
 end
 ```

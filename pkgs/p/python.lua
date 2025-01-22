@@ -37,6 +37,7 @@ package = {
 }
 
 import("common")
+import("xim.base.utils")
 import("xim.base.runtime")
 
 local pkginfo = runtime.get_pkginfo()
@@ -51,10 +52,13 @@ end
 
 function install()
     if is_host("windows") then
-        common.xlings_run_bat_script(
-            pkginfo.install_file .. [[ /passive InstallAllUsers=1 PrependPath=1 Include_test=1 ]],
-            true
-        )
+        local install_cmd = pkginfo.install_file
+        if utils.prompt("use default installation?(y/n)", "y") then
+            install_cmd = pkginfo.install_file ..
+                [[ /passive InstallAllUsers=1 PrependPath=1 Include_test=1 ]] ..
+                [[ TargetDir="]] .. pkginfo.install_dir
+        end
+        common.xlings_run_bat_script(install_cmd, true)
     else
         os.cd("Python-" .. pkginfo.version)
         --  build args - opt or todo?
@@ -93,6 +97,7 @@ function uninstall()
             pkginfo.install_file .. [[ /uninstall /passive ]],
             true
         )
+        utils.prompt("等待卸载/waiting uninstall...", "")
     else
         os.exec("xvm remove python " .. pkginfo.version)
         os.exec("xvm remove pip " .. "python-" .. pkginfo.version)

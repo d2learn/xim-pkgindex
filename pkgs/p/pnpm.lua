@@ -13,12 +13,12 @@ package = {
 
     xpm = {
         windows = {
-            deps = { "nodejs@22.12.0" },
+            deps = { "nodejs" },
             ["latest"] = { ref = "9.15.0"},
             ["9.15.0"] = { },
         },
         linux = {
-            deps = { "nodejs@22.12.0" },
+            deps = { "nodejs" },
             ["latest"] = { ref = "9.15.0"},
             ["9.15.0"] = { },
         },

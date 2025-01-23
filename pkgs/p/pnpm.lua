@@ -17,13 +17,15 @@ package = {
             ["latest"] = { ref = "9.15.0"},
             ["9.15.0"] = { },
         },
-        ubuntu = {
+        linux = {
             deps = { "nodejs@22.12.0" },
             ["latest"] = { ref = "9.15.0"},
             ["9.15.0"] = { },
         },
-        debian = { ref = "ubuntu" },
-        archlinux = { ref = "ubuntu" },
+        debian = { ref = "linux" },
+        ubuntu = { ref = "linux" },
+        archlinux = { ref = "linux" },
+        manjaro = { ref = "linux" },
     },
 }
 

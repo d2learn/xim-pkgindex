@@ -26,13 +26,15 @@ package = {
             ["9.0"] = { url = windows_install_script, sha256 = nil },
             ["8.0"] = { url = windows_install_script, sha256 = nil },
         },
-        debain = {
+        linux = {
             ["latest"] = { ref = "9.0" },
             ["9.0"] = { url = linux_install_script, sha256 = nil },
             ["8.0"] = { url = linux_install_script, sha256 = nil },
         },
-        ubuntu = { ref = "debain" },
-        archlinux = { ref = "debain" },
+        debian = { ref = "linux" },
+        ubuntu = { ref = "linux" },
+        archlinux = { ref = "linux" },
+        manjaro = { ref = "linux" },
     },
 }
 

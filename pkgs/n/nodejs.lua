@@ -31,7 +31,7 @@ package = {
                 sha256 = "2b8f2256382f97ad51e29ff71f702961af466c4616393f767455501e6aece9b8",
             },
         },
-        ubuntu = {
+        linux = {
             ["latest"] = { ref = "23.6.0" },
             ["23.6.0"] = { url = download_url("23.6.0"), sha256 = nil, },
             ["22.12.0"] = {
@@ -39,8 +39,10 @@ package = {
                 sha256 = "22982235e1b71fa8850f82edd09cdae7e3f32df1764a9ec298c72d25ef2c164f",
             },
         },
-        debian = { ref = "ubuntu" },
-        archlinux = { ref = "ubuntu" },
+        debian = { ref = "linux" },
+        ubuntu = { ref = "linux" },
+        archlinux = { ref = "linux" },
+        manjaro = { ref = "linux" },
     },
 }
 

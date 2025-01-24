@@ -48,16 +48,27 @@ local xvm_file = {
     linux = "xvm",
 }
 
+local xvm_shim_file = {
+    windows = "xvm-shim.exe",
+    linux = "xvm-shim",
+}
+
 function installed()
     return os.iorun("xvm --version") ~= nil
 end
 
 function install()
     os.mv(xvm_file[os.host()], bindir)
+    os.mv(xvm_shim_file[os.host()], bindir)
     return true
 end
 
 function uninstall()
+    -- remove cache files
+    os.tryrm(xvm_file[os.host()])
+    os.tryrm(xvm_shim_file[os.host()])
+    -- remove xvm and xvm-shim from bindir
     os.tryrm(path.join(bindir, xvm_file[os.host()]))
+    os.tryrm(path.join(bindir, xvm_shim_file[os.host()]))
     return true
 end

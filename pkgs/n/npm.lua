@@ -47,8 +47,16 @@ end
 
 function config()
     print("config xvm...")
-    local xvm_npm_template = "xvm add npm %s --path %s/bin"
-    os.exec(string.format(xvm_npm_template, pkginfo.version, pkginfo.install_dir))
+    local xvm_npm_template = "xvm add npm %s --path %s"
+
+    local bindir = pkginfo.install_dir
+    if is_host("windows") then
+        xvm_npm_template = xvm_npm_template .. " --alias npm.cmd"
+    else
+        bindir = path.join(pkginfo.install_dir, "bin")
+    end
+
+    os.exec(string.format(xvm_npm_template, pkginfo.version, bindir))
     return true
 end
 

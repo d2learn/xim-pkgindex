@@ -72,12 +72,20 @@ end
 
 function config()
     print("Configuring Node.js ...")
-    local node_xvm_cmd_template1 = "xvm add node %s --path %s/bin"
-    local node_xvm_cmd_template2 = "xvm add nodejs %s --path %s/bin --alias node"
-    local npm_xvm_cmd_template = "xvm add npm node-%s --path %s/bin"
-    os.exec(string.format(node_xvm_cmd_template1, pkginfo.version, pkginfo.install_dir))
-    os.exec(string.format(node_xvm_cmd_template2, pkginfo.version, pkginfo.install_dir))
-    os.exec(string.format(npm_xvm_cmd_template, pkginfo.version, pkginfo.install_dir))
+    local node_xvm_cmd_template1 = "xvm add node %s --path %s"
+    local node_xvm_cmd_template2 = "xvm add nodejs %s --path %s --alias node"
+    local npm_xvm_cmd_template = "xvm add npm node-%s --path %s"
+
+    local bindir = pkginfo.install_dir
+    if is_host("windows") then
+        npm_xvm_cmd_template = npm_xvm_cmd_template .. " --alias npm.cmd"
+    else
+        bindir = path.join(pkginfo.install_dir, "bin")
+    end
+
+    os.exec(string.format(node_xvm_cmd_template1, pkginfo.version, bindir))
+    os.exec(string.format(node_xvm_cmd_template2, pkginfo.version, bindir))
+    os.exec(string.format(npm_xvm_cmd_template, pkginfo.version, bindir))
     return true
 end
 
@@ -87,12 +95,4 @@ function uninstall()
     os.exec("xvm remove nodejs " .. pkginfo.version)
     os.exec("xvm remove npm node-" .. pkginfo.version)
     return true
-end
-
--- helper functions
-
-function get_npm_version()
-    os.addenv("PATH", pkginfo.install_dir .. "/bin")
-    local npm_version = os.iorun("npm --version")
-    return npm_version
 end

@@ -45,8 +45,14 @@ end
 
 function config()
     print("config xvm...")
-    local xvm_pnpm_template = "xvm add pnpm %s --path %s/bin"
-    os.exec(string.format(xvm_pnpm_template, pkginfo.version, pkginfo.install_dir))
+    local xvm_pnpm_template = "xvm add pnpm %s --path %s"
+    local bindir = pkginfo.install_dir
+    if is_host("windows") then
+        xvm_pnpm_template = xvm_pnpm_template .. " --alias pnpm.cmd"
+    else
+        bindir = path.join(pkginfo.install_dir, "bin")
+    end
+    os.exec(string.format(xvm_pnpm_template, pkginfo.version, bindir))
     return true
 end
 

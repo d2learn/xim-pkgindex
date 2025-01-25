@@ -4,10 +4,10 @@ package = {
     description = "让别人知道你在干什么 seeme 服务端",
 
     authors = "2412322029",
-    contributors = "https://github.com/2412322029/seeme/server",
+    contributors = "https://github.com/2412322029/seeme",
     license = "",
-    repo = "https://github.com/2412322029/seeme/server",
-    docs = "https://github.com/2412322029/seeme/server",
+    repo = "https://github.com/2412322029/seeme",
+    docs = "https://github.com/2412322029/seeme",
 
     -- xim pkg info
     archs = {"x86_64"},

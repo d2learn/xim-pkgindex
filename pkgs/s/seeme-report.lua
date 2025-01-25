@@ -20,7 +20,7 @@ package = {
 
     xpm = {
         windows = {
-            deps = {"python@3.12.6"},
+            deps = {"python@3"},
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = {
                 url = "https://github.com/2412322029/seeme/releases/download/pub/seeme-report.zip",
@@ -42,16 +42,12 @@ function install()
     os.tryrm(pkginfo.install_dir) -- 移除可能存在的老代码
     os.trymv("report", pkginfo.install_dir)
     print("Installing dependencies from requirements.txt...")
-    local install_result = os.exec(string.format("pip install -r %s", pkginfo.install_dir .. "\\requirement.txt"))-- for win \\
-    if install_result == 0 then
-        print("Dependencies installed successfully.")
-        print("run seeme-server first")
-        print("run it, use -> seeme-report run -u http://127.0.0.1 -k seeme")
-        print("run in background, use -> seeme-reportw run -u http://127.0.0.1 -k seeme")
-        print("for help use -> seeme-report -h")
-    else
-        print("Failed to install dependencies.")
-    end
+    local install_result = os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir, "requirement.txt")))-- for win \\
+    cprint("\n${green}run seeme-server first${clear}")
+    cprint("\n${green}run it, use -> seeme-report run${clear} ")
+    cprint("\n${green}run in background, use -> seeme-reportw run${clear}")
+    cprint("\n${green}for help use -> seeme-report -h${clear}")
+
     return true
 
 end
@@ -59,12 +55,12 @@ end
 function config()
     -- config xvm
     os.exec(format(
-        [[xvm add seeme-report %s --alias "python %s\report.py"]], 
-        pkginfo.version, pkginfo.install_dir
+        [[xvm add seeme-report %s --alias "python %s" --env REPORT_KEY="seeme" --env REPORT_URL="http://127.0.0.1"]], 
+        pkginfo.version, path.join(pkginfo.install_dir, "report.py")
     ))
     os.exec(format(
-        [[xvm add seeme-reportw %s --alias "pythonw %s\report.py"]],
-        pkginfo.version, pkginfo.install_dir
+        [[xvm add seeme-reportw %s --alias "pythonw %s" --env REPORT_KEY="seeme" --env REPORT_URL="http://127.0.0.1"]],
+        pkginfo.version, path.join(pkginfo.install_dir, "report.py")
     ))
     return true
 end

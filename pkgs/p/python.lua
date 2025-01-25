@@ -58,7 +58,7 @@ function install()
         local install_cmd = pkginfo.install_file
         if utils.prompt("use default installation?(y/n)", "y") then
             install_cmd = pkginfo.install_file ..
-                [[ /passive InstallAllUsers=1 PrependPath=1 Include_test=1 ]] ..
+                [[ /passive InstallAllUsers=1 PrependPath=1 Include_test=1 Include_pip=1 ]] ..
                 [[ TargetDir="]] .. pkginfo.install_dir
         end
         common.xlings_run_bat_script(install_cmd, true)
@@ -96,11 +96,14 @@ end
 
 function uninstall()
     if is_host("windows") then
+        if not os.isfile(pkginfo.install_file) then
+            cprint("$s{red}not exist: " .. pkginfo.install_file)
+            return false
+        end
         common.xlings_run_bat_script(
             pkginfo.install_file .. [[ /uninstall /passive ]],
             true
         )
-        utils.prompt("等待卸载/waiting uninstall...", "")
     else
         os.exec("xvm remove python " .. pkginfo.version)
         os.exec("xvm remove pip " .. "python-" .. pkginfo.version)

@@ -20,7 +20,7 @@ package = {
 
     xpm = {
         windows = {
-            deps = {"python@3.12.6"},
+            deps = {"python@3"},
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = {
                 url = "https://github.com/2412322029/seeme/releases/download/pub/seeme-server.zip",
@@ -28,7 +28,7 @@ package = {
             },
         },
         debain = {
-            deps = {"python@3.12.6"},
+            deps = {"python@3"},
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = {
                 url = "https://github.com/2412322029/seeme/releases/download/pub/seeme-server.zip",
@@ -53,15 +53,10 @@ function install()
     os.tryrm(pkginfo.install_dir) -- 移除可能存在的老代码 
     os.trymv("server", pkginfo.install_dir)
     print("Installing dependencies from requirements.txt...")
-    local install_result = os.exec(string.format("pip install -r %s", pkginfo.install_dir .. "\\requirement.txt")) -- for win \\
+    local install_result = os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir, "requirement.txt"))) 
     --"C:\Users\Public\.xlings_data\xim\xpkgs\seeme\0.0.2\server\requirement.txt"
-    if install_result == 0 then
-        print("Dependencies installed successfully.")
-        print("use -> seeme-server")
-        print("install seeme-report after")
-    else
-        print("Failed to install dependencies.")
-    end
+    cprint("\n${green}use -> seeme-server${clear}\n")
+    cprint("\n${green}install seeme-report after${clear}\n")
     return true
 
 end
@@ -69,8 +64,8 @@ end
 function config()
     -- config xvm
     os.exec(format(
-        [[xvm add seeme-server %s  --alias "python %s\main.py"]],
-        pkginfo.version, pkginfo.install_dir
+        [[xvm add seeme-server %s  --alias "python %s"]],
+        pkginfo.version, path.join(pkginfo.install_dir, "main.py")
     ))
     return true
 end

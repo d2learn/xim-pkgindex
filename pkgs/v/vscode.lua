@@ -58,7 +58,7 @@ local shortcut_dir = {
 local shortcut_template = {
     linux = [[
 [Desktop Entry]
-Name=Visual Studio Code - [%s] - XIM
+Name=Visual Studio Code - [%s]
 Comment=Code Editing. Redefined.
 GenericName=Text Editor
 Exec=%s
@@ -111,7 +111,7 @@ function config()
     if os.host() == "windows" then
         code_alias = "code.cmd"
         -- create desktop shortcut
-        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
+        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "]"
         create_windows_shortcut(
             lnk_filename,
             path.join(pkginfo.install_dir, "code.exe"),
@@ -139,7 +139,7 @@ function uninstall()
     os.exec("xvm remove vscode " .. pkginfo.version)
     if os.host() == "windows" then
         -- remove desktop shortcut
-        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "] - XIM"
+        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "]"
         local lnk_path = path.join(shortcut_dir[os.host()], lnk_filename .. ".lnk")
         print("removing desktop shortcut - %s", lnk_path)
         os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))

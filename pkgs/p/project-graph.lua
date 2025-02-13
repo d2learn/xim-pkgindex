@@ -139,7 +139,7 @@ function config_desktop_shortcut(action)
         local shortcut_file = path.join(os.getenv("HOME"), ".local/share/applications", filename)
         local desktop_entry = [[
 [Desktop Entry]
-Name=Project Graph - [%s] - XIM
+Name=Project Graph - [%s]
 Comment=Diagram creator
 Exec=%s
 Icon=%s

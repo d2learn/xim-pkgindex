@@ -49,6 +49,14 @@ xim --add-xpkg yourPath/xxx.lua
 
 [详细文档](docs/add-xpackage.md)
 
+## 包索引仓库
+
+| 仓库 | 命名空间 | 简介 |
+| -- | -- | -- |
+| [xim-pkgindex-template](https://github.com/d2learn/xim-pkgindex-template) | xim | 自建/镜像/私有包索引模板仓库 |
+| [xim-pkgindex-d2x](https://github.com/d2learn/xim-pkgindex-d2x) | d2x | d2x公开课系列项目 |
+
+
 ## 参与项目贡献
 
 - 1.包的多平台适配和验证

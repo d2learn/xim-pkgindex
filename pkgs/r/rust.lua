@@ -102,7 +102,7 @@ function _choice_toolchain()
     if confirm == "2" then
         toolchain_abi = "x86_64-pc-windows-msvc"
         -- TODO: install msvc toolchain
-        xinstall("msvc")
+        xinstall("msvc@onlycompiler")
     end
 
     return toolchain_abi

@@ -41,10 +41,10 @@ package = {
                 sha256 = "9ef07fd288ba58ff3b99d1c94e6d414d431c9a61fdb20348e5beb74b823d546b"
             },
         },
-        debian = { ref = "linux" },
-        ubuntu = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
+        --debian = { ref = "linux" },
+        --ubuntu = { ref = "linux" },
+        --archlinux = { ref = "linux" },
+        --manjaro = { ref = "linux" },
     },
 }
 

@@ -24,10 +24,6 @@ package = {
             ["11.0.0"] = { },
             ["10.9.2"] = { },
         },
-        debian = { ref = "linux" },
-        ubuntu = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
     },
 }
 

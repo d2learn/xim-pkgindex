@@ -19,12 +19,11 @@ package = {
             ["latest"] = { ref = "msvc" },
             ["msvc"] = {},
         },
-        ubuntu = {
+        linux = {
             deps = {"gcc"},
             ["latest"] = { ref = "gnu" },
             ["gnu"] = {},
         },
-        debain = { ref = "ubuntu" },
     },
 }
 

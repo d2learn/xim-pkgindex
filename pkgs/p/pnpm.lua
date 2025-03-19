@@ -22,10 +22,6 @@ package = {
             ["latest"] = { ref = "9.15.0"},
             ["9.15.0"] = { },
         },
-        debian = { ref = "linux" },
-        ubuntu = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
     },
 }
 

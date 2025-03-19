@@ -31,10 +31,6 @@ package = {
             ["9.0"] = { url = linux_install_script, sha256 = nil },
             ["8.0"] = { url = linux_install_script, sha256 = nil },
         },
-        debian = { ref = "linux" },
-        ubuntu = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
     },
 }
 

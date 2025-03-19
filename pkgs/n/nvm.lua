@@ -21,14 +21,13 @@ package = {
                 sha256 = "941561b7486cffc5b5090a99f6949bdc31dbaa6288025d4b2b1e3f710f0ed654",
             }
         },
-        ubuntu = {
+        linux = {
             ["latest"] = { ref = "0.39.0"},
             ["0.39.0"] = {
                 url = "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh",
                 sha256 = nil,
             },
         },
-        archlinux = { ref = "ubuntu" },
     },
 }
 

@@ -15,7 +15,7 @@ jobs:
         run: curl -fsSL https://d2learn.org/xlings-install.sh | bash
 
       - name: Get changed-files (only pull_request）
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@v46
         id: changed-files
         with:
           path: pkgs/

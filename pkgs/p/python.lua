@@ -32,10 +32,6 @@ package = {
             ["3.9.21"] = { url = _linux_download_url("3.9.21"), sha256 = nil },
             ["3.8.20"] = { url = _linux_download_url("3.8.20"), sha256 = nil },
         },
-        ubuntu = { ref = "linux" },
-        debian = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
     },
 }
 

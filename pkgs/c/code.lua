@@ -39,10 +39,6 @@ package = {
                 sha256 = nil,
             },
         },
-        debian = { ref = "linux" },
-        ubuntu = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
     }
 }
 

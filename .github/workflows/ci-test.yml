@@ -1,0 +1,30 @@
+name: pkgindex test
+
+on: [push]
+
+jobs:
+
+  linux-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Installation Xlings on Ubuntu
+        run: curl -fsSL https://d2learn.org/xlings-install.sh | bash
+
+      - name: Get changed-files (only pull_request）
+        uses: tj-actions/changed-files@v44
+        id: changed-files
+        with:
+          path: pkgs/
+
+      - name: Package File Test
+        run: |
+          source ~/.bashrc
+          export PATH=/home/xlings/.xlings_data/bin:$PATH
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "---"
+            xim --add-xpkg "pkgs/$file" || exit 1 # verify the package file
+          done

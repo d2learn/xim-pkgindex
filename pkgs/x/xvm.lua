@@ -30,10 +30,6 @@ package = {
                 github_release_tag = "xvm-dev",
             }
         },
-        debian = { ref = "linux" },
-        ubuntu = { ref = "linux" },
-        archlinux = { ref = "linux" },
-        manjaro = { ref = "linux" },
     },
 }
 

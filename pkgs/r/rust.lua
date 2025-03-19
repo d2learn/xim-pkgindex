@@ -24,13 +24,12 @@ package = {
                 sha256 = nil
             }
         },
-        ubuntu = {
+        linux = {
             ["latest"] = {
                 url = "https://sh.rustup.rs",
                 sha256 = nil
             }
         },
-        debain = { ref = "ubuntu" },
     },
 }
 

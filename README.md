@@ -31,10 +31,9 @@ xim --add-xpkg yourPath/xxx.lua
 
 ## 如何添加一个XPackage包文件到索引仓库?
 
-- 第一步: 创建个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) & 填写基础信息
-- 第二步: 复制一份[包模板文件](docs/xpackage-template.lua)
-- 第三步: 修改文件名和包内容 (可以参考仓库中的包或[xpackage规范示例](docs/xpackage-spec.md))
-- 第四步: 对包内容进行测试
+- 第0步: 复制一份[包模板文件](docs/xpackage-template.lua)
+- 第1步: 修改文件名和包内容 (可以参考仓库中的包或[xpackage规范示例](docs/xpackage-spec.md))
+- 第2步: 对包内容进行测试
   - 添加包到索引数据库: `xim --add-xpkg yourLocalPath/filename.lua`
   - 搜索测试: `xim -s filename`
   - 安装测试: `xim -i filename`
@@ -42,10 +41,10 @@ xim --add-xpkg yourPath/xxx.lua
   - 安装列表测试: `xim -l filename`
   - 卸载测试: `xim -r filename`
   - 已卸载测试: `xim -r filename` (会显示包没有安装)
-- 第五步: 当第四步通过后, 把测试信息补充到第一步中创建的问题里
-- 第六步: [fork项目](https://github.com/d2learn/xim-pkgindex), 并把包文件放到`pkgs`目录下的对应位置
-- 第七步: 发起合入Pull-Request, 把PR地址补充到问题里并在评论区@项目维护人员
-- 第八步: TODO (reviewer本地验证&approval)
+- 第3步: 创建个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) & 填写基础信息、测试log/截图
+- 第4步: [fork项目](https://github.com/d2learn/xim-pkgindex), 并把包文件放到`pkgs`目录下的对应位置
+- 第5步: 发起合入Pull-Request, 把PR地址补充到问题里并在评论区@项目维护人员
+- 第6步: TODO (reviewer本地验证&approval)
 
 [详细文档](docs/add-xpackage.md)
 

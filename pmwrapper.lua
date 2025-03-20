@@ -5,6 +5,12 @@ pmwrapper = {
     ["dotnet-9"] = {
         windows = {"winget", "Microsoft.DotNet.SDK.9"},
     },
+    ["fzf"] = {
+        windows = {"winget", "fzf"},
+        ubuntu = {"apt", "fzf"},
+        archlinux = {"pacman", "fzf"},
+        manjaro = {"pacman", "fzf"},
+    },
     ["gcc"] = {
         ubuntu = {"apt", "gcc"},
         archlinux = {"pacman", "gcc"},

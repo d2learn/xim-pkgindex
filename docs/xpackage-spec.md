@@ -20,7 +20,7 @@ package = {
     docs = "https://example.com/docs",
 
     -- xim pkg info
-    type = "package", -- package, auto-config
+    type = "package", -- package, config
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"category1", "category2"},

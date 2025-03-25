@@ -9,7 +9,7 @@ package = {
     contributors = "https://github.com/d2learn/xim-pkgindex/graphs/contributors",
 
     -- xim pkg info
-    type = "auto-config",
+    type = "config",
     status = "stable", -- dev, stable, deprecated
     categories = {"plang", "compiler", "c"},
 

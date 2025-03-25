@@ -5,7 +5,7 @@ package = {
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info
-    type = "auto-config",
+    type = "config",
     status = "stable", -- dev, stable, deprecated
     categories = {"windows", "subsystem", "ubuntu"},
     keywords = {"linux", "subsystem", "ubuntu"},

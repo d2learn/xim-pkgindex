@@ -2,6 +2,11 @@
 
 software, library, environment install/config ...
 
+
+| type |
+| --- |
+| package - app - config - courses - script - lib - plugin |
+
 ---
 
 ## 最近动态

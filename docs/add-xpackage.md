@@ -38,7 +38,7 @@ package = {
     docs = "https://example.com/docs",
 
     -- xim pkg info
-    type = "package", -- package, auto-config
+    type = "package", -- package, config
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"category1", "category2"},
@@ -83,7 +83,7 @@ package = {
 >
 >    1.latest版本一般会使用ref引用到一个具体的版本上
 >
->    2.如果没有网络资源时(例如是auto-config包)可以填写一个空列表。如: `["1.0.1"] = { },`
+>    2.如果没有网络资源时(例如是config包)可以填写一个空列表。如: `["1.0.1"] = { },`
 >
 
 ### hooks/actions域

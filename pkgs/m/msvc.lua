@@ -3,7 +3,7 @@ package = {
     description = "Microsoft Visual Studio C++ Compiler",
     maintainers = "Microsoft",
 
-    type = "auto-config",
+    type = "config",
     status = "stable",
     maintainers = "Microsoft",
     categories = { "toolchain", "c++", "c", "compiler" },

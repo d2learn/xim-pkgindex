@@ -13,7 +13,7 @@ package = {
     forum = "https://forum.d2learn.org/category/16/project-graph",
 
     -- xim pkg info
-    type = "package", -- package, auto-config
+    type = "package", -- package, config
     archs = {"x86_64", "aarch64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"desktop-tools", "graph-tools"},

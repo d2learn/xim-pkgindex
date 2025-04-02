@@ -10,6 +10,7 @@ package = {
     docs = "https://rust-lang.github.io/mdBook",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"book", "markdown"},

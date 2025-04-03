@@ -20,43 +20,42 @@ package = {
         },
         linux = {
             deps = { "nodejs" },
-            ["latest"] = { ref = "11.0.0" },
+            ["latest"] = { ref = "11.2.0" },
+            ["11.2.0"] = { },
             ["11.0.0"] = { },
             ["10.9.2"] = { },
+            ["9.9.4"] = { },
+            ["8.19.4"] = { },
         },
     },
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
-
-function installed()
-    return os.iorun("xvm list npm")
-end
+import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 function install()
     local npm_installcmd_template = "npm install -g npm@%s --prefix %s"
-    os.iorun(string.format(npm_installcmd_template, pkginfo.version, pkginfo.install_dir))
+    os.iorun(string.format(npm_installcmd_template, pkginfo.version(), pkginfo.install_dir()))
     return true
 end
 
 function config()
     print("config xvm...")
-    local xvm_npm_template = "xvm add npm %s --path %s"
 
-    local bindir = pkginfo.install_dir
+    config = {}
     if is_host("windows") then
-        xvm_npm_template = xvm_npm_template .. " --alias npm.cmd"
+        config.alias = "npm.cmd"
+        --config.bindir = pkginfo.install_dir() -- default
     else
-        bindir = path.join(pkginfo.install_dir, "bin")
+        config.bindir = path.join(pkginfo.install_dir(), "bin")
     end
 
-    os.exec(string.format(xvm_npm_template, pkginfo.version, bindir))
+    xvm.add("npm", config)
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove npm " .. pkginfo.version)
+    --xvm.remove("npm")
+    xvm.remove()
     return true
 end

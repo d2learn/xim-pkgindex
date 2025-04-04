@@ -25,34 +25,28 @@ package = {
     },
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
-
-function installed()
-    return os.iorun("xvm list pnpm")
-end
+import("xim.libxpkg.pkginfo")
 
 function install()
     local pnpm_installcmd_template = "npm install -g pnpm@%s --prefix %s"
-    os.iorun(string.format(pnpm_installcmd_template, pkginfo.version, pkginfo.install_dir))
+    os.iorun(string.format(pnpm_installcmd_template, pkginfo.version(), pkginfo.install_dir()))
     return true
 end
 
 function config()
     print("config xvm...")
     local xvm_pnpm_template = "xvm add pnpm %s --path %s"
-    local bindir = pkginfo.install_dir
+    local bindir = pkginfo.install_dir()
     if is_host("windows") then
         xvm_pnpm_template = xvm_pnpm_template .. " --alias pnpm.cmd"
     else
-        bindir = path.join(pkginfo.install_dir, "bin")
+        bindir = path.join(pkginfo.install_dir(), "bin")
     end
-    os.exec(string.format(xvm_pnpm_template, pkginfo.version, bindir))
+    os.exec(string.format(xvm_pnpm_template, pkginfo.version(), bindir))
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove pnpm " .. pkginfo.version)
+    os.exec("xvm remove pnpm " .. pkginfo.version())
     return true
 end

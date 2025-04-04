@@ -34,25 +34,19 @@ package = {
     },
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
-
-function installed()
-    return os.iorun("xvm list dotnet")
-end
+import("xim.libxpkg.pkginfo")
 
 function install()
     local install_cmd = ""
     if is_host("windows") then
-        install_cmd = [[powershell -ExecutionPolicy Bypass -File ]] .. pkginfo.install_file ..
-            " -Channel " .. pkginfo.version ..
-            " -InstallDir " .. pkginfo.install_dir
+        install_cmd = [[powershell -ExecutionPolicy Bypass -File ]] .. pkginfo.install_file() ..
+            " -Channel " .. pkginfo.version() ..
+            " -InstallDir " .. pkginfo.install_dir()
     else
-        os.exec("chmod +x " .. pkginfo.install_file)
-        install_cmd = pkginfo.install_file ..
-            " --channel " .. pkginfo.version ..
-            " --install-dir " .. pkginfo.install_dir
+        os.exec("chmod +x " .. pkginfo.install_file())
+        install_cmd = pkginfo.install_file() ..
+            " --channel " .. pkginfo.version() ..
+            " --install-dir " .. pkginfo.install_dir()
     end
     print("exec: " .. install_cmd)
     os.exec(install_cmd)
@@ -61,11 +55,11 @@ end
 
 function config()
     local xvm_dotnet_cmd = "xvm add dotnet %s --path %s"
-    os.exec(string.format(xvm_dotnet_cmd, pkginfo.version, pkginfo.install_dir))
+    os.exec(string.format(xvm_dotnet_cmd, pkginfo.version(), pkginfo.install_dir()))
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove dotnet " .. pkginfo.version)
+    os.exec("xvm remove dotnet " .. pkginfo.version())
     return true
 end

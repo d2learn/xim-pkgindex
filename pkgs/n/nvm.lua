@@ -32,9 +32,6 @@ package = {
 }
 
 import("xim.base.utils")
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
 
 function installed()
     return os.iorun("nvm --version")
@@ -42,7 +39,7 @@ end
 
 function install()
     if is_host("windows") then
-        os.exec(pkginfo.install_file .. " /SILENT")
+        os.exec(pkginfo.install_file() .. " /SILENT")
 
         local nvm_home = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Roaming\\nvm"
         local node_home = "C:\\Program Files\\nodejs"
@@ -54,7 +51,7 @@ function install()
         os.addenv("PATH", nvm_home)
         os.addenv("PATH", node_home)
     else
-        os.exec("sh " .. pkginfo.install_file)
+        os.exec("sh " .. pkginfo.install_file())
         utils.append_bashrc([[
 # nvm config by xlings-xim
 if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; fi

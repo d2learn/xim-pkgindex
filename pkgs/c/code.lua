@@ -42,9 +42,7 @@ package = {
     }
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
+import("xim.libxpkg.pkginfo")
 
 local shortcut_dir = {
     linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
@@ -77,22 +75,22 @@ function installed()
 end
 
 function install()
-    os.tryrm(pkginfo.install_dir)
+    os.tryrm(pkginfo.install_dir())
     if os.host() == "windows" then
         -- unzip the stable by powershell
         os.mv("stable", "stable.zip")
         -- avoid warning info by -ExecutionPolicy Bypass
-        os.exec(string.format([[powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir))
+        os.exec(string.format([[powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir()))
         os.tryrm("stable.zip")
     else
         os.exec("tar -xvf stable")
-        os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir)
+        os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir())
         -- https://github.com/flathub/com.visualstudio.code/issues/223
         -- set the correct permissions for chrome-sandbox, and as root
         print("https://github.com/flathub/com.visualstudio.code/issues/223")
         print("setting permissions for chrome-sandbox...")
-        os.exec("sudo chown root:root " .. pkginfo.install_dir .. "/chrome-sandbox")
-        os.exec("sudo chmod 4755 " .. pkginfo.install_dir .. "/chrome-sandbox")
+        os.exec("sudo chown root:root " .. pkginfo.install_dir() .. "/chrome-sandbox")
+        os.exec("sudo chmod 4755 " .. pkginfo.install_dir() .. "/chrome-sandbox")
         os.tryrm("stable")
     end
     return true
@@ -107,12 +105,12 @@ function config()
     if os.host() == "windows" then
         code_alias = "code.cmd"
         -- create desktop shortcut
-        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "]"
+        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version() .. "]"
         create_windows_shortcut(
             lnk_filename,
-            path.join(pkginfo.install_dir, "code.exe"),
-            path.join(pkginfo.install_dir, "code.exe"),
-            pkginfo.install_dir
+            path.join(pkginfo.install_dir(), "code.exe"),
+            path.join(pkginfo.install_dir(), "code.exe"),
+            pkginfo.install_dir()
         )
         os.cp(lnk_filename .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
         os.mv(lnk_filename .. ".lnk", shortcut_dir[os.host()])
@@ -124,18 +122,18 @@ function config()
         end
     end
 
-    os.exec(string.format(xvm_cmd_template1, pkginfo.version, pkginfo.install_dir, code_alias))
-    os.exec(string.format(xvm_cmd_template2, pkginfo.version, pkginfo.install_dir, code_alias))
+    os.exec(string.format(xvm_cmd_template1, pkginfo.version(), pkginfo.install_dir(), code_alias))
+    os.exec(string.format(xvm_cmd_template2, pkginfo.version(), pkginfo.install_dir(), code_alias))
 
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove code " .. pkginfo.version)
-    os.exec("xvm remove vscode " .. pkginfo.version)
+    os.exec("xvm remove code " .. pkginfo.version())
+    os.exec("xvm remove vscode " .. pkginfo.version())
     if os.host() == "windows" then
         -- remove desktop shortcut
-        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version .. "]"
+        local lnk_filename = "Visual Studio Code - [" .. pkginfo.version() .. "]"
         local lnk_path = path.join(shortcut_dir[os.host()], lnk_filename .. ".lnk")
         print("removing desktop shortcut - %s", lnk_path)
         os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))
@@ -153,16 +151,16 @@ end
 ---
 
 function desktop_shortcut_info()
-    local filename = "vscode." .. pkginfo.version .. ".xvm.desktop"
+    local filename = "vscode." .. pkginfo.version() .. ".xvm.desktop"
     local filepath = path.join(shortcut_dir[os.host()], filename)
-    local exec_path = string.format("%s/bin/code", pkginfo.install_dir)
-    local icon_path = string.format("%s/resources/app/resources/linux/code.png", pkginfo.install_dir)
+    local exec_path = string.format("%s/bin/code", pkginfo.install_dir())
+    local icon_path = string.format("%s/resources/app/resources/linux/code.png", pkginfo.install_dir())
 
     return {
         filepath = filepath,
         content = string.format(
             shortcut_template[os.host()],
-            pkginfo.version, exec_path, icon_path
+            pkginfo.version(), exec_path, icon_path
         )
     }
 end

@@ -33,11 +33,9 @@ package = {
     },
 }
 
-import("platform")
-import("xim.base.runtime")
+import("xim.libxpkg.system")
 
-local bindir = platform.get_config_info().bindir
-local pkginfo = runtime.get_pkginfo()
+local bindir = system.bindir()
 
 local xvm_file = {
     windows = "xvm.exe",

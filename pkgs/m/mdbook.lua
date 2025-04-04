@@ -49,9 +49,7 @@ package = {
     },
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
+import("xim.libxpkg.pkginfo")
 
 local mdbook_file = {
     windows = "mdbook.exe",
@@ -63,19 +61,19 @@ function installed()
 end
 
 function install()
-    return os.trymv(mdbook_file[os.host()], pkginfo.install_dir)
+    return os.trymv(mdbook_file[os.host()], pkginfo.install_dir())
 end
 
 function config()
     -- config xvm
     os.exec(format(
         "xvm add mdbook %s --path %s",
-        pkginfo.version, pkginfo.install_dir
+        pkginfo.version(), pkginfo.install_dir()
     ))
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove mdbook " .. pkginfo.version)
+    os.exec("xvm remove mdbook " .. pkginfo.version())
     return true
 end

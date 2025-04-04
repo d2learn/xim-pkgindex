@@ -37,9 +37,6 @@ package = {
 
 import("common")
 import("xim.base.utils")
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
 
 function installed()
     if is_host("windows") then
@@ -51,15 +48,15 @@ end
 
 function install()
     if is_host("windows") then
-        local install_cmd = pkginfo.install_file
+        local install_cmd = pkginfo.install_file()
         if utils.prompt("use default installation?(y/n)", "y") then
-            install_cmd = pkginfo.install_file ..
+            install_cmd = pkginfo.install_file() ..
                 [[ /passive InstallAllUsers=1 PrependPath=1 Include_test=1 Include_pip=1 ]] ..
-                [[ TargetDir="]] .. pkginfo.install_dir
+                [[ TargetDir="]] .. pkginfo.install_dir()
         end
         common.xlings_run_bat_script(install_cmd, true)
     else
-        os.cd("Python-" .. pkginfo.version)
+        os.cd("Python-" .. pkginfo.version())
         --  build args - opt or todo?
             --enable-shared
             --with-computed-gotos 
@@ -67,12 +64,12 @@ function install()
             --enable-ipv6
             --enable-loadable-sqlite-extensions
         os.exec([[./configure --enable-optimizations
-            --prefix=]] .. pkginfo.install_dir
+            --prefix=]] .. pkginfo.install_dir()
         )
         os.exec("make -j$(nproc)")
         os.exec("make install")
         os.cd("..")
-        os.tryrm("Python-" .. pkginfo.version)
+        os.tryrm("Python-" .. pkginfo.version())
     end
     return true
 end
@@ -84,25 +81,25 @@ function config()
         print("config xvm...")
         local xvm_python_template = "xvm add python %s --path %s/bin --alias python3"
         local xvm_pip_template = "xvm add pip %s --path %s/bin --alias pip3"
-        os.exec(string.format(xvm_python_template, pkginfo.version, pkginfo.install_dir))
-        os.exec(string.format(xvm_pip_template, "python-" .. pkginfo.version, pkginfo.install_dir))
+        os.exec(string.format(xvm_python_template, pkginfo.version(), pkginfo.install_dir()))
+        os.exec(string.format(xvm_pip_template, "python-" .. pkginfo.version(), pkginfo.install_dir()))
     end
     return true
 end
 
 function uninstall()
     if is_host("windows") then
-        if not os.isfile(pkginfo.install_file) then
-            cprint("$s{red}not exist: " .. pkginfo.install_file)
+        if not os.isfile(pkginfo.install_file()) then
+            cprint("$s{red}not exist: " .. pkginfo.install_file())
             return false
         end
         common.xlings_run_bat_script(
-            pkginfo.install_file .. [[ /uninstall /passive ]],
+            pkginfo.install_file() .. [[ /uninstall /passive ]],
             true
         )
     else
-        os.exec("xvm remove python " .. pkginfo.version)
-        os.exec("xvm remove pip " .. "python-" .. pkginfo.version)
+        os.exec("xvm remove python " .. pkginfo.version())
+        os.exec("xvm remove pip " .. "python-" .. pkginfo.version())
     end
 
     return true

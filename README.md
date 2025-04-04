@@ -3,7 +3,7 @@
 software, library, environment install/config ...
 
 
-| [![pkgindex test](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml/badge.svg)](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml) |
+| [![pkgindex test](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml/badge.svg?branch=main)](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml) |
 | --- |
 | **type:** package - app - config - courses - lib - plugin - script |
 

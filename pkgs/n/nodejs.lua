@@ -43,9 +43,7 @@ package = {
 }
 
 import("xim.base.utils")
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
+import("xim.libxpkg.pkginfo")
 
 local node_dir_template = {
     linux = "node-v%s-linux-x64",
@@ -57,11 +55,11 @@ function installed()
 end
 
 function install()
-    os.tryrm(pkginfo.install_dir)
-    print("Installing Node.js to %s ...", pkginfo.install_dir)
+    os.tryrm(pkginfo.install_dir())
+    print("Installing Node.js to %s ...", pkginfo.install_dir())
     os.mv(
-        string.format(node_dir_template[os.host()], pkginfo.version),
-        pkginfo.install_dir
+        string.format(node_dir_template[os.host()], pkginfo.version()),
+        pkginfo.install_dir()
     )
     return true
 end
@@ -72,23 +70,23 @@ function config()
     local node_xvm_cmd_template2 = "xvm add nodejs %s --path %s --alias node"
     local npm_xvm_cmd_template = "xvm add npm node-%s --path %s"
 
-    local bindir = pkginfo.install_dir
+    local bindir = pkginfo.install_dir()
     if is_host("windows") then
         npm_xvm_cmd_template = npm_xvm_cmd_template .. " --alias npm.cmd"
     else
-        bindir = path.join(pkginfo.install_dir, "bin")
+        bindir = path.join(pkginfo.install_dir(), "bin")
     end
 
-    os.exec(string.format(node_xvm_cmd_template1, pkginfo.version, bindir))
-    os.exec(string.format(node_xvm_cmd_template2, pkginfo.version, bindir))
-    os.exec(string.format(npm_xvm_cmd_template, pkginfo.version, bindir))
+    os.exec(string.format(node_xvm_cmd_template1, pkginfo.version(), bindir))
+    os.exec(string.format(node_xvm_cmd_template2, pkginfo.version(), bindir))
+    os.exec(string.format(npm_xvm_cmd_template, pkginfo.version(), bindir))
     return true
 end
 
 function uninstall()
-    print("Uninstalling Node.js from %s ...", pkginfo.install_dir)
-    os.exec("xvm remove node " .. pkginfo.version)
-    os.exec("xvm remove nodejs " .. pkginfo.version)
-    os.exec("xvm remove npm node-" .. pkginfo.version)
+    print("Uninstalling Node.js from %s ...", pkginfo.install_dir())
+    os.exec("xvm remove node " .. pkginfo.version())
+    os.exec("xvm remove nodejs " .. pkginfo.version())
+    os.exec("xvm remove npm node-" .. pkginfo.version())
     return true
 end

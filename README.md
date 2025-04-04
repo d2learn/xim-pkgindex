@@ -3,9 +3,9 @@
 software, library, environment install/config ...
 
 
-| type |
+| [![pkgindex test](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml/badge.svg)](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml) |
 | --- |
-| package - app - config - courses - script - lib - plugin |
+| **type:** package - app - config - courses - lib - plugin - script |
 
 ---
 

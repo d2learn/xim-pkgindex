@@ -29,16 +29,13 @@ package = {
 
 import("core.tool.toolchain")
 
-import("xim.base.runtime")
+import("xim.libxpkg.pkginfo")
 import("xim.xuninstall")
 
-
-local pkginfo = runtime.get_pkginfo()
-
 function installed()
-    if pkginfo.version == "msvc" then
+    if pkginfo.version() == "msvc" then
         return toolchain.load("msvc"):check() == "2022"
-    elseif pkginfo.version == "gnu" then
+    elseif pkginfo.version() == "gnu" then
         local output = os.iorun("gcc --version")
         return string.find(output:trim(), "gcc", 1, true) ~= nil
     else
@@ -52,9 +49,9 @@ function install()
 end
 
 function uninstall()
-    if pkginfo.version == "msvc" then
+    if pkginfo.version() == "msvc" then
         xuninstall("msvc")
-    elseif pkginfo.version == "gnu" then
+    elseif pkginfo.version() == "gnu" then
         xuninstall("gcc")
     end
     return true

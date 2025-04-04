@@ -31,5 +31,10 @@ jobs:
           export PATH=/home/xlings/.xlings_data/bin:$PATH
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "---"
-            xim --add-xpkg "pkgs/$file" || exit 1 # verify the package file
+            output=$(xim --add-xpkg "pkgs/$file" 2>&1)
+            echo "$output"
+            if echo "$output" | grep -i "error"; then
+              echo "❌ Error detected in $file"
+              exit 1
+            fi
           done

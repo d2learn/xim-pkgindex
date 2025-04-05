@@ -37,6 +37,7 @@ package = {
 
 import("common")
 import("xim.base.utils")
+import("xim.libxpkg.pkginfo")
 
 function installed()
     if is_host("windows") then

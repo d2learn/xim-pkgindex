@@ -32,12 +32,16 @@ package = {
             },
         },
         linux = {
-            ["latest"] = { ref = "23.6.0" },
+            ["latest"] = { ref = "22.14.0" },
+            ["23.11.0"] = { url = download_url("23.11.0"), sha256 = nil, },
             ["23.6.0"] = { url = download_url("23.6.0"), sha256 = nil, },
+            ["22.14.0"] = { url = download_url("22.14.0"), sha256 = nil, },
             ["22.12.0"] = {
                 url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz",
                 sha256 = "22982235e1b71fa8850f82edd09cdae7e3f32df1764a9ec298c72d25ef2c164f",
             },
+            ["20.19.0"] = { url = download_url("20.19.0"), sha256 = nil, },
+            ["18.20.8"] = { url = download_url("18.20.8"), sha256 = nil, },
         },
     },
 }

@@ -7,7 +7,7 @@ package = {
 
     maintainers = "LiRenTech",
     contributors = "https://github.com/LiRenTech/project-graph/graphs/contributors",
-    licenses = "MIT",
+    license = "MIT",
     repo = "https://github.com/LiRenTech/project-graph",
     docs = "https://project-graph.top/getting-started",
     forum = "https://forum.d2learn.org/category/16/project-graph",
@@ -45,6 +45,9 @@ package = {
                 url = "%.deb$", -- url pattern
                 github_release_tag = "nightly",
             },
+            ["1.5.1"] = { url = _linux_donwload_url("1.5.1"), sha256 = nil },
+            ["1.5.0"] = { url = _linux_donwload_url("1.5.0"), sha256 = nil },
+            ["1.4.0"] = { url = _linux_donwload_url("1.4.0"), sha256 = nil },
             ["1.2.7"] = { url = _linux_donwload_url("1.2.7"), sha256 = nil },
             ["1.2.6"] = { url = _linux_donwload_url("1.2.6"), sha256 = nil },
             ["1.2.5"] = { url = _linux_donwload_url("1.2.5"), sha256 = nil },
@@ -109,7 +112,7 @@ function config()
         os.exec("xvm remove project-graph --yes") -- remove old version
         project_graph_path = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph"
     else
-        config_desktop_shortcut("create")
+        _config_desktop_shortcut("create")
     end
     os.exec(string.format(xvm_cmd_template, pkginfo.version, project_graph_path))
     return true
@@ -122,13 +125,13 @@ function uninstall()
         utils.prompt("等待卸载/waiting uninstall...")
         os.exec(xvm_rm)
     elseif os.host() == "linux" then
-        config_desktop_shortcut("delete")
+        _config_desktop_shortcut("delete")
         os.exec(xvm_rm .. pkginfo.version)
     end
     return true
 end
 
-function config_desktop_shortcut(action)
+function _config_desktop_shortcut(action)
     action = action or "delete" -- create, delete
     if os.host() == "linux" then
         local filename = "project-graph-" .. pkginfo.version .. ".xvm.desktop"

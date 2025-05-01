@@ -23,7 +23,7 @@ package = {
     xpm = {
         linux = {
             deps = { "make", "gcc" },
-            ["latest"] = { ref = "0.4.43" },
+            ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = { url = __gcc_url("15.1.0") },
             ["14.2.0"] = { url = __gcc_url("14.2.0") },
             ["13.3.0"] = { url = __gcc_url("13.3.0") },
@@ -92,6 +92,7 @@ function config()
 
     xvm.add("gcc", config)
     xvm.add("g++", config)
+    xvm.add("c++", config)
 
     return true
 end
@@ -99,5 +100,6 @@ end
 function uninstall()
     xvm.remove("gcc")
     xvm.remove("g++")
+    xvm.remove("c++")
     return true
 end

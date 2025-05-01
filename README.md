@@ -11,6 +11,7 @@ software, library, environment install/config ...
 
 ## 最近动态
 
+- xim+: 增加gcc15.1支持 - [文章](https://forum.d2learn.org/topic/84) - 2025/5/1
 - 增加Project-Graph图/节点绘制工具 - [文章1](http://forum.d2learn.org/post/209) / [文章2](http://forum.d2learn.org/post/210) - 2024/12/30
 - xpkg增加自动匹配github上release的url功能 - [文章](http://forum.d2learn.org/post/208) - 2024/12/30
 - 从xlings中分离包文件, 形成[xim-pkgindex](https://github.com/d2learn/xim-pkgindex)索引仓库 - 2024/12/16

@@ -22,7 +22,7 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "make", "gcc" },
+            deps = { "make", "gcc", "xz", "gzip", "bzip2" },
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = { url = __gcc_url("15.1.0") },
             ["14.2.0"] = { url = __gcc_url("14.2.0") },

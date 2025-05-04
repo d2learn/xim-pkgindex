@@ -2,6 +2,10 @@
 -- for complex package/software/config, please use pkgs/xpm
 
 pmwrapper = {
+    ["bzip2"] = {
+        ubuntu = {"apt", "bzip2"},
+        archlinux = {"pacman", "bzip2"},
+    },
     ["dotnet-9"] = {
         windows = {"winget", "Microsoft.DotNet.SDK.9"},
     },
@@ -15,6 +19,10 @@ pmwrapper = {
         ubuntu = {"apt", "gcc"},
         archlinux = {"pacman", "gcc"},
         manjaro = {"pacman", "gcc"},
+    },
+    ["gzip"] = {
+        ubuntu = {"apt", "gzip"},
+        archlinux = {"pacman", "gzip"},
     },
     ["g++"] = { ref = "gcc" },
     ["java"] = { ref = "openjdk8" },
@@ -65,6 +73,10 @@ pmwrapper = {
     ["rust"] = {
         archlinux = {"pacman", "rustup"},
         manjaro = {"pacman", "rustup"},
+    },
+    ["xz"] = {
+        ubuntu = {"apt", "xz-utils"},
+        archlinux = {"pacman", "xz"},
     },
     ["vim"] = {
         windows = {"winget", "vim.vim"},

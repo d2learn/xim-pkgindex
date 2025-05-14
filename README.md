@@ -3,14 +3,16 @@
 software, library, environment install/config ...
 
 
-| [![pkgindex test](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml/badge.svg?branch=main)](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml) |
+| [Package Index](https://d2learn.github.io/xim-pkgindex) |
 | --- |
+| [![pkgindex test](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml/badge.svg?branch=main)](https://github.com/d2learn/xim-pkgindex/actions/workflows/ci-test.yml) - [![Deploy Static Site - xpkgindex](https://github.com/d2learn/xim-pkgindex/actions/workflows/pkgindex-deloy.yml/badge.svg)](https://github.com/d2learn/xim-pkgindex/actions/workflows/pkgindex-deloy.yml) - [![gitee-sync](https://github.com/d2learn/xim-pkgindex/actions/workflows/gitee-sync.yml/badge.svg)](https://github.com/d2learn/xim-pkgindex/actions/workflows/gitee-sync.yml) |
 | **type:** package - app - config - courses - lib - plugin - script |
 
 ---
 
 ## 最近动态
 
+- xpkgindex: 增加包索引静态网站自动生成及部署 - 2025/5/14
 - xim+: 增加gcc15.1支持 - [文章](https://forum.d2learn.org/topic/84) - 2025/5/1
 - 增加Project-Graph图/节点绘制工具 - [文章1](http://forum.d2learn.org/post/209) / [文章2](http://forum.d2learn.org/post/210) - 2024/12/30
 - xpkg增加自动匹配github上release的url功能 - [文章](http://forum.d2learn.org/post/208) - 2024/12/30

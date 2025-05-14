@@ -4,6 +4,7 @@ package = {
     description = "An elegant keyboard/gamepad key detection and visualization tool",
 
     authors = "Sunrisepeak",
+    maintainers = "Sunrisepeak",
     license = "GPL-3.0",
     repo = "https://github.com/Sunrisepeak/KHistory",
 

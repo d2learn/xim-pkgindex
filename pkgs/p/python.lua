@@ -12,7 +12,8 @@ package = {
     -- xim pkg info
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
-    categories = {"python", "plang"},
+    categories = {"python", "plang", "interpreter"},
+    keywords = {"python", "programming", "scripting", "language"},
 
     xpm = {
         windows = {

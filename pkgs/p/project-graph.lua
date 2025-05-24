@@ -17,6 +17,7 @@ package = {
     archs = {"x86_64", "aarch64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"desktop-tools", "graph-tools"},
+    keywords = { "project", "topology", "drawing", "graph" },
 
     xpm = {
         windows = {
@@ -40,11 +41,14 @@ package = {
         },
         linux = {
             deps = { "webkit2gtk" },
-            ["latest"] = { ref = "1.2.7" },
+            ["latest"] = { ref = "1.7.10" },
             ["nightly"] = {
                 url = "%.deb$", -- url pattern
                 github_release_tag = "nightly",
             },
+            ["1.7.10"] = { url = _linux_donwload_url("1.7.10"), sha256 = nil },
+            ["1.7.0"] = { url = _linux_donwload_url("1.7.0"), sha256 = nil },
+            ["1.6.0"] = { url = _linux_donwload_url("1.6.0"), sha256 = nil },
             ["1.5.1"] = { url = _linux_donwload_url("1.5.1"), sha256 = nil },
             ["1.5.0"] = { url = _linux_donwload_url("1.5.0"), sha256 = nil },
             ["1.4.0"] = { url = _linux_donwload_url("1.4.0"), sha256 = nil },

@@ -17,18 +17,12 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "dev" },
-            ["dev"] = {
-                url = "%.zip$", -- url pattern
-                github_release_tag = "xvm-dev",
-            }
+            ["latest"] = { ref = "0.0.2" },
+            ["0.0.2"] = "XLINGS_RES",
         },
         linux = {
-            ["latest"] = { ref = "dev" },
-            ["dev"] = {
-                url = "%.tar.gz$", -- url pattern
-                github_release_tag = "xvm-dev",
-            }
+            ["latest"] = { ref = "0.0.2" },
+            ["0.0.2"] = "XLINGS_RES",
         },
     },
 }

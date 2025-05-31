@@ -24,6 +24,10 @@ package = {
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = "XLINGS_RES",
         },
+        macosx = {
+            ["latest"] = { ref = "0.0.2" },
+            ["0.0.2"] = "XLINGS_RES",
+        },
     },
 }
 
@@ -34,11 +38,13 @@ local bindir = system.bindir()
 local xvm_file = {
     windows = "xvm.exe",
     linux = "xvm",
+    macosx = "xvm"
 }
 
 local xvm_shim_file = {
     windows = "xvm-shim.exe",
     linux = "xvm-shim",
+    macosx = "xvm-shim"
 }
 
 function installed()

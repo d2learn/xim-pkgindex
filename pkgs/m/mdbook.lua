@@ -33,19 +33,16 @@ package = {
         },
         linux = {
             ["latest"] = { ref = "0.4.43" },
-            ["0.4.43"] = {
-                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-unknown-linux-gnu.tar.gz",
-                sha256 = "d20c2f20eb1c117dc5ebeec120e2d2f6455c90fe8b4f21b7466625d8b67b9e60"
-            },
+            ["0.4.43"] = "XLINGS_RES",
             ["0.4.40"] = {
                 url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz",
                 sha256 = "9ef07fd288ba58ff3b99d1c94e6d414d431c9a61fdb20348e5beb74b823d546b"
             },
         },
-        --debian = { ref = "linux" },
-        --ubuntu = { ref = "linux" },
-        --archlinux = { ref = "linux" },
-        --manjaro = { ref = "linux" },
+        macosx = {
+            ["latest"] = { ref = "0.4.43" },
+            ["0.4.43"] = "XLINGS_RES",
+        },
     },
 }
 
@@ -54,6 +51,7 @@ import("xim.libxpkg.pkginfo")
 local mdbook_file = {
     windows = "mdbook.exe",
     linux = "mdbook",
+    macosx = "mdbook"
 }
 
 function installed()

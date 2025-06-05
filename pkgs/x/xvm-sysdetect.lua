@@ -4,7 +4,7 @@ package = {
     description = "XVM - System Package Detect Tools",
 
     authors = "sunrisepeak",
-    license = "Apache-2.0",
+    licenses = "Apache-2.0",
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info

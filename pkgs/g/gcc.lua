@@ -6,7 +6,7 @@ package = {
     description = "GCC, the GNU Compiler Collection",
 
     authors = "GNU",
-    license = "GPL",
+    licenses = "GPL",
     repo = "https://github.com/gcc-mirror/gcc",
     docs = "https://gcc.gnu.org/wiki",
 

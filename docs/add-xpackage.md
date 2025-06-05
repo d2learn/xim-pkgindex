@@ -33,7 +33,7 @@ package = {
     authors = "Author Name",
     maintainers = "Maintainer Name or url",
     contributors = "Contributor Name or url",
-    license = "MIT",
+    licenses = "MIT",
     repo = "https://example.com/repo",
     docs = "https://example.com/docs",
 
@@ -122,7 +122,7 @@ package = {
 
     authors = "Mathieu David, Michael-F-Bryan, Matt Ickstadt",
     contributors = "https://github.com/rust-lang/mdBook/graphs/contributors",
-    license = "MPL-2.0",
+    licenses = "MPL-2.0",
     repo = "https://github.com/rust-lang/mdBook",
     docs = "https://rust-lang.github.io/mdBook",
 

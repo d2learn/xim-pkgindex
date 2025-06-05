@@ -5,7 +5,7 @@ package = {
 
     authors = "Sunrisepeak",
     maintainers = "Sunrisepeak",
-    license = "GPL-3.0",
+    licenses = "GPL-3.0",
     repo = "https://github.com/Sunrisepeak/KHistory",
 
     -- xim pkg info

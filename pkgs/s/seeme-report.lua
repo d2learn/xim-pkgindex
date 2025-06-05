@@ -5,7 +5,7 @@ package = {
 
     authors = "2412322029",
     contributors = "https://github.com/2412322029/seeme",
-    license = "",
+    licenses = "",
     repo = "https://github.com/2412322029/seeme",
     docs = "https://github.com/2412322029/seeme",
 

@@ -6,7 +6,7 @@ package = {
     authors = "sunrisepeak",
     maintainers = "d2learn",
     contributors = "https://github.com/d2learn/xlings/graphs/contributors",
-    license = "Apache-2.0",
+    licenses = "Apache-2.0",
     repo = "https://github.com/d2learn/xlings",
 
     -- xim pkg info

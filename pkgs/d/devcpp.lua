@@ -3,7 +3,7 @@ package = {
     description = "A full-featured Integrated Development Environment (IDE) for the C/C++",
     homepage = "https://sourceforge.net/projects/orwelldevcpp/",
     maintainers = "Orwell (Johan Mes)",
-    license = "GPL",
+    licenses = "GPL",
     repo = "https://sourceforge.net/projects/orwelldevcpp/",
 
     -- xim pkg info

@@ -10,7 +10,7 @@ package = {
     description = ".NET is the free, open-source, cross-platform framework",
     homepage = "https://dotnet.microsoft.com/",
     maintainers = "Microsoft",
-    license = "MIT",
+    licenses = "MIT",
     repo = "https://github.com/dotnet/sdk",
     docs = "https://learn.microsoft.com/dotnet",
 

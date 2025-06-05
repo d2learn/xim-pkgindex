@@ -7,7 +7,7 @@ package = {
 
     authors = "rust team",
     maintainers = "https://prev.rust-lang.org/en-US/team.html",
-    license = "MIT, Apache-2.0",
+    licenses = "MIT, Apache-2.0",
     repo = "https://github.com/rust-lang/rust",
     docs = "https://prev.rust-lang.org/en-US/documentation.html",
 

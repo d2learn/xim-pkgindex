@@ -7,7 +7,7 @@ package = {
 
     maintainers = "LiRenTech",
     contributors = "https://github.com/LiRenTech/project-graph/graphs/contributors",
-    license = "MIT",
+    licenses = "MIT",
     repo = "https://github.com/LiRenTech/project-graph",
     docs = "https://project-graph.top/getting-started",
     forum = "https://forum.d2learn.org/category/16/project-graph",

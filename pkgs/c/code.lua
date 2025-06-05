@@ -7,7 +7,7 @@ package = {
     name = "vscode",
     description = "Visual Studio Code",
     contributors = "https://github.com/microsoft/vscode/graphs/contributors",
-    license = "MIT",
+    licenses = "MIT",
     repo = "https://github.com/microsoft/vscode",
     docs = "https://code.visualstudio.com/docs",
 

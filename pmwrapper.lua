@@ -6,6 +6,10 @@ pmwrapper = {
         ubuntu = {"apt", "bzip2"},
         archlinux = {"pacman", "bzip2"},
     },
+    ["cmake"] = {
+        ubuntu = {"apt", "cmake"},
+        archlinux = {"pacman", "cmake"},
+    },
     ["dotnet-9"] = {
         windows = {"winget", "Microsoft.DotNet.SDK.9"},
     },

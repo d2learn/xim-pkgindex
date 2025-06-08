@@ -48,7 +48,13 @@ function install()
 end
 
 function config()
-    xvm.add("cmake", { bindir = path.join(pkginfo.install_dir(), "bin") })
+    local config
+    if os.host() == "macosx" then
+        config = { bindir = path.join(pkginfo.install_dir(), "CMake.app/Contents/bin") }
+    else
+        config = { bindir = path.join(pkginfo.install_dir(), "bin") }
+    end
+    xvm.add("cmake", config)
     return true
 end
 

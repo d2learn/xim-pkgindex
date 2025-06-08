@@ -19,7 +19,10 @@ package = {
 
 xpm_os_common = {
     ["latest"] = {
-        url = package.repo .. ".git",
+        url = {
+            ["GLOBAL"] = package.repo .. ".git",
+            ["CN"] = "https://gitee.com/xlings-res/xlings-project-templates.git",
+        },
         sha256 = nil,
     },
 }

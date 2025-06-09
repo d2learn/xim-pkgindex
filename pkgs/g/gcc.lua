@@ -29,6 +29,10 @@ package = {
             ["12.4.0"] = { url = __gcc_url("12.4.0") },
             ["11.5.0"] = { url = __gcc_url("11.5.0") },
         },
+        macosx = {
+            ["latest"] = { ref = "15.1.0" },
+            ["15.1.0"] = "XLINGS_RES",
+        },
     },
 }
 
@@ -51,6 +55,7 @@ function config()
     local ld_lib_path = string.format("%s:%s", path.join(pkginfo.install_dir(), "lib64"), os.getenv("LD_LIBRARY_PATH") or "")
     
     local config = {
+        alias = "gcc-15",
         bindir = gcc_bindir,
         envs = {
             ["LD_LIBRARY_PATH"] = ld_lib_path,
@@ -58,7 +63,9 @@ function config()
     }
 
     xvm.add("gcc", config)
+    if is_host("macosx") then config.alias = "g++-15" end
     xvm.add("g++", config)
+    if is_host("macosx") then config.alias = "g++-15" end
     xvm.add("c++", config)
 
     return true

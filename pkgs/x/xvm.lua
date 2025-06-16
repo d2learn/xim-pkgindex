@@ -19,14 +19,17 @@ package = {
         windows = {
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = "XLINGS_RES",
+            ["0.0.3"] = "XLINGS_RES",
         },
         linux = {
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = "XLINGS_RES",
+            ["0.0.3"] = "XLINGS_RES",
         },
         macosx = {
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = "XLINGS_RES",
+            ["0.0.3"] = "XLINGS_RES",
         },
     },
 }
@@ -46,10 +49,6 @@ local xvm_shim_file = {
     linux = "xvm-shim",
     macosx = "xvm-shim"
 }
-
-function installed()
-    return os.iorun("xvm --version") ~= nil
-end
 
 function install()
     os.mv(xvm_file[os.host()], bindir)

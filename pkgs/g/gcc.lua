@@ -51,7 +51,7 @@ local mingw_version_map = {
 
 function install()
     if is_host("windows") then
-        xinstall("mingw-w64@" .. mingw_version_map[pkginfo.version])
+        xinstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
     else
         local gccdir = pkginfo.install_file()
             :replace(".tar.gz", "")
@@ -87,7 +87,7 @@ end
 
 function uninstall()
     if is_host("windows") then
-        xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version])
+        xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
     else
         xvm.remove("gcc")
         xvm.remove("g++")

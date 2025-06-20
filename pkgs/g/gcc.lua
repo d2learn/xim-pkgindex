@@ -33,24 +33,38 @@ package = {
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = "XLINGS_RES",
         },
+        windows = {
+            ["latest"] = { ref = "15.1.0" },
+            ["15.1.0"] = { },
+        },
     },
 }
 
-import("xim.libxpkg.system")
+import("xim.xinstall")
+import("xim.xuninstall")
 import("xim.libxpkg.pkginfo")
-import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 
+local mingw_version_map {
+    ["15.1.0"] = "13.0.0",
+}
+
 function install()
-    local gccdir = pkginfo.install_file()
-        :replace(".tar.gz", "")
-        :replace(".zip", "")
-    os.tryrm(pkginfo.install_dir())
-    os.mv(gccdir, pkginfo.install_dir())
+    if is_host("windows") then
+        xinstall("mingw-w64@" .. mingw_version_map[pkginfo.version])
+    else
+        local gccdir = pkginfo.install_file()
+            :replace(".tar.gz", "")
+            :replace(".zip", "")
+        os.tryrm(pkginfo.install_dir())
+        os.mv(gccdir, pkginfo.install_dir())
+    end
     return true
 end
 
 function config()
+    if is_host("windows") then return true end
+
     local gcc_bindir = path.join(pkginfo.install_dir(), "bin")
     local ld_lib_path = string.format("%s:%s", path.join(pkginfo.install_dir(), "lib64"), os.getenv("LD_LIBRARY_PATH") or "")
     
@@ -72,8 +86,12 @@ function config()
 end
 
 function uninstall()
-    xvm.remove("gcc")
-    xvm.remove("g++")
-    xvm.remove("c++")
+    if is_host("windows") then
+        xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version])
+    else
+        xvm.remove("gcc")
+        xvm.remove("g++")
+        xvm.remove("c++")
+    end
     return true
 end

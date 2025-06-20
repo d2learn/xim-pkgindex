@@ -45,7 +45,7 @@ import("xim.xuninstall")
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
-local mingw_version_map {
+local mingw_version_map = {
     ["15.1.0"] = "13.0.0",
 }
 

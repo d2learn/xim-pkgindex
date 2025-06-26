@@ -102,6 +102,10 @@ pmwrapper = {
         archlinux = {"pacman", "webkit2gtk"},
         manjaro = {"pacman", "webkit2gtk"},
     },
+    ["wechat"] = {
+        archlinux = {"aur", "wechat"},
+        manjaro = {"aur", "wechat"},
+    },
     ["wsl"] = {
         windows = {"winget", "Microsoft.WSL"},
     },

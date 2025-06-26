@@ -45,13 +45,13 @@ import("xim.xuninstall")
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
-local mingw_version_map {
+local mingw_version_map = {
     ["15.1.0"] = "13.0.0",
 }
 
 function install()
     if is_host("windows") then
-        xinstall("mingw-w64@" .. mingw_version_map[pkginfo.version])
+        xinstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
     else
         local gccdir = pkginfo.install_file()
             :replace(".tar.gz", "")
@@ -87,7 +87,7 @@ end
 
 function uninstall()
     if is_host("windows") then
-        xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version])
+        xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
     else
         xvm.remove("gcc")
         xvm.remove("g++")

@@ -45,20 +45,17 @@ local gcc_version_map = {
 
 function installed()
     local installdir = pkginfo.install_dir()
-    return os.isfile(path.join(installdir, "mingw64", "version_info.txt"))
+    return os.isfile(path.join(installdir, "version_info.txt"))
 end
 
 function install()
-    local mingwdir = pkginfo.install_file()
-        :replace(".tar.gz", "")
-        :replace(".zip", "")
     os.tryrm(pkginfo.install_dir())
-    os.mv(mingwdir, pkginfo.install_dir())
+    os.mv("mingw64", pkginfo.install_dir())
     return true
 end
 
 function config()
-    local mingw_bindir = path.join(pkginfo.install_dir(), "mingw64", "bin")
+    local mingw_bindir = path.join(pkginfo.install_dir(), "bin")
 
     local config = {
         bindir = mingw_bindir,
@@ -68,8 +65,8 @@ function config()
     xvm.add("x86_64-w64-mingw32-g++", config)
     xvm.add("x86_64-w64-mingw32-c++", config)
 
-    config.version = string.format([[%s(mingw-64-%s)]],
-        gcc_version_map[pkginfo.version], pkginfo.version
+    config.version = string.format([[%s(mingw-w64-%s)]],
+        gcc_version_map[pkginfo.version()], pkginfo.version()
     )
     xvm.add("gcc", config)
     xvm.add("c++", config)
@@ -83,8 +80,8 @@ function uninstall()
     xvm.remove("x86_64-w64-mingw32-g++")
     xvm.remove("x86_64-w64-mingw32-c++")
 
-    local version = string.format([[%s(mingw-64-%s)]],
-        gcc_version_map[pkginfo.version], pkginfo.version
+    local version = string.format([[%s(mingw-w64-%s)]],
+        gcc_version_map[pkginfo.version()], pkginfo.version()
     )
     xvm.remove("gcc", version)
     xvm.remove("g++", version)

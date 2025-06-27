@@ -73,10 +73,12 @@ function config()
     local node_xvm_cmd_template1 = "xvm add node %s --path %s"
     local node_xvm_cmd_template2 = "xvm add nodejs %s --path %s --alias node"
     local npm_xvm_cmd_template = "xvm add npm node-%s --path %s"
+    local npx_xvm_cmd_template = "xvm add npx node-%s --path %s"
 
     local bindir = pkginfo.install_dir()
     if is_host("windows") then
         npm_xvm_cmd_template = npm_xvm_cmd_template .. " --alias npm.cmd"
+        npx_xvm_cmd_template = npx_xvm_cmd_template .. " --alias npx.cmd"
     else
         bindir = path.join(pkginfo.install_dir(), "bin")
     end
@@ -84,6 +86,7 @@ function config()
     os.exec(string.format(node_xvm_cmd_template1, pkginfo.version(), bindir))
     os.exec(string.format(node_xvm_cmd_template2, pkginfo.version(), bindir))
     os.exec(string.format(npm_xvm_cmd_template, pkginfo.version(), bindir))
+    os.exec(string.format(npx_xvm_cmd_template, pkginfo.version(), bindir))
     return true
 end
 
@@ -92,5 +95,6 @@ function uninstall()
     os.exec("xvm remove node " .. pkginfo.version())
     os.exec("xvm remove nodejs " .. pkginfo.version())
     os.exec("xvm remove npm node-" .. pkginfo.version())
+    os.exec("xvm remove npx node-" .. pkginfo.version())
     return true
 end

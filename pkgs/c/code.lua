@@ -1,5 +1,6 @@
 local _vscode_linux_url_template = "https://update.code.visualstudio.com/%s/linux-x64/stable"
 local _vscode_windows_url_template = "https://update.code.visualstudio.com/%s/win32-x64-archive/stable"
+local _vscode_macosx_url_template = "https://update.code.visualstudio.com/%s/darwin-universal/stable"
 
 package = {
     homepage = "https://code.visualstudio.com",
@@ -18,7 +19,11 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "1.96.2" },
+            ["latest"] = { ref = "1.100.1" },
+            ["1.100.1"] = {
+                url = string.format(_vscode_windows_url_template, "1.100.1"),
+                sha256 = nil,
+            },
             ["1.96.2"] = {
                 url = string.format(_vscode_windows_url_template, "1.96.2"),
                 sha256 = "c6c2f97e5cb25a8b576b345f6b8f2021cc168f1726ee370f29d1dbd136ffe9f8",
@@ -29,7 +34,11 @@ package = {
             },
         },
         linux = {
-            ["latest"] = { ref = "1.96.2" },
+            ["latest"] = { ref = "1.100.1" },
+            ["1.100.1"] = {
+                url = string.format(_vscode_linux_url_template, "1.100.1"),
+                sha256 = nil,
+            },
             ["1.96.2"] = {
                 url = string.format(_vscode_linux_url_template, "1.96.2"),
                 sha256 = "2681040089faf143bed37246f2b0bc0787f6d342d878b1ec4b3737b38833c088"
@@ -39,10 +48,26 @@ package = {
                 sha256 = nil,
             },
         },
+        macosx = {
+            ["latest"] = { ref = "1.100.1" },
+            ["1.100.1"] = {
+                url = string.format(_vscode_macosx_url_template, "1.100.1"),
+                sha256 = nil,
+            },
+            ["1.96.2"] = {
+                url = string.format(_vscode_macosx_url_template, "1.96.2"),
+                sha256 = nil
+            },
+            ["1.93.1"] = {
+                url = string.format(_vscode_macosx_url_template, "1.93.1"),
+                sha256 = nil,
+            },
+        }
     }
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.system")
 
 local shortcut_dir = {
     linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
@@ -75,15 +100,20 @@ function installed()
 end
 
 function install()
-    os.tryrm(pkginfo.install_dir())
     if os.host() == "windows" then
+        os.tryrm(pkginfo.install_dir())
         -- unzip the stable by powershell
         os.mv("stable", "stable.zip")
         -- avoid warning info by -ExecutionPolicy Bypass
         os.exec(string.format([[powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir()))
         os.tryrm("stable.zip")
+    elseif os.host() == "macosx" then
+        os.exec("unzip stable")
+        os.mv("Visual Studio Code.app", pkginfo.install_dir())
+        os.tryrm("stable")
     else
         os.exec("tar -xvf stable")
+        os.tryrm(pkginfo.install_dir())
         os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir())
         -- https://github.com/flathub/com.visualstudio.code/issues/223
         -- set the correct permissions for chrome-sandbox, and as root
@@ -97,9 +127,10 @@ function install()
 end
 
 function config()
-    local xvm_cmd_template1 = "xvm add code %s --path %s/bin --alias %s"
-    local xvm_cmd_template2 = "xvm add vscode %s --path %s/bin --alias %s"
+    local xvm_cmd_template1 = [[xvm add code %s --path "%s/bin" --alias %s]]
+    local xvm_cmd_template2 = [[xvm add vscode %s --path "%s/bin" --alias %s]]
     local code_alias = "code"
+    local appdir = pkginfo.install_dir()
 
     -- config desktop entry
     if os.host() == "windows" then
@@ -114,6 +145,17 @@ function config()
         )
         os.cp(lnk_filename .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
         os.mv(lnk_filename .. ".lnk", shortcut_dir[os.host()])
+    elseif os.host() == "macosx" then
+        appdir = path.join(pkginfo.install_dir(), "Visual Studio Code.app")
+        -- xattr for macosx
+        system.exec([[xattr -rd com.apple.quarantine "]] .. appdir .. [["]])
+        -- TODO: add lsregister to libxpkg.system
+        -- register app(for first time)
+        -- Info.plist CFBundleIdentifier is com.microsoft.VSCode
+        local lsregister = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+        system.exec(lsregister .. [[ -f "]] .. appdir .. [["]])
+        -- Contents/Resources/app
+        appdir = path.join(appdir, "Contents", "Resources", "app")
     else
         local desktop_info = desktop_shortcut_info()
         if not os.isfile(desktop_info.filepath) then
@@ -122,8 +164,8 @@ function config()
         end
     end
 
-    os.exec(string.format(xvm_cmd_template1, pkginfo.version(), pkginfo.install_dir(), code_alias))
-    os.exec(string.format(xvm_cmd_template2, pkginfo.version(), pkginfo.install_dir(), code_alias))
+    os.exec(string.format(xvm_cmd_template1, pkginfo.version(), appdir, code_alias))
+    os.exec(string.format(xvm_cmd_template2, pkginfo.version(), appdir, code_alias))
 
     return true
 end
@@ -138,6 +180,8 @@ function uninstall()
         print("removing desktop shortcut - %s", lnk_path)
         os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))
         os.tryrm(lnk_path)
+    elseif os.host() == "macosx" then
+        -- TODO: clean cache files?
     else
         local desktop_info = desktop_shortcut_info()
         if os.isfile(desktop_info.filepath) then

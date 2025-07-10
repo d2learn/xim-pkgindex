@@ -24,16 +24,27 @@ package = {
             ["latest"] = { ref = "gnu" },
             ["gnu"] = {},
         },
+        macosx = {
+            deps = { "brew" },
+            ["latest"] = { },
+        },
     },
 }
 
 import("core.tool.toolchain")
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.system")
 import("xim.xuninstall")
 
 function installed()
-    if pkginfo.version() == "msvc" then
+    if is_host("macosx") then
+        local output = os.iorun("gcc --version")
+        if not output then
+            output = os.iorun("clang --version")
+        end
+        return output ~= nil
+    elseif pkginfo.version() == "msvc" then
         return toolchain.load("msvc"):check() == "2022"
     elseif pkginfo.version() == "gnu" then
         local output = os.iorun("gcc --version")
@@ -44,12 +55,17 @@ function installed()
 end
 
 function install()
+    if is_host("macosx") then
+        system.exec("brew install gcc", { retry = 3 })
+    end
     -- install by deps
     return true
 end
 
 function uninstall()
-    if pkginfo.version() == "msvc" then
+    if is_host("macosx") then
+        system.exec("brew uninstall gcc")
+    elseif pkginfo.version() == "msvc" then
         xuninstall("msvc")
     elseif pkginfo.version() == "gnu" then
         xuninstall("gcc")

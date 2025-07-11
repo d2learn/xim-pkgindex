@@ -1,7 +1,7 @@
 package = {
     -- base info
     name = "gitcode-hosts",
-    description = "Config gitcode.com ip mapping-groups to hots file",
+    description = "Config gitcode.com ip mapping-groups to hosts file",
 
     authors = "sunrisepeak",
     licenses = "Apache-2.0",
@@ -19,6 +19,7 @@ package = {
 
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 
 local hosts_file = {
@@ -100,7 +101,9 @@ function update_hosts(new_hosts_content)
         io.writefile(new_hosts, new_hosts_content)
         local tmp_script = path.join(pkginfo.install_dir(), "update_hosts.ps1")
         io.writefile(tmp_script, string.format(powershell_script, new_hosts))
-        system.exec("powershell -ExecutionPolicy Bypass -File " .. tmp_script)
+        log.warn("Please to confirm the UAC dialog and waiting...")
+        system.exec(string.format([[powershell -ExecutionPolicy Bypass -File "%s"]], tmp_script))
+        os.sleep(1000) -- wait for the script to finish
         os.tryrm(new_hosts)
     else
         local permission = os.iorun([[stat -c "%a" ]] .. hosts_file[os.host()])

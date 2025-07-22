@@ -12,23 +12,23 @@ package = {
     categories = {"package-manager", "javascript"},
 
     xpm = {
-        windows = {
-            deps = { "nodejs" },
-            ["latest"] = { ref = "11.0.0" },
-            ["11.0.0"] = { },
-            ["10.9.2"] = { },
-        },
-        linux = {
-            deps = { "nodejs" },
-            ["latest"] = { ref = "11.2.0" },
-            ["11.2.0"] = { },
-            ["11.0.0"] = { },
-            ["10.9.2"] = { },
-            ["9.9.4"] = { },
-            ["8.19.4"] = { },
-        },
+        -- os_common
     },
 }
+
+os_common = {
+    deps = { "nodejs" },
+    ["latest"] = { ref = "11.2.0" },
+    ["11.2.0"] = { },
+    ["11.0.0"] = { },
+    ["10.9.2"] = { },
+    ["9.9.4"] = { },
+    ["8.19.4"] = { },
+}
+
+package.xpm.linux = os_common
+package.xpm.windows = os_common
+package.xpm.macosx = os_common
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")

@@ -69,6 +69,7 @@ import("xim.libxpkg.pkginfo")
 local node_dir_template = {
     linux = "node-v%s-linux-x64",
     windows = "node-v%s-win-x64",
+    macosx = "node-v%s-darwin-arm64",
 }
 
 function install()

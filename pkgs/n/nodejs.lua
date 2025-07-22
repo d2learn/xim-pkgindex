@@ -12,7 +12,7 @@ end
 
 package = {
     homepage = "https://nodejs.org",
-    name = "nodejs",
+    name = "node",
     description = "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine",
     author = "Node.js Foundation",
     licenses = "MIT",

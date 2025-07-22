@@ -5,7 +5,7 @@ local _vscode_macosx_url_template = "https://update.code.visualstudio.com/%s/dar
 package = {
     homepage = "https://code.visualstudio.com",
 
-    name = "vscode",
+    name = "code",
     description = "Visual Studio Code",
     contributors = "https://github.com/microsoft/vscode/graphs/contributors",
     licenses = "MIT",

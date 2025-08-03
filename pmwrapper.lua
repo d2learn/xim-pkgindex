@@ -74,6 +74,10 @@ pmwrapper = {
         archlinux = {"pacman", "python"},
         manjaro = {"pacman", "python"},
     },
+    ["qq"] = {
+        archlinux = {"aur", "linuxqq-nt-bwrap"},
+        manjaro = {"aur", "linuxqq-nt-bwrap"},
+    },
     ["rust"] = {
         archlinux = {"pacman", "rustup"},
         manjaro = {"pacman", "rustup"},
@@ -103,8 +107,8 @@ pmwrapper = {
         manjaro = {"pacman", "webkit2gtk"},
     },
     ["wechat"] = {
-        archlinux = {"aur", "wechat"},
-        manjaro = {"aur", "wechat"},
+        archlinux = {"aur", "wechat-universal-bwrap"},
+        manjaro = {"aur", "wechat-universal-bwrap"},
     },
     ["wsl"] = {
         windows = {"winget", "Microsoft.WSL"},

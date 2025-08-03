@@ -10,6 +10,10 @@ pmwrapper = {
         ubuntu = {"apt", "cmake"},
         archlinux = {"pacman", "cmake"},
     },
+    ["code-oss"] = {
+        archlinux = {"pacman", "code"},
+        manjaro = {"pacman", "code"},
+    },
     ["dotnet-9"] = {
         windows = {"winget", "Microsoft.DotNet.SDK.9"},
     },
@@ -98,8 +102,12 @@ pmwrapper = {
     },
     ["vscode"] = {
         windows = {"winget", "Microsoft.VisualStudioCode"},
-        archlinux = {"pacman", "code"},
-        manjaro = {"pacman", "code"},
+        archlinux = {"aur", "visual-studio-code-bin"},
+        manjaro = {"aur", "visual-studio-code-bin"},
+    },
+    ["vscodium"] = {
+        archlinux = {"aur", "vscodium-electron-bin"},
+        manjaro = {"aur", "vscodium-electron-bin"},
     },
     ["webkit2gtk"] = {
         ubuntu = {"apt", "libwebkit2gtk-4.0-37"},

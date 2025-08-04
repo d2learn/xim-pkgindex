@@ -45,6 +45,10 @@ pmwrapper = {
         archlinux = {"pacman", "make"},
         manjaro = {"pacman", "make"},
     },
+    ["ninja"] = {
+        archlinux = {"pacman", "ninja"},
+        manjaro = {"pacman", "ninja"},
+    },
     ["nodejs"] = {
         archlinux = {"pacman", "nodejs"},
         manjaro = {"pacman", "nodejs"},

@@ -14,6 +14,14 @@ pmwrapper = {
         archlinux = {"pacman", "code"},
         manjaro = {"pacman", "code"},
     },
+    ["dotnet"] = {
+        archlinux = {"pacman", "dotnet-sdk"},
+        manjaro = {"pacman", "dotnet-sdk"},
+    },
+    ["dotnet-preview"] = {
+        archlinux = {"aur", "dotnet-sdk-preview-bin"},
+        manjaro = {"aur", "dotnet-sdk-preview-bin"},
+    },
     ["dotnet-9"] = {
         windows = {"winget", "Microsoft.DotNet.SDK.9"},
     },

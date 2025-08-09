@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+xpkg包介绍文档: https://xlings.d2learn.org/documents/xpkg/intro.html
+
 ## 基础信息 | Basic Info
 
 ...

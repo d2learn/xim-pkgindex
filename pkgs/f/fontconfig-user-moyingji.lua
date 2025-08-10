@@ -9,11 +9,16 @@ package = {
     -- xim pkg info
     type = "config",
     namespace = "config",
+    keywords = { "fontconfig", "font", "config" },
 
     xpm = {
         linux = { ["latest"] = { } },
     },
 }
+
+
+
+import("xim.libxpkg.log")
 
 local config_dir = os.getenv("XDG_CONFIG_HOME") or path.join(os.getenv("HOME"), ".config")
 local config_file = path.join(config_dir, "fontconfig/conf.d/71-fontsconfig-user-moyingji.conf")
@@ -25,8 +30,13 @@ function installed()
 end
 
 function install()
-    os.mkdir(path.directory(config_file))
+    local dir = path.directory(config_file)
+    if not os.isdir(dir) then os.mkdir(dir) end
     io.writefile(config_file, content())
+
+    log.warn("已安装字体配置文件：%s", config_file)
+    log.warn("可在此处进行自定义字体，或禁用衬线字体等操作，有注释引导操作")
+    log.warn("重启任意软件即可使对应软件的字体生效，重新登录安装了此配置的用户即可使字体对该用户全局生效")
 
     return true
 end
@@ -46,7 +56,7 @@ function content()
 
     <!-- 默认使用思源，回落到 Noto -->
 
-    <!-- 默认使用衬线字体 -->
+    <!-- 默认使用无衬线字体 -->
     <match>
         <test name="family"><string>system-ui</string></test>
         <edit name="family" mode="prepend" binding="strong"><string>sans-serif</string></edit>

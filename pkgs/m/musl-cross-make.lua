@@ -97,7 +97,7 @@ end
 function __try_run(cmd)
     return try {
         function()
-            system.exec(cmd)
+            system.exec(cmd, { retry = 3 })
             return true
         end,
         catch = function(err)
@@ -157,7 +157,10 @@ function xpkg_main(version, target, output)
         }
     )
     output = output or "xlings-musl-gcc"
-    output = path.join(system.rundir(), output)
+
+    if not path.is_absolute(output) then
+        output = path.join(system.rundir(), output)
+    end
 
     info_tips(version, target, output)
 
@@ -185,7 +188,7 @@ function xpkg_main(version, target, output)
     os.cd(project_dir)
 
     if ret_ok then
-        cprint("$-> {yellow}clearing previous build files...")
+        cprint("-> ${yellow}clearing previous build files...")
         ret_ok = __try_run("make clean")
     else
         cprint("${red}Project dir not found, aborting build.")
@@ -218,5 +221,6 @@ function xpkg_main(version, target, output)
         cprint("")
         cprint("QA-List: https://xlings.d2learn.org/documents/qa.html")
         cprint("")
+        raise("musl-cross-make build failed!")
     end
 end

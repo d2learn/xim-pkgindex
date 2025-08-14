@@ -17,22 +17,25 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "0.0.2" },
+            ["latest"] = { ref = "0.0.4" },
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.3"] = "XLINGS_RES",
             ["0.0.4"] = "XLINGS_RES",
+            ["0.0.5"] = "XLINGS_RES",
         },
         linux = {
-            ["latest"] = { ref = "0.0.2" },
+            ["latest"] = { ref = "0.0.4" },
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.3"] = "XLINGS_RES",
             ["0.0.4"] = "XLINGS_RES",
+            ["0.0.5"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.0.2" },
+            ["latest"] = { ref = "0.0.4" },
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.3"] = "XLINGS_RES",
             ["0.0.4"] = "XLINGS_RES",
+            ["0.0.5"] = "XLINGS_RES",
         },
     },
 }

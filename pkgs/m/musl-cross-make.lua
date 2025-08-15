@@ -34,6 +34,7 @@ package = {
 }
 
 import("xim.libxpkg")
+import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkginfo")
@@ -83,6 +84,60 @@ function verify_and_choice_from_list(target, target_list, opt)
 
     return target
 
+end
+
+function set_dynamic_linker(cmds)
+
+    -- create specs for dynamic linker
+    if not os.isdir(cmds["--output"]) then
+        log.error("Output directory not found: " .. cmds["--output"])
+        return false
+    end
+
+    local gcc_bin = path.join(
+        cmds["--output"], "bin",
+        cmds["--target"] .. "-gcc"
+    )
+
+    if not os.isfile(gcc_bin) then
+        log.error("GCC binary not found: " .. gcc_bin)
+        return false
+    end
+
+    log.info("%s - ok", gcc_bin)
+
+    local default_specs_content = os.iorun(gcc_bin .. " -dumpspecs")
+    local default_specs_file = os.iorun(gcc_bin .. " -print-libgcc-file-name")
+
+    default_specs_file = path.join(
+        path.directory(default_specs_file:trim()),
+        "specs"
+    )
+
+    log.info("Default specs path: " .. default_specs_file)
+
+    -- replace dynamic linker in specs
+    local old_dynamic_linker = "/lib/ld-musl-%s.so.1"
+    local arch = cmds["--target"]:split("-linux")[1]
+    old_dynamic_linker = string.format(old_dynamic_linker, arch)
+    default_specs_content = string.replace(
+        default_specs_content,
+        -- support multi-arch?
+        old_dynamic_linker, cmds["--with-dynamic-linker"],
+        { plain = true }
+    )
+
+    log.warn(string.format(
+        "Replacing dynamic linker in specs: %s -> %s",
+        old_dynamic_linker, cmds["--with-dynamic-linker"]
+    ))
+
+    io.writefile(default_specs_file, default_specs_content)
+
+    log.info("Dynamic linker set to: " .. cmds["--with-dynamic-linker"])
+    log.info("Specs file updated: " .. default_specs_file)
+
+    return true
 end
 
 function info_tips(version, cmds)
@@ -150,15 +205,16 @@ GCC_VER = %s
 TARGET = %s
 OUTPUT = %s
 
-# RPATH -> RUNPATH (by --enable-new-dtags)
-# GCC_CONFIG += -Wl,--with-dynamic-linker=/home/xlings/.xlings_data/lib/ld-musl-x86_64.so.1
-# have'nt -Wl,--with-dynamic-linker only use --dynamic-linker by --with-extra-ldflags
-# GCC_CONFIG += --with-extra-ldflags=" xxx -Wl,--enable-new-dtags -Wl,-rpath,/home/xlings/.xlings_data/lib "
+# [OK] - RPATH -> RUNPATH (by --enable-new-dtags) and append with --with-specs
+# [X]  - GCC_CONFIG += -Wl,--with-dynamic-linker=/home/xlings/.xlings_data/lib/ld-musl-x86_64.so.1
+# [X]  - have'nt -Wl,--with-dynamic-linker only use --dynamic-linker by --with-extra-ldflags
+# [X]  - GCC_CONFIG += --with-extra-ldflags=" xxx -Wl,--enable-new-dtags -Wl,-rpath,/home/xlings/.xlings_data/lib "
 
-# Add default linker and rpath via specs
+# [X] - Add default linker and rpath via specs and control by --xlings-config-no
+# [X] - Note: Custom option dont use {-f, -W, -g, -O } save keywords, suggest use -X -Z
 GCC_CONFIG += --with-specs='%%{!static:%%{!shared:%%{!static-pie: \
-  %s -Wl,--enable-new-dtags \
-  %%{!rpath*: -Wl,-rpath,/home/xlings/.xlings_data/lib } \
+  -Wl,--enable-new-dtags \
+  -Wl,-rpath,/home/xlings/.xlings_data/lib \
 }}}'
 
 # COMMON_CONFIG += CC="gcc-static" CXX="g++-static"
@@ -192,15 +248,6 @@ function xpkg_main(version, ...)
 
     --local target = cmds["--target"]
     --local output = cmds["--output"]
-
-    if cmds["--with-dynamic-linker"] then
-        cmds["--with-dynamic-linker"] = string.format(
-            --[[GCC_CONFIG += -Wl,--with-dynamic-linker=%s]]
-            -- configure: error: unrecognized option: `-Wl,--with-dynamic-linker=
-            [[%%{!dynamic-linker*: -Wl,--dynamic-linker=%s }]],
-            cmds["--with-dynamic-linker"]
-        )
-    end
 
     if cmds["--static"] then
         cmds["--static"] = [[COMMON_CONFIG += CC="gcc-static" CXX="g++-static"]]
@@ -250,7 +297,7 @@ function xpkg_main(version, ...)
     local config_mak = string.format(
         config_mak_template,
         version, cmds["--target"], cmds["--output"],
-        cmds["--with-dynamic-linker"] or "",
+        --cmds["--with-dynamic-linker"] or "",
         cmds["--static"] or ""
     )
 
@@ -290,6 +337,11 @@ function xpkg_main(version, ...)
         ret_ok = __try_run("make install")
     else
         cprint("${red}Build failed, aborting installation.")
+    end
+
+    if ret_ok and cmds["--with-dynamic-linker"] then
+        cprint("-> ${yellow}setting default dynamic linker...")
+        ret_ok = set_dynamic_linker(cmds)
     end
 
     -- tips

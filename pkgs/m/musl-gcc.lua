@@ -79,7 +79,7 @@ function config()
     })
 
     -- add ld.so (musl's ld.so wrapper)
-    xvm.add("ld-musl",
+    xvm.add("ld-musl", {
         version = "musl-gcc-" .. pkginfo.version(),
         filename = "ld-musl-x86_64.so.1",
         bindir = musl_lib_dir,

@@ -92,7 +92,7 @@ function uninstall()
         xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
     elseif is_host("linux") then
         for _, prog in ipairs(package.programs) do
-            xvm.remove(prog)
+            xvm.remove(prog, "musl-gcc-" .. pkginfo.version())
         end
     end
     return true

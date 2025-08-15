@@ -69,13 +69,29 @@ function config()
         "x86_64-linux-musl", "lib"
     )
 
-    -- add musl's libc libc.so
+    -- add musl's libc libc.so and libstdc++.so.6 , libgcc_s.so.1
     xvm.add("musl-libc", {
         version = "musl-gcc-" .. pkginfo.version(),
         filename = "libc.so",
         bindir = musl_lib_dir,
         type = "lib",
         alias = "libc.so",
+    })
+
+    xvm.add("libstdc++", {
+        version = "musl-gcc-" .. pkginfo.version(),
+        filename = "libstdc++.so.6",
+        bindir = musl_lib_dir,
+        type = "lib",
+        alias = "libstdc++.so.6",
+    })
+
+    xvm.add("libgcc_s", {
+        version = "musl-gcc-" .. pkginfo.version(),
+        filename = "libgcc_s.so.1",
+        bindir = musl_lib_dir,
+        type = "lib",
+        alias = "libgcc_s.so.1",
     })
 
     -- add ld.so (musl's ld.so wrapper)
@@ -119,8 +135,12 @@ function uninstall()
     for _, prog in ipairs(package.programs) do
         xvm.remove(prog)
     end
+    -- runtime libraries
     xvm.remove("musl-libc", "musl-gcc-" .. pkginfo.version())
     xvm.remove("ld-musl", "musl-gcc-" .. pkginfo.version())
+    xvm.remove("libstdc++", "musl-gcc-" .. pkginfo.version())
+    xvm.remove("libgcc_s", "musl-gcc-" .. pkginfo.version())
+    -- ld.so wrapper
     xvm.remove("musl-ldd", "musl-gcc-" .. pkginfo.version())
     xvm.remove("musl-loader", "musl-gcc-" .. pkginfo.version())
     xvm.remove("musl-gcc-static")

@@ -20,7 +20,7 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "make" },
+            deps = { "make", "gcc" }, -- musl-gcc ?
             ["latest"] = { ref = "0.0.1" },
             ["0.0.1"] = {
                 url = {
@@ -33,6 +33,7 @@ package = {
     },
 }
 
+import("xim.libxpkg")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkginfo")
@@ -84,12 +85,22 @@ function verify_and_choice_from_list(target, target_list, opt)
 
 end
 
-function info_tips(version, target, output)
+function info_tips(version, cmds)
     cprint("\n${dim}---\n")
 
     cprint("${bright}version: ${green}" .. version)
-    cprint("${bright}target: ${green}" .. target)
-    cprint("${bright}output: ${green}" .. output)
+    cprint("${bright}target: ${green}" .. cmds["--target"])
+    cprint("${bright}output: ${green}" .. cmds["--output"])
+
+    if cmds["--with-dynamic-linker"] then
+        cprint("${bright}with-dynamic-linker: ${green}" .. cmds["--with-dynamic-linker"])
+    end
+    if cmds["--static"] then
+        cprint("${bright}static: ${green}" .. cmds["--static"])
+    end
+    if cmds["--config-mak"] then
+        cprint("${bright}config-mak: ${green}" .. cmds["--config-mak"])
+    end
 
     cprint("\n${dim}---\n")
 end
@@ -128,15 +139,73 @@ local target_list = {
     -- ...
 }
 
+-- invalid conversion '%{' to 'format' - % -> %%
+-- %{!rpath*: -Wl,-rpath=/home/xlings/.xlings_data/lib } -- syntax?
+-- %{!dynamic-linker*: -Wl,--dynamic-linker=/home/xlings/.xlings_data/lib/ld-musl-x86_64.so.1 }
 local config_mak_template = [[
-TARGET = %s
+# 
+# xlings/xscript: musl-cross-make's config.mak template - 0.0.1
+
 GCC_VER = %s
+TARGET = %s
 OUTPUT = %s
+
+# RPATH -> RUNPATH (by --enable-new-dtags)
+# GCC_CONFIG += -Wl,--with-dynamic-linker=/home/xlings/.xlings_data/lib/ld-musl-x86_64.so.1
+# have'nt -Wl,--with-dynamic-linker only use --dynamic-linker by --with-extra-ldflags
+# GCC_CONFIG += --with-extra-ldflags=" xxx -Wl,--enable-new-dtags -Wl,-rpath,/home/xlings/.xlings_data/lib "
+
+# Add default linker and rpath via specs
+GCC_CONFIG += --with-specs='%%{!static:%%{!shared:%%{!static-pie: \
+  %s -Wl,--enable-new-dtags \
+  %%{!rpath*: -Wl,-rpath,/home/xlings/.xlings_data/lib } \
+}}}'
+
+# COMMON_CONFIG += CC="gcc-static" CXX="g++-static"
+%s
 ]]
+
+-- Note: haven't --with-dynamic-linker option for gcc, but --with-sysroot ok
+-- --with-dynamic-linker -> default -Wl,--dynamic-linker by --with-extra-ldflags
+local __xscript_input = {
+    --["--version"] = false,
+    ["--target"] = false,
+    ["--output"] = false,
+    -- note: --with-dynamic-linker -> set default -Wl,--dynamic-linker
+    ["--with-dynamic-linker"] = false,
+    -- note: --with-sysroot, -Wl,--sysroot= and -Wl,-rpath=... different 
+    --["--with-sysroot"] = false,
+    ["--static"] = false, -- boolean
+    ["--config-mak"] = false,
+    
+    -- --with-extra-ldflags append?
+}
 
 -- function main() inherits failed for package?
 -- avoid to call main when import this package?
-function xpkg_main(version, target, output)
+function xpkg_main(version, ...)
+
+    local _, cmds = libxpkg.utils.input_args_process(
+        __xscript_input,
+        { ... }
+    )
+
+    --local target = cmds["--target"]
+    --local output = cmds["--output"]
+
+    if cmds["--with-dynamic-linker"] then
+        cmds["--with-dynamic-linker"] = string.format(
+            --[[GCC_CONFIG += -Wl,--with-dynamic-linker=%s]]
+            -- configure: error: unrecognized option: `-Wl,--with-dynamic-linker=
+            [[%%{!dynamic-linker*: -Wl,--dynamic-linker=%s }]],
+            cmds["--with-dynamic-linker"]
+        )
+    end
+
+    if cmds["--static"] then
+        cmds["--static"] = [[COMMON_CONFIG += CC="gcc-static" CXX="g++-static"]]
+    end
+
     version = verify_and_choice_from_list(
         version,
         gcc_version_list,
@@ -147,8 +216,8 @@ function xpkg_main(version, target, output)
         }
     )
 
-    target = verify_and_choice_from_list(
-        target,
+    cmds["--target"] = verify_and_choice_from_list(
+        cmds["--target"],
         target_list,
         {
             header_tips = "Target architecture for musl-cross-make:",
@@ -156,13 +225,10 @@ function xpkg_main(version, target, output)
             default = "x86_64-linux-musl",
         }
     )
-    output = output or "xlings-musl-gcc"
+    cmds["--output"] = cmds["--output"] or "xlings-musl-gcc"
+    _, cmds["--output"] = libxpkg.utils.filepath_to_absolute(cmds["--output"])
 
-    if not path.is_absolute(output) then
-        output = path.join(system.rundir(), output)
-    end
-
-    info_tips(version, target, output)
+    info_tips(version, cmds)
 
     cprint("start build ${blink}...")
     os.sleep(3000) -- wait user check and confirmation
@@ -181,7 +247,25 @@ function xpkg_main(version, target, output)
     end
 
     local config_mak_file = path.join(project_dir, "config.mak")
-    local config_mak = string.format(config_mak_template, target, version, output)
+    local config_mak = string.format(
+        config_mak_template,
+        version, cmds["--target"], cmds["--output"],
+        cmds["--with-dynamic-linker"] or "",
+        cmds["--static"] or ""
+    )
+
+    if cmds["--config-mak"] then
+        local ok, config_file
+        -- if network file
+        if string.find(cmds["--config-mak"], "://", 1, true) then
+            ok, config_file = libxpkg.utils.try_download_and_verify(cmds["--config-mak"])
+        else
+            ok, config_file = libxpkg.utils.filepath_to_absolute(cmds["--config-mak"])
+        end
+        if ok then
+            config_mak = io.readfile(config_file)
+        end
+    end
 
     io.writefile(config_mak_file, config_mak)
 
@@ -202,14 +286,14 @@ function xpkg_main(version, target, output)
     end
 
     if ret_ok then
-        cprint("-> ${yellow}installing to " .. output .. " ...")
+        cprint("-> ${yellow}installing to " .. cmds["--output"] .. " ...")
         ret_ok = __try_run("make install")
     else
         cprint("${red}Build failed, aborting installation.")
     end
 
     -- tips
-    info_tips(version, target, output)
+    info_tips(version, cmds)
 
     cprint("\n\t${bright dim}[ musl-cross-make(xlings) 0.0.1 ]\n")
 

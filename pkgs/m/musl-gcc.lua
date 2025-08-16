@@ -30,10 +30,10 @@ package = {
         linux = {
             -- toolchain build based on musl-gcc-static
             ["latest"] = { ref = "15.1.0" },
-            ["15.1.0"] = {
-                -- TODO: create musl-gcc package xlings-res
-                url = "https://gitcode.com/xlings-res/gcc/releases/download/15.1.0/gcc-15.1.0-linux-x86_64.tar.gz",
-            },
+            ["15.1.0"] = XLINGS_RES, -- deps musl-gcc
+            ["13.3.0"] = XLINGS_RES,
+            ["11.5.0"] = XLINGS_RES,
+            ["9.4.0"] = XLINGS_RES,
         },
     },
 }

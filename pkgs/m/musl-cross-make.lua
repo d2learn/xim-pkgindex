@@ -217,7 +217,7 @@ GCC_CONFIG += --with-specs='%%{!static:%%{!shared:%%{!static-pie: \
   -Wl,-rpath,/home/xlings/.xlings_data/lib \
 }}}'
 
-# COMMON_CONFIG += CC="gcc-static" CXX="g++-static"
+# COMMON_CONFIG += CC="gcc -static" CXX="g++ -static"
 %s
 ]]
 
@@ -250,7 +250,7 @@ function xpkg_main(version, ...)
     --local output = cmds["--output"]
 
     if cmds["--static"] then
-        cmds["--static"] = [[COMMON_CONFIG += CC="gcc-static" CXX="g++-static"]]
+        cmds["--static"] = [[COMMON_CONFIG += CC="gcc -static" CXX="g++ -static"]]
     end
 
     version = verify_and_choice_from_list(

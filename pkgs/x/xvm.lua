@@ -17,21 +17,21 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "0.0.4" },
+            ["latest"] = { ref = "0.0.5" },
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.3"] = "XLINGS_RES",
             ["0.0.4"] = "XLINGS_RES",
             ["0.0.5"] = "XLINGS_RES",
         },
         linux = {
-            ["latest"] = { ref = "0.0.4" },
+            ["latest"] = { ref = "0.0.5" },
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.3"] = "XLINGS_RES",
             ["0.0.4"] = "XLINGS_RES",
             ["0.0.5"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.0.4" },
+            ["latest"] = { ref = "0.0.5" },
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.3"] = "XLINGS_RES",
             ["0.0.4"] = "XLINGS_RES",
@@ -57,7 +57,11 @@ local xvm_shim_file = {
 }
 
 function installed()
-    return os.isfile(path.join(bindir, xvm_file[os.host()]))
+    local xvm_bin = path.join(bindir, xvm_file[os.host()])
+    if os.isfile(xvm_bin) then
+        return os.iorun(xvm_bin .. " --version")
+    end
+    return false
 end
 
 function install()

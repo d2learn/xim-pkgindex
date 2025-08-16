@@ -56,6 +56,10 @@ local xvm_shim_file = {
     macosx = "xvm-shim"
 }
 
+function installed()
+    return os.isfile(path.join(bindir, xvm_file[os.host()]))
+end
+
 function install()
     os.mv(xvm_file[os.host()], bindir)
     os.mv(xvm_shim_file[os.host()], bindir)

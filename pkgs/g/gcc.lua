@@ -80,10 +80,7 @@ function config()
 
         log.info("add [ gcc, g++, c++, cpp, addr2line, ar, as, ld, nm, objcopy, objdump, ranlib, readelf, size, strings, strip ... ] commands")
         for _, prog in ipairs(package.programs) do
-            xvm.add(prog, {
-                version = "musl-gcc-" .. pkginfo.version(),
-                alias = "musl-" .. prog,
-            })
+            xvm.add(prog, { alias = "musl-" .. prog })
         end
 
         return true
@@ -95,7 +92,7 @@ function uninstall()
         xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
     elseif is_host("linux") then
         for _, prog in ipairs(package.programs) do
-            xvm.remove(prog, "musl-gcc-" .. pkginfo.version())
+            xvm.remove(prog)
         end
     end
     return true

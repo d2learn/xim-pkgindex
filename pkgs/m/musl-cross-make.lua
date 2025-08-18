@@ -212,10 +212,10 @@ OUTPUT = %s
 
 # [X] - Add default linker and rpath via specs and control by --xlings-config-no
 # [X] - Note: Custom option dont use {-f, -W, -g, -O } save keywords, suggest use -X -Z
-GCC_CONFIG += --with-specs='%%{!static:%%{!shared:%%{!static-pie: \
+GCC_CONFIG += --with-specs='%%{input_file:%%{!static:%%{!shared:%%{!static-pie: \
   -Wl,--enable-new-dtags \
   -Wl,-rpath,/home/xlings/.xlings_data/lib \
-}}}'
+}}}}'
 
 # COMMON_CONFIG += CC="gcc -static" CXX="g++ -static"
 %s

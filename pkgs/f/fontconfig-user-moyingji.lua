@@ -23,15 +23,15 @@ package = {
 -- 配置
 
 local default_fonts = {
-    ["serif"] = {
+    serif = {
         "Source Han Serif CN",
         "Noto Serif CJK SC",
     },
-    ["sans-serif"] = {
+    sans = {
         "Source Han Sans CN",
         "Noto Sans CJK SC",
     },
-    ["monospace"] = {
+    mono = {
         "JetBrainsMono Nerd Font",
         "JetBrains Mono",
         "Hack",
@@ -193,9 +193,9 @@ function content()
     ]]
 
     content = string.format(content,
-        gen_targets(default_fonts["serif"]),
-        gen_targets(default_fonts["sans-serif"]),
-        gen_targets(default_fonts["monospace"]),
+        gen_targets(default_fonts.serif),
+        gen_targets(default_fonts.sans),
+        gen_targets(default_fonts.mono),
         gen_font_replacements("append", monospace_fallback),
         gen_font_replacements("assign", font_replacements),
         gen_other_glyphs_config()

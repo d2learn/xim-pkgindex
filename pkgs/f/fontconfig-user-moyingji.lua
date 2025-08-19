@@ -34,7 +34,9 @@ local default_fonts = {
     mono = {
         "JetBrainsMono Nerd Font",
         "JetBrains Mono",
+        "Ubuntu Mono",
         "Hack",
+        "DejaVu Sans Mono",
     },
 }
 

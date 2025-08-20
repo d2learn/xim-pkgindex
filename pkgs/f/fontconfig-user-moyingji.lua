@@ -40,6 +40,8 @@ local default_fonts = {
     },
 }
 
+local replace_serif = false
+
 local monospace_fallback = {
     {
         family = { "JetBrainsMono Nerd Font", "JetBrains Mono" },
@@ -141,10 +143,7 @@ function content()
 
     <!-- 将衬线字体强制替换为无衬线字体 -->
     <!-- 若不喜欢衬线字体 可以取消这里的注释 -->
-    <!-- <match target="pattern">
-        <test qual="any" name="family"><string>serif</string></test>
-        <edit name="family" mode="assign" binding="strong"><string>sans-serif</string></edit>
-    </match> -->
+%s
 
     <!-- 默认衬线字体 -->
     <!-- 若已经将衬线字体替换为无衬线字体 那么可以删除下面这段 -->
@@ -198,6 +197,7 @@ function content()
     ]]
 
     content = string.format(content,
+        gen_replace_serif(),
         gen_targets(default_fonts.serif),
         gen_targets(default_fonts.sans),
         gen_targets(default_fonts.mono),
@@ -255,6 +255,19 @@ function gen_font_replacements(mode, config)
     end
 
     return table.concat(output, "\n")
+end
+
+function gen_replace_serif()
+    local content = [[<match target="pattern">
+        <test qual="any" name="family"><string>serif</string></test>
+        <edit name="family" mode="assign" binding="strong"><string>sans-serif</string></edit>
+    </match>]]
+
+    if replace_serif then
+        return string.format("    %s", content)
+    else
+        return string.format("    <!-- %s -->", content)
+    end
 end
 
 function gen_other_glyphs_config()

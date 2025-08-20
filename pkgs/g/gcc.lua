@@ -79,8 +79,9 @@ function config()
     elseif is_host("linux") then
 
         log.info("add [ gcc, g++, c++, cpp, addr2line, ar, as, ld, nm, objcopy, objdump, ranlib, readelf, size, strings, strip ... ] commands")
+        local binding_target = "musl-gcc@" .. pkginfo.version()
         for _, prog in ipairs(package.programs) do
-            xvm.add(prog, { alias = "musl-" .. prog })
+            xvm.add(prog, { alias = "musl-" .. prog, binding = binding_target })
         end
 
         return true

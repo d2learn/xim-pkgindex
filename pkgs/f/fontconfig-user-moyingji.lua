@@ -20,8 +20,9 @@ package = {
 
 
 
--- 配置
+-- 配置项
 
+-- 默认字体
 local default_fonts = {
     serif = {
         "Source Han Serif CN",
@@ -40,8 +41,10 @@ local default_fonts = {
     },
 }
 
+-- 替换衬线字体为无衬线字体
 local replace_serif = false
 
+-- 等宽字体回落
 local monospace_fallback = {
     {
         family = { "JetBrainsMono Nerd Font", "JetBrains Mono" },
@@ -49,6 +52,7 @@ local monospace_fallback = {
     },
 }
 
+-- 字体替换
 local font_replacements = {
     {
         family = { "Microsoft YaHei" },
@@ -56,6 +60,7 @@ local font_replacements = {
     },
 }
 
+-- 其他汉字字形
 local glyphs_cjk = {
     tw = {
         ["Source Han Sans CN"] = "Source Han Sans TW",
@@ -179,8 +184,8 @@ function content()
     <!-- 包中提供了快捷配置 可以直接修改包中的配置并重新安装 -->
 
 
-    <!-- (CJK) 等宽字体回落 -->
-    <!-- 汉字(全角)和英文(半角)的等宽对齐 会导致汉字间距变大 不喜欢可以删除这段 -->
+    <!-- 等宽字体回落 -->
+    <!-- 等宽字体中不存在的字符将会回落至此处 -->
 %s
 
 
@@ -189,8 +194,8 @@ function content()
 %s
 
 
-    <!-- 其他 (CJK) 字形 -->
-    <!-- 汉字在不同的国家和地区的写法并不相同 通过判断语言替换字体为不同国家或地区使用的字体 -->
+    <!-- 其他汉字字形 -->
+    <!-- 汉字在不同的地区和语言中的写法并不相同 通过判断语言替换字体为不同地区和语言使用的字体 -->
 %s
 
 </fontconfig>

@@ -47,6 +47,7 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 local mdbook_file = {
     windows = "mdbook.exe",
@@ -54,24 +55,17 @@ local mdbook_file = {
     macosx = "mdbook"
 }
 
-function installed()
-    return os.iorun("xvm list mdbook")
-end
-
 function install()
     return os.trymv(mdbook_file[os.host()], pkginfo.install_dir())
 end
 
 function config()
     -- config xvm
-    os.exec(format(
-        "xvm add mdbook %s --path %s",
-        pkginfo.version(), pkginfo.install_dir()
-    ))
+    xvm.add("mdbook")
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove mdbook " .. pkginfo.version())
+    xvm.remove("mdbook")
     return true
 end

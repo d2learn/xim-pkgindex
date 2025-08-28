@@ -86,7 +86,7 @@ function verify_and_choice_from_list(target, target_list, opt)
 
 end
 
-function set_dynamic_linker(cmds)
+function config_gcc_specs(cmds)
 
     -- create specs for dynamic linker
     if not os.isdir(cmds["--output"]) then
@@ -132,6 +132,17 @@ function set_dynamic_linker(cmds)
         old_dynamic_linker, cmds["--with-dynamic-linker"]
     ))
 
+    -- runtime path
+    local rpath = "*link:\n%{!static:%{!shared:%{!static-pie: --enable-new-dtags -rpath /home/xlings/.xlings_data/lib }}} "
+
+    default_specs_content = string.replace(
+        default_specs_content,
+        "*link:\n", rpath,
+        { plain = true }
+    )
+
+    log.info("Adding x-default rpath to specs: /home/xlings/.xlings_data/lib")
+
     io.writefile(default_specs_file, default_specs_content)
 
     log.info("Dynamic linker set to: " .. cmds["--with-dynamic-linker"])
@@ -155,6 +166,10 @@ function info_tips(version, cmds)
     end
     if cmds["--config-mak"] then
         cprint("${bright}config-mak: ${green}" .. cmds["--config-mak"])
+    end
+
+    if cmds["--compress"] then
+        cprint("${bright}compress: ${green}" .. cmds["--compress"])
     end
 
     cprint("\n${dim}---\n")
@@ -212,10 +227,7 @@ OUTPUT = %s
 
 # [X] - Add default linker and rpath via specs and control by --xlings-config-no
 # [X] - Note: Custom option dont use {-f, -W, -g, -O } save keywords, suggest use -X -Z
-GCC_CONFIG += --with-specs='%%{input_file:%%{!static:%%{!shared:%%{!static-pie: \
-  -Wl,--enable-new-dtags \
-  -Wl,-rpath,/home/xlings/.xlings_data/lib \
-}}}}'
+# GCC_CONFIG += --with-specs='%%{!static:%%{!shared:%%{!static-pie: -Wl,--enable-new-dtags -Wl,-rpath,/home/xlings/.xlings_data/lib }}}'
 
 # COMMON_CONFIG += CC="gcc -static" CXX="g++ -static"
 %s
@@ -233,7 +245,10 @@ local __xscript_input = {
     --["--with-sysroot"] = false,
     ["--static"] = false, -- boolean
     ["--config-mak"] = false,
-    
+    ["--compress"] = false,
+    ["--clean"] = true,
+    ["-h"] = false,
+    ["--help"] = false,
     -- --with-extra-ldflags append?
 }
 
@@ -245,6 +260,18 @@ function xpkg_main(version, ...)
         __xscript_input,
         { ... }
     )
+
+    --print(cmds)
+
+    if (version == "-h" or version == "--help") or cmds["-h"] or cmds["--help"] then
+        cprint("Usage: ${cyan}musl-cross-make [version] [options]")
+        cprint("")
+        cprint("Example:")
+        cprint("  ${cyan}musl-cross-make 15.1.0")
+        cprint("  ${cyan}musl-cross-make 15.1.0 --target x86_64 --output mygcc15")
+        cprint("")
+        return
+    end
 
     --local target = cmds["--target"]
     --local output = cmds["--output"]
@@ -272,8 +299,12 @@ function xpkg_main(version, ...)
             default = "x86_64-linux-musl",
         }
     )
-    cmds["--output"] = cmds["--output"] or "xlings-musl-gcc"
+    cmds["--output"] = cmds["--output"] or ("musl-gcc-" .. version .. "-" .. cmds["--target"]:split("-linux")[1])
     _, cmds["--output"] = libxpkg.utils.filepath_to_absolute(cmds["--output"])
+
+    if cmds["--compress"] then
+        cmds["--compress"] = cmds["--output"] .. ".tar.gz"
+    end
 
     info_tips(version, cmds)
 
@@ -318,30 +349,40 @@ function xpkg_main(version, ...)
 
     os.cd(project_dir)
 
-    if ret_ok then
-        cprint("-> ${yellow}clearing previous build files...")
+    if ret_ok and cmds["--clean"] ~= "false" then
+        log.warn("-> clearing previous build files...")
         ret_ok = __try_run("make clean")
     else
-        cprint("${red}Project dir not found, aborting build.")
+        log.error("Project dir not found, aborting build.")
     end
 
     if ret_ok then
-        cprint("-> ${yellow}building with musl-cross-make...")
+        log.warn("-> building with musl-cross-make...")
         ret_ok = __try_run("make -j8")
     else
-        cprint("${red}Failed to clear previous build files, aborting build.")
+        log.error("Failed to clear previous build files, aborting build.")
     end
 
     if ret_ok then
-        cprint("-> ${yellow}installing to " .. cmds["--output"] .. " ...")
+        log.warn("-> installing to " .. cmds["--output"] .. " ...")
         ret_ok = __try_run("make install")
     else
-        cprint("${red}Build failed, aborting installation.")
+        log.error("Build failed, aborting installation.")
     end
 
     if ret_ok and cmds["--with-dynamic-linker"] then
-        cprint("-> ${yellow}setting default dynamic linker...")
-        ret_ok = set_dynamic_linker(cmds)
+        log.warn("-> config compiler specs(dynamic linker, rpath)...")
+        ret_ok = config_gcc_specs(cmds)
+    end
+
+    if ret_ok and cmds["--compress"] then
+        if os.isfile(cmds["--compress"]) then os.tryrm(cmds["--compress"]) end
+        log.warn("-> start compress...")
+        import("utils.archive")
+        archive.archive(cmds["--compress"], cmds["--output"], {
+            recurse = true,
+            curdir = path.directory(cmds["--output"]),
+        })
     end
 
     -- tips

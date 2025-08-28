@@ -299,7 +299,7 @@ function xpkg_main(version, ...)
             default = "x86_64-linux-musl",
         }
     )
-    cmds["--output"] = cmds["--output"] or ("musl-gcc-" .. version .. "-" .. cmds["--target"]:split("-linux")[1])
+    cmds["--output"] = cmds["--output"] or ("musl-gcc-" .. version .. "-linux-" .. cmds["--target"]:split("-linux")[1])
     _, cmds["--output"] = libxpkg.utils.filepath_to_absolute(cmds["--output"])
 
     if cmds["--compress"] then

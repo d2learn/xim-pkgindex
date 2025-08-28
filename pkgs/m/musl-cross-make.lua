@@ -299,7 +299,13 @@ function xpkg_main(version, ...)
             default = "x86_64-linux-musl",
         }
     )
-    cmds["--output"] = cmds["--output"] or ("musl-gcc-" .. version .. "-linux-" .. cmds["--target"]:split("-linux")[1])
+
+    local default_outputdir = string.format(
+        "musl-gcc-%s-linux-%s",
+        version, cmds["--target"]:split("-linux")[1]
+    )
+
+    cmds["--output"] = cmds["--output"] or default_outputdir
     _, cmds["--output"] = libxpkg.utils.filepath_to_absolute(cmds["--output"])
 
     if cmds["--compress"] then
@@ -379,7 +385,7 @@ function xpkg_main(version, ...)
         if os.isfile(cmds["--compress"]) then os.tryrm(cmds["--compress"]) end
         log.warn("-> start compress...")
         import("utils.archive")
-        archive.archive(cmds["--compress"], cmds["--output"], {
+        archive.archive(cmds["--compress"], path.filename(cmds["--output"]), {
             recurse = true,
             curdir = path.directory(cmds["--output"]),
         })

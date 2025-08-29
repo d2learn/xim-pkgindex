@@ -62,12 +62,20 @@ function config()
         alias = "x86_64-linux-musl-gcc",
     })
 
+    local __binding_tree_root = "x86_64-linux-musl-gcc@" .. pkginfo.version()
+    xvm.add("x86_64-linux-musl-gcc", { bindir = gcc_bindir })
+
     for _, prog in ipairs(package.programs) do
-        if prog ~= "musl-gcc" then 
+        if prog ~= "musl-gcc" then
             xvm.add(prog, {
                 bindir = gcc_bindir,
                 alias = "x86_64-linux-" .. prog,
                 binding = binding_tree_root,
+            })
+            -- full-name
+            xvm.add("x86_64-linux-" .. prog, {
+                bindir = gcc_bindir,
+                binding = __binding_tree_root,
             })
         end
     end
@@ -150,6 +158,7 @@ end
 function uninstall()
     for _, prog in ipairs(package.programs) do
         xvm.remove(prog)
+        xvm.remove("x86_64-linux-" .. prog)
     end
     -- runtime libraries
     xvm.remove("musl-libc", "musl-gcc-" .. pkginfo.version())

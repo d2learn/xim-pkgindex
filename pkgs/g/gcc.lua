@@ -84,6 +84,9 @@ function config()
             xvm.add(prog, { alias = "musl-" .. prog, binding = binding_target })
         end
 
+        -- add cc
+        xvm.add("cc", { alias = "musl-gcc", binding = binding_target })
+
         return true
     end
 end
@@ -95,6 +98,8 @@ function uninstall()
         for _, prog in ipairs(package.programs) do
             xvm.remove(prog)
         end
+
+        xvm.remove("cc")
     end
     return true
 end

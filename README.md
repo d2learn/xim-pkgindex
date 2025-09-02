@@ -22,6 +22,7 @@ xim --update index
 | 仓库 | 命名空间 | 简介 |
 | -- | -- | -- |
 | [xim-pkgindex-template](https://github.com/d2learn/xim-pkgindex-template) | xim | 自建/镜像/私有包索引模板仓库 |
+| [xim-pkgindex-fromsource](https://github.com/d2learn/xim-pkgindex-fromsource) | fromsource | 从源码构建的包索引仓库 |
 | [xim-pkgindex-d2x](https://github.com/d2learn/xim-pkgindex-d2x) | d2x | d2x公开课项目索引仓库 |
 
 

@@ -8,4 +8,8 @@ xim_indexrepos = {
         ["GLOBAL"] = "https://github.com/d2learn/xim-pkgindex-d2x.git",
         ["CN"] = "https://gitee.com/xlings-res/xim-pkgindex-d2x.git",
     },
+    ["fromsource"] = {
+        ["GLOBAL"] = "https://github.com/d2learn/xim-pkgindex-fromsource.git",
+        ["CN"] = "https://gitee.com/xlings-res/xim-pkgindex-fromsource.git",
+    },
 }

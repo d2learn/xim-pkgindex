@@ -10,6 +10,6 @@ xim_indexrepos = {
     },
     ["fromsource"] = {
         ["GLOBAL"] = "https://github.com/d2learn/xim-pkgindex-fromsource.git",
-        ["CN"] = "https://gitee.com/xlings-res/xim-pkgindex-fromsource.git",
+        ["CN"] = "https://github.com/d2learn/xim-pkgindex-fromsource.git",
     },
 }

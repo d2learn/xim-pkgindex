@@ -165,7 +165,11 @@ function config()
     end
 
     os.exec(string.format(xvm_cmd_template1, pkginfo.version(), appdir, code_alias))
-    os.exec(string.format(xvm_cmd_template2, pkginfo.version(), appdir, code_alias))
+    -- TODO: fix xvm.add("vscode"), run vscode --version bug?
+    os.exec(string.format(
+        xvm_cmd_template2 .. " --binding code@" .. pkginfo.version(),
+        pkginfo.version(), appdir, code_alias
+    ))
 
     return true
 end

@@ -24,35 +24,84 @@ package = {
 import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
+import("xim.libxpkg.utils")
 
-function xpkg_main(pkgname, version)
+local __xscript_input = {
+    ["--export-path"] = false,
+}
+
+function xpkgname_process(pkgname)
+
+    local namespace = nil
+    local version = ""
+
     if not pkgname then
-        cprint("Usage: ${cyan}xpkg-helper <pkgname> [version]")
+        cprint("\t${bright}XPackage Helper Tools - 0.0.1${clear}")
+        cprint("")
+        cprint("Usage: ${dim cyan}xpkg-helper [namespace:]<pkgname>[@version]")
+        cprint("")
+        cprint("Example:")
+        cprint("  ${dim cyan}xpkg-helper code")
+        cprint("  ${dim cyan}xpkg-helper code@1.100.1")
+        cprint("  ${dim cyan}xpkg-helper fromesource:musl-gcc@15.1.0")
+        cprint("")
         return
+    else
+        log.info("checking [ %s ] ...", tostring(pkgname))
+
+        if pkgname:find(":") then
+            local parts = pkgname:split(":")
+            namespace = parts[1]
+            pkgname = parts[2]
+        end
+    
+        if pkgname:find("@") then
+            local parts = pkgname:split("@")
+            pkgname = parts[1]
+            version = parts[2]
+        end
     end
 
-    version = version or ""
+    return namespace, pkgname, version
+end
+
+function xpkg_main(xpkgname, ...)
+
+    local _, cmds = utils.input_args_process(
+        __xscript_input,
+        { ... }
+    )
+
+    local namespace, pkgname, version = xpkgname_process(xpkgname)
+
+    if not pkgname then return end
+
     if not xvm.has(pkgname, version) then
         log.warn("xpkg not installed: " .. pkgname .. "@" .. version)
         return
     end
 
     local info = xvm.info(pkgname, version)
+    local xpkg_fullname = pkgname
+    
+    if namespace then xpkg_fullname = namespace .. "@" .. pkgname end
+    local xpkg_installdir = path.join(system.xpkgdir(), xpkg_fullname, info["Version"])
 
-    local export_path = path.join(
-        system.rundir(),
-        info.pkginfo.name .. "@" .. info.pkginfo.version
-    )
+    if not cmds["--export-path"] then
+        cmds["--export-path"] = xpkg_fullname .. "@" .. info["Version"]
+    end
 
-    if os.isdir(export_path) then
-        log.warn("xpkg already exported: " .. export_path)
+    _, cmds["--export-path"] = utils.filepath_to_absolute(cmds["--export-path"])
+
+    if os.isdir(cmds["--export-path"]) then
+        log.warn("${yellow}xpkg already exported: " .. cmds["--export-path"])
         return
     end
 
-    os.cp(info.pkginfo.install_dir, export_path)
+    os.cp(xpkg_installdir, cmds["--export-path"])
 
     log.info(
         "${bright}%s${clear} | ${yellow}%s${clear} - ${green}ok",
-        pkgname, export_path
+        pkgname, cmds["--export-path"]
     )
 end

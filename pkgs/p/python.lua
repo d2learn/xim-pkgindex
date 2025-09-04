@@ -23,16 +23,6 @@ package = {
                 sha256 = "5914748e6580e70bedeb7c537a0832b3071de9e09a2e4e7e3d28060616045e0a",
             },
         },
-        linux = {
-            deps = { "gcc", "make" },
-            ["latest"] = { ref = "3.13.1"},
-            ["3.13.1"] = { url = _linux_download_url("3.13.1"), sha256 = nil },
-            ["3.12.6"] = { url = _linux_download_url("3.12.6"), sha256 = nil },
-            ["3.11.11"] = { url = _linux_download_url("3.11.11"), sha256 = nil },
-            ["3.10.16"] = { url = _linux_download_url("3.10.16"), sha256 = nil },
-            ["3.9.21"] = { url = _linux_download_url("3.9.21"), sha256 = nil },
-            ["3.8.20"] = { url = _linux_download_url("3.8.20"), sha256 = nil },
-        },
     },
 }
 

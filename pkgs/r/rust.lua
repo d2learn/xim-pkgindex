@@ -34,6 +34,7 @@ package = {
 }
 
 import("xim.xinstall")
+import("xim.libxpkg.pkgmanager")
 
 function installed()
     os.exec("rustc --version")
@@ -52,6 +53,7 @@ function install()
             .. " --profile default -y"
         )
     else
+        pkgmanager.install("rustup-mirror")
         os.exec("sh sh.rustup.rs -v -y")
     end
     return true

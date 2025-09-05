@@ -16,19 +16,20 @@ package = {
     categories = {"plang", "compiler"},
     keywords = {"Reliability", "Performance", "Productivity"},
 
+    programs = { "rustc", "cargo", "rustup" },
+
     xpm = {
         windows = {
-            --deps = {"visual-studio"},
-            ["latest"] = {
-                url = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe",
-                sha256 = nil
-            }
+            deps = {"rustup", "rustup-mirror"},
+            ["latest"] = { }
         },
         linux = {
-            ["latest"] = {
-                url = "https://sh.rustup.rs",
-                sha256 = nil
-            }
+            deps = {"rustup", "rustup-mirror"},
+            ["latest"] = { }
+        },
+        macosx = {
+            deps = {"rustup", "rustup-mirror"},
+            ["latest"] = { }
         },
     },
 }
@@ -47,14 +48,13 @@ function install()
     if is_host("windows") then
         local toolchain_abi = _choice_toolchain()
         os.exec(
-            "rustup-init.exe"
+            "rustup-init"
             .. " --default-host " .. toolchain_abi
             .. " --default-toolchain stable"
             .. " --profile default -y"
         )
     else
-        pkgmanager.install("rustup-mirror")
-        os.exec("sh sh.rustup.rs -v -y")
+        os.exec("rustup-init -v -y")
     end
     return true
 end
@@ -103,7 +103,7 @@ function _choice_toolchain()
     if confirm == "2" then
         toolchain_abi = "x86_64-pc-windows-msvc"
         -- TODO: install msvc toolchain
-        xinstall("msvc@onlycompiler")
+        pkgmanager.install("msvc@onlycompiler")
     end
 
     return toolchain_abi

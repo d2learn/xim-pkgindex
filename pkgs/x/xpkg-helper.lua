@@ -84,7 +84,7 @@ function xpkg_main(xpkgname, ...)
     local info = xvm.info(pkgname, version)
     local xpkg_fullname = pkgname
     
-    if namespace then xpkg_fullname = namespace .. "@" .. pkgname end
+    if namespace then xpkg_fullname = namespace .. "-x-" .. pkgname end
     local xpkg_installdir = path.join(system.xpkgdir(), xpkg_fullname, info["Version"])
 
     if not cmds["--export-path"] then

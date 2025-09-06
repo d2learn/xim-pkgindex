@@ -28,6 +28,7 @@ import("xim.libxpkg.utils")
 
 local __xscript_input = {
     ["--export-path"] = false,
+    ["--force"] = false,
 }
 
 function xpkgname_process(pkgname)
@@ -72,6 +73,8 @@ function xpkg_main(xpkgname, ...)
         { ... }
     )
 
+    if cmds["--force"] then cmds["--force"] = true end
+
     local namespace, pkgname, version = xpkgname_process(xpkgname)
 
     if not pkgname then return end
@@ -98,7 +101,10 @@ function xpkg_main(xpkgname, ...)
         return
     end
 
-    os.cp(xpkg_installdir, cmds["--export-path"])
+    os.cp(xpkg_installdir, cmds["--export-path"], {
+        symlink = true,
+        force = cmds["--force"],
+    })
 
     log.info(
         "${bright}%s${clear} | ${yellow}%s${clear} - ${green}ok",

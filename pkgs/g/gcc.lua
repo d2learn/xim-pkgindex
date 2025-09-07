@@ -27,7 +27,7 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "glibc@2.39" },
+            deps = { "glibc@2.39", "binutils@2.42" },
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = "XLINGS_RES",
             ["13.3.0"] = "XLINGS_RES",

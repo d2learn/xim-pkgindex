@@ -70,6 +70,9 @@ function install()
         force = true, symlink = true
     })
 
+    log.info("Relocating glibc files(path) ...")
+    __relocate()
+
     return true
 end
 
@@ -141,4 +144,42 @@ function __config_header()
         force = true, symlink = true
     })
     
+end
+
+function __relocate()
+
+    local relocate_files = {
+        "lib/libc.so",
+        "lib/libm.so",
+        "lib/libm.a",
+
+        "bin/ldd",
+        "bin/tzselect",
+        "bin/xtrace",
+        "bin/sotruss",
+    }
+
+    local fromsource_glibc = "fromsource-x-" .. package.name
+    local this_glibc = package.name
+
+    if package.namespace then -- indexrepo namespace ?
+        this_glibc = package.namespace .. "-x-" .. package.name
+    end
+
+
+    log.info("relocate [ %s ] to [ %s ]", fromsource_glibc, this_glibc)
+
+    os.cd(pkginfo.install_dir())
+
+    for _, f in ipairs(relocate_files) do
+        if os.isfile(f) then
+            log.info("relocate file: " .. f)
+            local content = io.readfile(f)
+            content = content:replace(
+                fromsource_glibc, this_glibc,
+                { plain = true }
+            )
+            io.writefile(f, content)
+        end
+    end
 end

@@ -1,5 +1,3 @@
-function __gcc_url(version) return format("https://ftp.gnu.org/gnu/gcc/gcc-%s/gcc-%s.tar.xz", version, version) end
-
 package = {
     -- base info
     name = "gcc",
@@ -18,12 +16,10 @@ package = {
     keywords = {"compiler", "gnu", "gcc", "language", "c", "c++"},
 
     programs = {
-        "gcc-static", "g++-static",
         "gcc", "g++", "c++", "cpp",
-        "addr2line", "ar", "as", "ld", "nm",
-        "objcopy", "objdump", "ranlib", "readelf",
-        "size", "strings", "strip",
-        "ldd", "loader", -- -> musl-ldd -> musl-lic.so
+        "gcc-ar", "gcc-nm", "gcc-ranlib",
+        "gcov", "gcov-dump", "gcov-tool",
+        "x86_64-linux-gnu-gcc", "x86_64-linux-gnu-g++", "x86_64-linux-gnu-c++",
     },
 
     -- xvm: xlings version management
@@ -31,75 +27,98 @@ package = {
 
     xpm = {
         linux = {
-            --deps = { "musl-gcc" },
+            deps = { "glibc@2.39" },
             ["latest"] = { ref = "15.1.0" },
-            ["15.1.0"] = { }, -- deps musl-gcc
-            ["13.3.0"] = { },
-            ["11.5.0"] = { },
-            ["9.4.0"] = { },
-        },
-        macosx = {
-            ["latest"] = { ref = "15.1.0" },
-            ["15.1.0"] = { }, --"XLINGS_RES",
-        },
-        windows = {
-            ["latest"] = { ref = "15.1.0" },
-            ["15.1.0"] = { },
+            ["15.1.0"] = "XLINGS_RES",
+            ["13.3.0"] = "XLINGS_RES",
+            ["11.5.0"] = "XLINGS_RES",
+            ["9.4.0"] = "XLINGS_RES",
         },
     },
 }
 
-import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.pkginfo")
-import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
+import("xim.libxpkg.xvm")
 
-local mingw_version_map = {
-    ["15.1.0"] = "13.0.0",
+local gcc_tool = {
+    ["gcc-ar"] = true, ["gcc-nm"] = true, ["gcc-ranlib"] = true,
+    ["gcov"] = true, ["gcov-dump"] = true, ["gcov-tool"] = true,
+}
+
+local gcc_lib = {
+    -- not include glibc
+    "libgcc_s.so", "libgcc_s.so.1",
+    "libstdc++.so", "libstdc++.so.6",
 }
 
 function install()
-    if is_host("windows") then
-        pkgmanager.install("mingw-w64@" .. mingw_version_map[pkginfo.version()])
-    elseif is_host("linux") then
-        pkgmanager.install("musl-gcc@" .. pkginfo.version())
-    elseif is_host("macosx") then
-        log.warn("TODO: macOS support for GCC is not implemented yet.")
-        return false
-    end
+    local srcdir = pkginfo.install_file():replace(".tar.gz", "")
+    os.tryrm(pkginfo.install_dir())
+    os.cp(srcdir, pkginfo.install_dir(), {
+        symlink = true,
+        verbose = true,
+    })
     return true
 end
 
 function config()
-    if is_host("windows") then
-        return true
-    elseif is_host("macosx") then
-        log.warn("TODO: macOS support for GCC is not implemented yet.")
-        return false
-    elseif is_host("linux") then
+    local gcc_bindir = path.join(pkginfo.install_dir(), "bin")
+    local ld_lib_path = string.format(path.join(pkginfo.install_dir(), "lib64"))
 
-        log.info("add [ gcc, g++, c++, cpp, addr2line, ar, as, ld, nm, objcopy, objdump, ranlib, readelf, size, strings, strip ... ] commands")
-        local binding_target = "musl-gcc@" .. pkginfo.version()
-        for _, prog in ipairs(package.programs) do
-            xvm.add(prog, { alias = "musl-" .. prog, binding = binding_target })
+    xvm.add("xim-gnu-gcc") -- root
+
+    local config = {
+        bindir = gcc_bindir,
+        binding = "xim-gnu-gcc@" .. pkginfo.version(),
+        envs = {
+            --["LD_LIBRARY_PATH"] = ld_lib_path,
+            --["LD_RUN_PATH"] = ld_lib_path,
+        }
+    }
+
+    for _, prog in ipairs(package.programs) do
+        if gcc_tool[prog] then
+            config.version = "gcc-" .. pkginfo.version()
+            xvm.add(prog, config)
+        else
+            config.version = pkginfo.version()
+            xvm.add(prog, config)
         end
-
-        -- add cc
-        xvm.add("cc", { alias = "musl-gcc", binding = binding_target })
-
-        return true
     end
+
+-- lib
+    log.info("add gcc libs...")
+    local lib_config = {
+        type = "lib",
+        version = "gcc-" .. pkginfo.version(),
+        bindir = path.join(pkginfo.install_dir(), "lib64"),
+        binding = "xim-gnu-gcc@" .. pkginfo.version(),
+    }
+
+    for _, lib in ipairs(gcc_lib) do
+        lib_config.filename = lib -- target file name
+        lib_config.alias = lib -- source file name
+        xvm.add(lib, lib_config)
+    end
+
+    return true
 end
 
 function uninstall()
-    if is_host("windows") then
-        xuninstall("mingw-w64@" .. mingw_version_map[pkginfo.version()])
-    elseif is_host("linux") then
-        for _, prog in ipairs(package.programs) do
+
+    local gcc_version = "gcc-" .. pkginfo.version()
+
+    for _, prog in ipairs(package.programs) do
+        if gcc_tool[prog] then
+            xvm.remove(prog, gcc_version)
+        else
             xvm.remove(prog)
         end
-
-        xvm.remove("cc")
     end
+    for _, lib in ipairs(gcc_lib) do
+        xvm.remove(lib, gcc_version)
+    end
+    xvm.remove("xim-gnu-gcc")
     return true
 end

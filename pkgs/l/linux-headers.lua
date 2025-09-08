@@ -26,6 +26,7 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function install()
     pkgmanager.install("scode:linux-headers@" .. pkginfo.version())

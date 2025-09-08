@@ -79,12 +79,19 @@ function xpkg_main(xpkgname, ...)
 
     if not pkgname then return end
 
-    if not xvm.has(pkgname, version) then
+    local xvm_pkgname = pkgname
+
+    -- add support for scode namespace
+    if namespace == "scode" then
+        xvm_pkgname = "scode-" .. pkgname
+    end
+
+    if not xvm.has(xvm_pkgname, version) then
         log.warn("xpkg not installed: " .. pkgname .. "@" .. version)
         return
     end
 
-    local info = xvm.info(pkgname, version)
+    local info = xvm.info(xvm_pkgname, version)
     local xpkg_fullname = pkgname
     
     if namespace then xpkg_fullname = namespace .. "-x-" .. pkgname end

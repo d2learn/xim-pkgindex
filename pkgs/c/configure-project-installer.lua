@@ -34,6 +34,7 @@ local __xscript_input = {
     ["--project-url"] = false, -- TODO: support git clone from url
     ["--force"] = false,
     ["--xpkg-scode"] = false,
+    ["--install-by-sudo"] = false
 }
 
 local tmp_project_dir = nil
@@ -88,7 +89,12 @@ function xpkg_main(installdir, ...)
 
     os.cd(abs_srcdir)
 
-    if not os.isfile("configure") then
+    local configure_file = "configure"
+
+    if not os.isfile(configure_file) then configure_file = "Configure" end
+    if not os.isfile(configure_file) then configure_file = "configure.sh" end
+
+    if not os.isfile(configure_file) then
         log.error("missing configure script in project directory")
         log.error("${red}error: missing or invalid project directory: ${clear}" .. abs_srcdir)
         cprint("")
@@ -100,10 +106,20 @@ function xpkg_main(installdir, ...)
     os.sleep(2000) -- wait for 2 seconds to let user cancel if needed
 
     -- run ./configure
-    local configure_cmd = string.format("./configure %s", configure_args)
+    local configure_cmd = string.format("./%s %s", configure_file, configure_args)
     system.exec(configure_cmd)
     system.exec("make -j20", { retry = 3 })
-    system.exec("make install")
+
+    local make_install_cmd = "make install"
+
+    if cmds["--install-by-sudo"] then
+        make_install_cmd = string.format("sudo %s/%s",
+            system.bindir(),
+            make_install_cmd
+        )
+    end
+
+    system.exec(make_install_cmd)
 
     -- remove tmp project dir if any
     if tmp_project_dir and os.isdir(tmp_project_dir) then

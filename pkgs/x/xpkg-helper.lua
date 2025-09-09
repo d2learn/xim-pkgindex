@@ -87,7 +87,7 @@ function xpkg_main(xpkgname, ...)
     end
 
     if not xvm.has(xvm_pkgname, version) then
-        log.warn("xpkg not installed: " .. pkgname .. "@" .. version)
+        log.warn("xpkg not installed: " .. xvm_pkgname .. "@" .. version)
         return
     end
 

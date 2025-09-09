@@ -15,7 +15,7 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "make", "gcc" },
+            deps = { "make", "gcc", "xpkg-helper" },
             ["latest"] = { ref = "0.0.1" },
             ["0.0.1"] = {}
         },
@@ -26,13 +26,39 @@ package = {
 import("xim.libxpkg.log")
 import("xim.libxpkg.utils")
 import("xim.libxpkg.system")
+import("xim.libxpkg.pkgmanager")
 
 local __xscript_input = {
     ["--args"] = false,
     ["--project-dir"] = false,
     ["--project-url"] = false, -- TODO: support git clone from url
     ["--force"] = false,
+    ["--xpkg-scode"] = false,
 }
+
+local tmp_project_dir = nil
+
+function download_scode(cmds)
+
+    local xpkg = "scode:" .. cmds["--xpkg-scode"]
+
+    tmp_project_dir = path.absolute(".configure-project-installer")
+
+    pkgmanager.install(xpkg)
+
+    os.tryrm(tmp_project_dir)
+    system.exec(string.format(
+        "xpkg-helper %s --export-path %s",
+        xpkg, tmp_project_dir
+    ))
+
+    if not os.isdir(tmp_project_dir) then
+        log.error("failed to download source code from xpkg: %s", xpkg)
+        os.raise("configure-project-installer: failed to download source code")
+    end
+
+    return tmp_project_dir
+end
 
 function xpkg_main(installdir, ...)
 
@@ -44,11 +70,17 @@ function xpkg_main(installdir, ...)
     local srcdir = cmds["--project-dir"] or "."
     local abs_srcdir = path.absolute(srcdir)
 
+    if cmds["--xpkg-scode"] then
+        abs_srcdir = download_scode(cmds)
+        log.warn("use [xpkg - scode:%s] project-dir: %s", cmds["--xpkg-scode"], abs_srcdir)
+    end
+
     configure_args = string.format("%s --prefix=%s", configure_args, installdir)
 
     cprint("")
     cprint("\t ${bright}Configure Project Installer - 0.0.1${clear}")
     cprint("")
+    cprint("xpkg-scode: ${dim green}" .. tostring(cmds["--xpkg-scode"]))
     cprint("project-dir: ${dim green}" .. abs_srcdir)
     cprint("install-dir: ${dim green}" .. installdir)
     cprint("args:   ${dim green}" .. configure_args)
@@ -72,6 +104,12 @@ function xpkg_main(installdir, ...)
     system.exec(configure_cmd)
     system.exec("make -j20", { retry = 3 })
     system.exec("make install")
+
+    -- remove tmp project dir if any
+    if tmp_project_dir and os.isdir(tmp_project_dir) then
+        log.info("remove tmp project dir: %s", tmp_project_dir)
+        os.tryrm(tmp_project_dir)
+    end
 
     log.info("✅ installed to: ${green}%s", installdir)
 end

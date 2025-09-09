@@ -45,7 +45,7 @@ local glibc_libs = {
     "crt1.o", "crti.o", "crtn.o", -- crt
     "ld-linux-x86-64.so.2", -- dynamic linker/loader
     "libc.so", "libc.so.6", "libc_nonshared.a", -- C library
-    "libdl.so.2", -- dynamic loading
+    "libdl.a", "libdl.so.2", -- dynamic loading
     "libm.so", "libm.so.6", "libmvec.so.1", -- math
     "libpthread.so.0", "libpthread.a", -- pthread
     "librt.so.1", -- realtime
@@ -59,6 +59,8 @@ local glibc_libs = {
     "libnss_hesiod.so.2",
     "libnss_db.so",
     "libnss_db.so.2",
+    -- 
+    "libnsl.so.1"
 }
 
 function install()

@@ -108,6 +108,7 @@ function xpkg_main(installdir, ...)
     -- run ./configure
     local configure_cmd = string.format("./%s %s", configure_file, configure_args)
     system.exec(configure_cmd)
+    system.exec("make clean")
     system.exec("make -j20", { retry = 3 })
 
     local make_install_cmd = "make install"

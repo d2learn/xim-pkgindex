@@ -34,8 +34,10 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
+import("xim.libxpkg.log")
 
-local appdata_devcpp = path.join(os.getenv("APPDATA"), "Roaming", "Dev-Cpp")
+--local appdata_devcpp = path.join(os.getenv("APPDATA"), "Roaming", "Dev-Cpp")
+local appdata_devcpp = path.join(os.getenv("APPDATA"), "Dev-Cpp")
 
 function install()
     os.tryrm(pkginfo.install_dir())
@@ -54,6 +56,8 @@ function config()
     ))
 
     if pkginfo.version() == "chinese" then
+        log.info("config Dev-C++ to use Chinese settings...")
+        log.info("config-file-dir: " .. appdata_devcpp)
         os.tryrm(appdata_devcpp)
         os.mkdir(appdata_devcpp)
         os.cp(path.join(pkginfo.install_dir(), "devcpp.ini"), path.join(appdata_devcpp, "devcpp.ini"))
@@ -75,5 +79,6 @@ function uninstall()
     system.exec(string.format(
         [[shortcut-tool remove --name "Dev-C++ 5.11"]]
     ))
+    os.tryrm(appdata_devcpp)
     return true
 end

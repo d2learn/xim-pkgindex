@@ -5,6 +5,7 @@ package = {
     maintainers = "Orwell (Johan Mes)",
     licenses = "GPL",
     repo = "https://sourceforge.net/projects/orwelldevcpp/",
+    docs = "https://forum.d2learn.org/topic/134",
 
     -- xim pkg info
     archs = {"x86_64"},
@@ -22,6 +23,10 @@ package = {
                 url = "https://gitcode.com/xlings-res/dev-cpp/releases/download/5.11/dev-cpp-5.11-windows-x86_64.zip",
                 sha256 = nil,
             },
+            ["chinese"] = {
+                url = "https://gitcode.com/xlings-res/dev-cpp/releases/download/chinese/dev-cpp-chinese-windows-x86_64.zip",
+                sha256 = nil,
+            },
         },
     },
 }
@@ -29,6 +34,8 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
+
+local appdata_devcpp = path.join(os.getenv("APPDATA"), "Roaming", "Dev-Cpp")
 
 function install()
     os.tryrm(pkginfo.install_dir())
@@ -45,6 +52,21 @@ function config()
         path.join(pkginfo.install_dir(), "devcpp.exe"),
         path.join(pkginfo.install_dir(), "devcpp.exe")
     ))
+
+    if pkginfo.version() == "chinese" then
+        os.tryrm(appdata_devcpp)
+        os.mkdir(appdata_devcpp)
+        os.cp(path.join(pkginfo.install_dir(), "devcpp.ini"), path.join(appdata_devcpp, "devcpp.ini"))
+        os.cp(path.join(pkginfo.install_dir(), "codeinsertion.ini"), path.join(appdata_devcpp, "codeinsertion.ini"))
+    end
+
+    cprint([[${yellow}
+
+           ConfigDoc | 配置文档
+    https://forum.d2learn.org/topic/134
+
+    ]])
+
     return true
 end
 

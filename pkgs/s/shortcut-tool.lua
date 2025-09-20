@@ -85,12 +85,17 @@ function create_windows_shortcut(name, target, icon)
     -- 删除临时的 .vbs 文件
     os.tryrm(vbs_path)
 
+    -- copy to desktop and move to start menu
+    os.cp(name .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
+    os.mv(name .. ".lnk", shortcut_dir[os.host()])
+
     log.info("Shortcut created: " .. name .. ".lnk")
 end
 
 function shortcut_remove(name)
     local filepath = nil
     if os.host() == "windows" then
+        os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", name .. ".lnk"))
         filepath = path.join(shortcut_dir[os.host()], name .. ".lnk")
     elseif os.host() == "linux" then
         local filename = name:replace(" ", "-") .. ".xvm.desktop"

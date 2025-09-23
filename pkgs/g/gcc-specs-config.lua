@@ -94,7 +94,9 @@ function xpkg_main(gcc_bin, ...)
 
     -- runtime path
     local rpath = "*link:\n%{!static:%{!shared:%{!static-pie: --enable-new-dtags -rpath "
-        .. cmds["--rpath"] .. " }}} "
+        .. cmds["--rpath"]
+        .. " -rpath-link " .. cmds["--rpath"]
+        .. " }}} "
 
     default_specs_content = string.replace(
         default_specs_content,

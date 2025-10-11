@@ -17,7 +17,7 @@ package = {
 
     xpm = {
         windows = {
-            deps = { "shortcut-tool" },
+            deps = { "shortcut-tool", "windows-acp" },
             ["latest"] = { ref = "5.11" },
             ["5.11"] = {
                 url = "https://gitcode.com/xlings-res/dev-cpp/releases/download/5.11/dev-cpp-5.11-windows-x86_64.zip",
@@ -62,6 +62,22 @@ function config()
         os.mkdir(appdata_devcpp)
         os.cp(path.join(pkginfo.install_dir(), "devcpp.ini"), path.join(appdata_devcpp, "devcpp.ini"))
         os.cp(path.join(pkginfo.install_dir(), "codeinsertion.ini"), path.join(appdata_devcpp, "codeinsertion.ini"))
+    end
+
+    local acp = os.iorun("windows-acp")
+    if acp and acp:trim() == "65001" then
+        log.warn("Current system ACP is UTF-8 (65001), use utf-8 encoding in Dev-C++")
+
+        local langdir = path.join(pkginfo.install_dir(), "Lang")
+        local lng_file = path.join(langdir, "Chinese.lng")
+        local tips_file = path.join(langdir, "Chinese.tips")
+        local lng_file_utf8 = path.join(langdir, "chinese", "Chinese.lng.utf8")
+        local tips_file_utf8 = path.join(langdir, "chinese", "Chinese.tips.utf8")
+
+        os.tryrm(lng_file)
+        os.tryrm(tips_file)
+        os.cp(lng_file_utf8, lng_file)
+        os.cp(tips_file_utf8, tips_file)
     end
 
     cprint([[${yellow}

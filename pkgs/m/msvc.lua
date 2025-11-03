@@ -13,18 +13,19 @@ package = {
         windows = {
             deps = { "vs-buildtools@2022" },
             ["latest"] = { ref = "2022" },
-            ["2022"] = { }, -- v143
+            ["2022"] = {}, -- v143
         },
     }
 }
 
 import("common")
+import("xim.libxpkg.pkgmanager")
 import("core.tool.toolchain")
 
 -- https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
 --local msvc_compiler = "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
 local msvc_component = "Microsoft.VisualStudio.Workload.VCTools"
-    -- kernel32.lib issues need refresh
+-- kernel32.lib issues need refresh
 
 function installed()
     local msvc_path = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC]]
@@ -46,7 +47,7 @@ function install()
 end
 
 function uninstall()
-    if not os.isfile("vs_BuildTools.exe") then xinstall("vs-buildtools") end
+    if not os.isfile("vs_BuildTools.exe") then pkgmanager.install("vs-buildtools") end
     common.xlings_exec(
         "vs_BuildTools.exe" ..
         " --remove " .. msvc_component ..

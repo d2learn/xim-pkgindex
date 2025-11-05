@@ -11,22 +11,23 @@ package = {
     -- xim pkg info
     type = "config",
     status = "stable", -- dev, stable, deprecated
-    categories = {"plang", "compiler", "c"},
+    categories = { "plang", "compiler", "c" },
 
     xpm = {
         windows = {
-            deps = {"msvc@2022"},
-            ["latest"] = { ref = "msvc" },
+            deps = { "mingw-w64@13" },
+            ["latest"] = { ref = "mingw" },
+            ["mingw"] = {},
             ["msvc"] = {},
         },
         linux = {
-            deps = {"gcc"},
+            deps = { "gcc" },
             ["latest"] = { ref = "gnu" },
             ["gnu"] = {},
         },
         macosx = {
             deps = { "brew" },
-            ["latest"] = { },
+            ["latest"] = {},
         },
     },
 }
@@ -35,7 +36,7 @@ import("core.tool.toolchain")
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
-import("xim.xuninstall")
+import("xim.libxpkg.pkgmanager")
 
 function installed()
     if is_host("macosx") then
@@ -46,7 +47,7 @@ function installed()
         return output ~= nil
     elseif pkginfo.version() == "msvc" then
         return toolchain.load("msvc"):check() == "2022"
-    elseif pkginfo.version() == "gnu" then
+    elseif pkginfo.version() == "mingw" or pkginfo.version() == "gnu" then
         local output = os.iorun("gcc --version")
         return string.find(output:trim(), "gcc", 1, true) ~= nil
     else
@@ -57,8 +58,11 @@ end
 function install()
     if is_host("macosx") then
         system.exec("brew install gcc", { retry = 3 })
+    elseif pkginfo.version() == "msvc" then
+        pkgmanager.install("msvc@2022")
+    else
+        -- install by deps
     end
-    -- install by deps
     return true
 end
 
@@ -66,9 +70,11 @@ function uninstall()
     if is_host("macosx") then
         system.exec("brew uninstall gcc")
     elseif pkginfo.version() == "msvc" then
-        xuninstall("msvc")
+        pkgmanager.uninstall("msvc@2022")
+    elseif pkginfo.version() == "mingw" then
+        pkgmanager.uninstall("mingw-w64@13")
     elseif pkginfo.version() == "gnu" then
-        xuninstall("gcc")
+        pkgmanager.uninstall("gcc")
     end
     return true
 end

@@ -66,11 +66,11 @@ function create_linux_shortcut(name, target, icon)
     log.info("Shortcut created: " .. filepath)
 end
 
-function create_windows_shortcut(name, target, icon)
+function create_windows_shortcut(name, target, icon, args)
     -- 创建一个 .vbs 脚本的内容
     local vbs_content = string.format(
         shortcut_template.windows,
-        name, target, icon, path.directory(target), "", name
+        name, target, icon, path.directory(target), args or "", name
     )
 
     -- 保存为一个临时 .vbs 文件
@@ -124,6 +124,7 @@ local __xscript_input = {
     ["--name"] = false,
     ["--target"] = false,
     ["--icon"] = false,
+    ["--args"] = false,
 }
 
 function xpkg_main(action, ...)
@@ -145,7 +146,7 @@ function xpkg_main(action, ...)
     cmds["--icon"] = cmds["--icon"] or cmds["--target"]
 
     if action == "create" then
-        shortcut_create[os.host()](cmds["--name"], cmds["--target"], cmds["--icon"])
+        shortcut_create[os.host()](cmds["--name"], cmds["--target"], cmds["--icon"], cmds["--args"])
     elseif action == "remove" then
         shortcut_remove(cmds["--name"])
     else

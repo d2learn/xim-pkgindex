@@ -10,10 +10,10 @@ package = {
 
     -- xim pkg info
     type = "package",
-    archs = {"x86_64"},
+    archs = { "x86_64" },
     status = "stable", -- dev, stable, deprecated
-    categories = {"compiler", "gnu", "language"},
-    keywords = {"compiler", "gnu", "gcc", "language", "c", "c++"},
+    categories = { "compiler", "gnu", "language" },
+    keywords = { "compiler", "gnu", "gcc", "language", "c", "c++" },
 
     programs = {
         "gcc", "g++", "c++", "cpp",
@@ -34,12 +34,17 @@ package = {
             ["11.5.0"] = "XLINGS_RES",
             ["9.4.0"] = "XLINGS_RES",
         },
+        windows = {
+            ["latest"] = { ref = "15.1.0" },
+            ["15.1.0"] = {}, -- deps mingw64
+        },
     },
 }
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.pkgmanager")
 
 local gcc_tool = {
     ["gcc-ar"] = true, ["gcc-nm"] = true, ["gcc-ranlib"] = true,
@@ -52,17 +57,60 @@ local gcc_lib = {
     "libstdc++.so", "libstdc++.so.6",
 }
 
+local version_map_gcc2mingw = {
+    ["15.1.0"] = "13.0.0",
+}
+
 function install()
-    local srcdir = pkginfo.install_file():replace(".tar.gz", "")
-    os.tryrm(pkginfo.install_dir())
-    os.cp(srcdir, pkginfo.install_dir(), {
-        symlink = true,
-        verbose = true,
-    })
+    if is_host("windows") then
+        pkgmanager.install("mingw-w64@" .. version_map_gcc2mingw[pkginfo.version()])
+    else
+        local srcdir = pkginfo.install_file():replace(".tar.gz", "")
+        os.tryrm(pkginfo.install_dir())
+        os.cp(srcdir, pkginfo.install_dir(), {
+            symlink = true,
+            verbose = true,
+        })
+    end
     return true
 end
 
 function config()
+    if is_host("windows") then
+        -- config in mingw-w64.lua
+        return true
+    else
+        return __config_linux();
+    end
+end
+
+function uninstall()
+    if is_host("windows") then
+        pkgmanager.uninstall("mingw-w64@" .. version_map_gcc2mingw[pkginfo.version()])
+        return true
+    end
+
+    local gcc_version = "gcc-" .. pkginfo.version()
+    for _, prog in ipairs(package.programs) do
+        if gcc_tool[prog] then
+            xvm.remove(prog, gcc_version)
+        else
+            xvm.remove(prog)
+        end
+    end
+
+    for _, lib in ipairs(gcc_lib) do
+        xvm.remove(lib, gcc_version)
+    end
+
+    xvm.remove("xim-gnu-gcc")
+
+    return true
+end
+
+-- private
+
+function __config_linux()
     local gcc_bindir = path.join(pkginfo.install_dir(), "bin")
     local ld_lib_path = string.format(path.join(pkginfo.install_dir(), "lib64"))
 
@@ -87,7 +135,7 @@ function config()
         end
     end
 
--- lib
+    -- lib
     log.info("add gcc libs...")
     local lib_config = {
         type = "lib",
@@ -98,27 +146,9 @@ function config()
 
     for _, lib in ipairs(gcc_lib) do
         lib_config.filename = lib -- target file name
-        lib_config.alias = lib -- source file name
+        lib_config.alias = lib    -- source file name
         xvm.add(lib, lib_config)
     end
 
-    return true
-end
-
-function uninstall()
-
-    local gcc_version = "gcc-" .. pkginfo.version()
-
-    for _, prog in ipairs(package.programs) do
-        if gcc_tool[prog] then
-            xvm.remove(prog, gcc_version)
-        else
-            xvm.remove(prog)
-        end
-    end
-    for _, lib in ipairs(gcc_lib) do
-        xvm.remove(lib, gcc_version)
-    end
-    xvm.remove("xim-gnu-gcc")
     return true
 end

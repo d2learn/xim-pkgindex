@@ -1,5 +1,7 @@
-
-function __mingw_cn_mirror_url(version) return format("https://gitcode.com/xlings-res/mingw-w64/releases/download/%s/mingw-w64-%s-windows-x86_64.zip", version, version) end
+function __mingw_cn_mirror_url(version)
+    return format(
+        "https://gitcode.com/xlings-res/mingw-w64/releases/download/%s/mingw-w64-%s-windows-x86_64.zip", version, version)
+end
 
 package = {
     -- base info
@@ -14,10 +16,10 @@ package = {
 
     -- xim pkg info
     type = "package",
-    archs = {"x86_64"},
+    archs = { "x86_64" },
     status = "stable", -- dev, stable, deprecated
-    categories = {"mingw", "cross-platform", "runtime"},
-    keywords = {"gcc", "runtime", "c", "c++", "mingw", "llvm"},
+    categories = { "mingw", "cross-platform", "runtime" },
+    keywords = { "gcc", "runtime", "c", "c++", "mingw", "llvm" },
 
     -- xvm: xlings version management
     xvm_enable = true,
@@ -27,7 +29,8 @@ package = {
             ["latest"] = { ref = "13.0.0" },
             ["13.0.0"] = {
                 url = {
-                    GLOBAL = "https://github.com/brechtsanders/winlibs_mingw/releases/download/15.1.0posix-13.0.0-ucrt-r2/winlibs-x86_64-posix-seh-gcc-15.1.0-mingw-w64ucrt-13.0.0-r2.zip",
+                    GLOBAL =
+                    "https://github.com/brechtsanders/winlibs_mingw/releases/download/15.1.0posix-13.0.0-ucrt-r2/winlibs-x86_64-posix-seh-gcc-15.1.0-mingw-w64ucrt-13.0.0-r2.zip",
                     CN = __mingw_cn_mirror_url("13.0.0"),
                 },
                 sha256 = nil
@@ -37,7 +40,9 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.system")
 
 local gcc_version_map = {
     ["13.0.0"] = "15.1.0",
@@ -68,9 +73,12 @@ function config()
     config.version = string.format([[%s(mingw-w64-%s)]],
         gcc_version_map[pkginfo.version()], pkginfo.version()
     )
+
     xvm.add("gcc", config)
     xvm.add("c++", config)
     xvm.add("g++", config)
+
+    __config_mingw_bin(mingw_bindir)
 
     return true
 end
@@ -87,5 +95,28 @@ function uninstall()
     xvm.remove("g++", version)
     xvm.remove("c++", version)
 
+    -- TODO: support multi-version (auto switch bin path)
+    __config_mingw_bin("")
+
     return true
+end
+
+-- private environment variables
+
+function __config_mingw_bin(bin_path)
+    -- create temp script
+    local tmp_bat_script = path.join(os.tmpdir(), "mingw-w64-config.bat")
+
+    -- 1. set MINGW_BIN env
+    log.info("set MINGW_BIN -> %s", bin_path)
+    io.writefile(tmp_bat_script, string.format([[setx MINGW_BIN "%s"]], bin_path))
+    system.exec(tmp_bat_script)
+
+    -- 2. add MINGW_BIN to PATH
+    local path_env = os.getenv("PATH")
+    if not path_env:find("MINGW_BIN", 1, true) then
+        log.warn("MINGW_BIN not found in PATH, adding it...")
+        io.writefile(tmp_bat_script, [[setx PATH "%%MINGW_BIN%%;%PATH%"]])
+        system.exec(tmp_bat_script)
+    end
 end

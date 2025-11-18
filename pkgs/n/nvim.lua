@@ -28,6 +28,13 @@ package = {
                 sha256 = "b2f91117be5b5ea39edd7297156dc2a4a8df4add6c95a90809a8df19e7ab6f52",
             }
         },
+        windows = {
+            ["latest"] = { ref = "0.11.5" },
+            ["0.11.5"] = {
+                url = "https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-win64.zip",
+                sha256 = "718e731326e7759cf17bbbb33f38975707a2ac85642614686b818ef5fde38f48",
+            }
+        },
     },
 }
 
@@ -35,8 +42,15 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
 function install()
+
+    local nvim_dir = "nvim-linux-x86_64"
+
+    if is_host("windows") then
+        nvim_dir = "nvim-win64"
+    end
+
     os.tryrm(pkginfo.install_dir())
-    os.mv("nvim-linux-x86_64", pkginfo.install_dir())
+    os.mv(nvim_dir, pkginfo.install_dir())
     return true
 end
 

@@ -55,6 +55,7 @@ local gcc_lib = {
     -- not include glibc
     "libgcc_s.so", "libgcc_s.so.1",
     "libstdc++.so", "libstdc++.so.6",
+    "libatomic.so", "libatomic.so.1",
 }
 
 local version_map_gcc2mingw = {

@@ -2,6 +2,22 @@ local _vscode_linux_url_template = "https://update.code.visualstudio.com/%s/linu
 local _vscode_windows_url_template = "https://update.code.visualstudio.com/%s/win32-x64-archive/stable"
 local _vscode_macosx_url_template = "https://update.code.visualstudio.com/%s/darwin-universal/stable"
 
+function _vscode_url(version)
+    local platform_url = nil
+    if is_host("windows") then
+        platform_url = string.format(_vscode_windows_url_template, version)
+    elseif is_host("linux") then
+        platform_url = string.format(_vscode_linux_url_template, version)
+    else -- macosx
+        platform_url = string.format(_vscode_macosx_url_template, version)
+    end
+
+    return {
+        url = platform_url,
+        sha256 = nil,
+    }
+end
+
 package = {
     homepage = "https://code.visualstudio.com",
 
@@ -20,49 +36,22 @@ package = {
     xpm = {
         windows = {
             ["latest"] = { ref = "1.100.1" },
-            ["1.100.1"] = {
-                url = string.format(_vscode_windows_url_template, "1.100.1"),
-                sha256 = nil,
-            },
+            ["1.106.1"] = _vscode_url("1.106.1"),
+            ["1.100.1"] = _vscode_url("1.100.1"),
             ["1.96.2"] = {
                 url = string.format(_vscode_windows_url_template, "1.96.2"),
                 sha256 = "c6c2f97e5cb25a8b576b345f6b8f2021cc168f1726ee370f29d1dbd136ffe9f8",
             },
-            ["1.93.1"] = {
-                url = string.format(_vscode_windows_url_template, "1.93.1"),
-                sha256 = nil,
-            },
+            ["1.93.1"] = _vscode_url("1.93.1"),
         },
         linux = {
             ["latest"] = { ref = "1.100.1" },
-            ["1.100.1"] = {
-                url = string.format(_vscode_linux_url_template, "1.100.1"),
-                sha256 = nil,
-            },
-            ["1.96.2"] = {
-                url = string.format(_vscode_linux_url_template, "1.96.2"),
-                sha256 = "2681040089faf143bed37246f2b0bc0787f6d342d878b1ec4b3737b38833c088"
-            },
-            ["1.93.1"] = {
-                url = string.format(_vscode_linux_url_template, "1.93.1"),
-                sha256 = nil,
-            },
+            ["1.106.1"] = _vscode_url("1.106.1"),
+            ["1.100.1"] = _vscode_url("1.100.1"),
+            ["1.96.2"] = _vscode_url("1.96.2"),
+            ["1.93.1"] = _vscode_url("1.93.1"),
         },
-        macosx = {
-            ["latest"] = { ref = "1.100.1" },
-            ["1.100.1"] = {
-                url = string.format(_vscode_macosx_url_template, "1.100.1"),
-                sha256 = nil,
-            },
-            ["1.96.2"] = {
-                url = string.format(_vscode_macosx_url_template, "1.96.2"),
-                sha256 = nil
-            },
-            ["1.93.1"] = {
-                url = string.format(_vscode_macosx_url_template, "1.93.1"),
-                sha256 = nil,
-            },
-        }
+        macosx = { ref = "linux" }
     }
 }
 

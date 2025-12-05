@@ -56,6 +56,8 @@ local gcc_lib = {
     "libgcc_s.so", "libgcc_s.so.1",
     "libstdc++.so", "libstdc++.so.6",
     "libatomic.so", "libatomic.so.1",
+    -- asan
+    "libasan.so", "libasan.so.8",
 }
 
 local version_map_gcc2mingw = {

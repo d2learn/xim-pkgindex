@@ -107,6 +107,7 @@ function uninstall()
     end
 
     xvm.remove("xim-gnu-gcc")
+    xvm.remove("cc")
 
     return true
 end
@@ -152,6 +153,13 @@ function __config_linux()
         lib_config.alias = lib    -- source file name
         xvm.add(lib, lib_config)
     end
+
+    -- "cc"
+    xvm.add("cc", {
+        alias = "gcc",
+        version = pkginfo.version(),
+        binding = "xim-gnu-gcc@" .. pkginfo.version(),
+    })
 
     return true
 end

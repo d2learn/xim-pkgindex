@@ -189,12 +189,10 @@ function generate_client_config(args)
         log = { level = "info", timestamp = true },
         dns = {
             servers = {
-                { tag = "dns-remote", address = "https://1.1.1.1/dns-query", strategy = "ipv4_only" },
-                { tag = "dns-direct", address = "local", strategy = "ipv4_only" },
+                { type = "https", server = "1.1.1.1", tag = "dns-remote" },
+                { type = "local", tag = "dns-direct" },
             },
-            rules = {
-                { outbound = "any", server = "dns-remote" },
-            },
+            rules = {},
             final = "dns-remote",
         },
         inbounds = {
@@ -206,22 +204,29 @@ function generate_client_config(args)
                 type = protocol,
                 tag = (protocol == "trojan" and "trojan-out" or "ss-out"),
                 server = server,
-                server_port = port,
+                server_port = tonumber(port),
                 method = method,
                 password = password,
-                network = "tcp,udp",
+                network = { "tcp", "udp" },
+                domain_resolver = {
+                    server = "dns-direct",
+                    strategy = "prefer_ipv4",
+                },
             },
             { type = "direct", tag = "direct" },
             { type = "block", tag = "block" },
         },
         route = {
-            rule_set = {},
             rules = {
                 { protocol = "dns", outbound = "direct" },
                 { domain_suffix = { "local", "lan" }, outbound = "direct" },
             },
             final = (protocol == "trojan" and "trojan-out" or "ss-out"),
             auto_detect_interface = true,
+            default_domain_resolver = {
+                server = "dns-direct",
+                strategy = "prefer_ipv4",
+            },
         },
     }
 
@@ -570,10 +575,10 @@ function import_from_link(link)
                         log = { level = "info", timestamp = true },
                         dns = {
                                 servers = {
-                                        { tag = "dns-remote", address = "https://1.1.1.1/dns-query", strategy = "ipv4_only" },
-                                        { tag = "dns-direct", address = "local", strategy = "ipv4_only" },
+                                        { type = "https", server = "1.1.1.1", tag = "dns-remote" },
+                                        { type = "local", tag = "dns-direct" },
                                 },
-                                rules = { { outbound = "any", server = "dns-remote" } },
+                                rules = {},
                                 final = "dns-remote",
                         },
                         inbounds = {
@@ -582,13 +587,16 @@ function import_from_link(link)
                         },
                         outbounds = {},
                         route = {
-                                rule_set = {},
                                 rules = {
                                         { protocol = "dns", outbound = "direct" },
                                         { domain_suffix = { "local", "lan" }, outbound = "direct" },
                                 },
                                 final = "ss-out",
                                 auto_detect_interface = true,
+                                default_domain_resolver = {
+                                        server = "dns-direct",
+                                        strategy = "prefer_ipv4",
+                                },
                         },
                 }
         end
@@ -597,7 +605,19 @@ function import_from_link(link)
         if protocol == "ss" or protocol == "shadowsocks" then
                 cfg_tbl = base_client_table()
                 cfg_tbl.outbounds = {
-                        { type = "shadowsocks", tag = "ss-out", server = server, server_port = port, method = method or "aes-256-gcm", password = password, network = "tcp,udp" },
+                        { 
+                            type = "shadowsocks", 
+                            tag = "ss-out", 
+                            server = server, 
+                            server_port = tonumber(port), 
+                            method = method or "aes-256-gcm", 
+                            password = password, 
+                            network = {"tcp","udp"},
+                            domain_resolver = {
+                                server = "dns-direct",
+                                strategy = "prefer_ipv4",
+                            },
+                        },
                         { type = "direct", tag = "direct" },
                         { type = "block", tag = "block" },
                 }
@@ -605,7 +625,17 @@ function import_from_link(link)
         elseif protocol == "trojan" then
                 cfg_tbl = base_client_table()
                 cfg_tbl.outbounds = {
-                        { type = "trojan", tag = "trojan-out", server = server, server_port = port, password = password },
+                        { 
+                            type = "trojan", 
+                            tag = "trojan-out", 
+                            server = server, 
+                            server_port = tonumber(port), 
+                            password = password,
+                            domain_resolver = {
+                                server = "dns-direct",
+                                strategy = "prefer_ipv4",
+                            },
+                        },
                         { type = "direct", tag = "direct" },
                         { type = "block", tag = "block" },
                 }

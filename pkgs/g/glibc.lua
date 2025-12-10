@@ -60,7 +60,14 @@ local glibc_libs = {
     "libnss_db.so",
     "libnss_db.so.2",
     -- 
-    "libnsl.so.1"
+    "libnsl.so.1",
+
+    -- rust-lld: error: cannot open Scrt1.o: No such file or directory
+    -- rust-lld: error: unable to find library -lutil
+    -- rust-lld: error: unable to find library -lrt
+    "Scrt1.o",
+    "libutil.a", "libutil.so.1",
+    "librt.a", "librt.so.1",
 }
 
 function install()

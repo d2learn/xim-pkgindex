@@ -168,15 +168,22 @@ function __relocate()
         "bin/sotruss",
     }
 
+--[[
+  = note: rust-lld: error: /home/xlings/.xlings_data/subos/linux/lib/libm.so:4: cannot find /home/xlings/.xlings_data/xim/xpkgs/glibc/2.39/lib/libm.so.6 inside /home/xlings/.xlings_data/subos/linux
+          >>> GROUP ( /home/xlings/.xlings_data/xim/xpkgs/glibc/2.39/lib/libm.so.6  AS_NEEDED ( /home/xlings/.xlings_data/xim/xpkgs/glibc/2.39/lib/libmvec.so.1 ) )
+          >>>         ^
+          collect2: error: ld returned 1 exit status
+]]
+
+    local xim_xpkgs_dir = system.xpkgdir()
     local fromsource_glibc = "fromsource-x-" .. package.name
-    local this_glibc = package.name
+    local glibc_path_prefix = path.join(
+        xim_xpkgs_dir,
+        fromsource_glibc,
+        pkginfo.version(), "lib"
+    )
 
-    if package.namespace then -- indexrepo namespace ?
-        this_glibc = package.namespace .. "-x-" .. package.name
-    end
-
-
-    log.info("relocate [ %s ] to [ %s ]", fromsource_glibc, this_glibc)
+    log.info("relocate [ %s ] to [ %s ]", glibc_path_prefix, ".")
 
     os.cd(pkginfo.install_dir())
 
@@ -185,7 +192,7 @@ function __relocate()
             log.info("relocate file: " .. f)
             local content = io.readfile(f)
             content = content:replace(
-                fromsource_glibc, this_glibc,
+                glibc_path_prefix, ".",
                 { plain = true }
             )
             io.writefile(f, content)

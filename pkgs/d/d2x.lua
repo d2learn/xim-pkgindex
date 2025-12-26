@@ -36,6 +36,7 @@ function install()
     local d2xdir = pkginfo.install_file()
         :replace(".zip", "")
         :replace(".tar.gz", "")
+    os.tryrm(pkginfo.install_dir())
     os.mv(d2xdir, pkginfo.install_dir())
     xvm.add("d2x")
     return true

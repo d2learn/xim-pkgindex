@@ -30,6 +30,7 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 
 function install()
@@ -38,7 +39,12 @@ function install()
         :replace(".tar.gz", "")
     os.tryrm(pkginfo.install_dir())
     os.mv(d2xdir, pkginfo.install_dir())
-    xvm.add("d2x")
+    local sysroot_dir = system.subos_sysrootdir()
+    xvm.add("d2x", {
+        envs = {
+            LD_LIBRARY_PATH = path.join(sysroot_dir, "lib"),
+        },
+    })
     return true
 end
 

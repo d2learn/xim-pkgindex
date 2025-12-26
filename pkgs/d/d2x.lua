@@ -12,8 +12,8 @@ package = {
 
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
-    categories = {"d2x", "tool"},
-    keywords = {"d2x", "tool"},
+    categories = {"d2x", "tool", "mcpp" },
+    keywords = {"d2x", "tool", "mcpp" },
 
     programs = { "d2x" },
 
@@ -22,13 +22,10 @@ package = {
 
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.0.4" },
-            ["0.0.4"] = {
-                url = "https://github.com/d2learn/d2x.git",
-            }, -- "XPKG_LOCAL",
+            deps = { "glibc", "openssl" },
+            ["latest"] = { ref = "0.1.0" },
+            ["0.1.0"] = "XLINGS_RES",
         },
-        windows = { ref = "linux" },
-        macosx = { ref = "linux" },
     },
 }
 
@@ -36,22 +33,15 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
 function install()
-    os.tryrm(pkginfo.install_dir())
-    os.mv("d2x", pkginfo.install_dir())
-    return true
-end
-
-function config()
-
-    local main_file = path.join(pkginfo.install_dir(), "src/d2x.lua")
-
-    xvm.add("d2x", {
-        alias = "xlings script " .. main_file
-    })
-
+    local d2xdir = pkginfo.install_file()
+        :replace(".zip", "")
+        :replace(".tar.gz", "")
+    os.mv(d2xdir, pkginfo.install_dir())
+    xvm.add("d2x")
     return true
 end
 
 function uninstall()
     xvm.remove("d2x")
+    return true
 end

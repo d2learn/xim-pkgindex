@@ -27,7 +27,12 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "glibc@2.39", "binutils@2.42" },
+            deps = {
+                "glibc@2.39", "binutils@2.42",
+                -- fix xmake project --project=.  -k compile_commands
+                -- home/xlings/.xlings_data/subos/linux/usr/include/bits/errno.h:26:11: fatal error: linux/errno.h: No such file or directory
+                "linux-headers@5.11.1"
+            },
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = "XLINGS_RES",
             ["13.3.0"] = "XLINGS_RES",

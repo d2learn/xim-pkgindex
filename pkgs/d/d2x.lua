@@ -21,9 +21,15 @@ package = {
     xvm_enable = true,
 
     xpm = {
+        windows = {
+            deps = { "openssl" },
+            ["latest"] = { ref = "0.1.1" },
+            ["0.1.1"] = "XLINGS_RES",
+        },
         linux = {
             deps = { "glibc", "openssl" },
-            ["latest"] = { ref = "0.1.0" },
+            ["latest"] = { ref = "0.1.1" },
+            ["0.1.1"] = "XLINGS_RES",
             ["0.1.0"] = "XLINGS_RES",
         },
     },
@@ -39,12 +45,21 @@ function install()
         :replace(".tar.gz", "")
     os.tryrm(pkginfo.install_dir())
     os.mv(d2xdir, pkginfo.install_dir())
+    return true
+end
+
+function config()
     local sysroot_dir = system.subos_sysrootdir()
-    xvm.add("d2x", {
-        envs = {
+
+    d2x_config = {}
+
+    if is_host("linux") then
+        d2x_config.envs = {
             LD_LIBRARY_PATH = path.join(sysroot_dir, "lib"),
-        },
-    })
+        }
+    end
+
+    xvm.add("d2x", d2x_config)
     return true
 end
 

@@ -22,7 +22,6 @@ package = {
 
     xpm = {
         windows = {
-            deps = { "openssl" },
             ["latest"] = { ref = "0.1.1" },
             ["0.1.1"] = "XLINGS_RES",
         },

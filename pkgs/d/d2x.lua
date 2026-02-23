@@ -22,20 +22,22 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "0.1.2" },
+            ["latest"] = { ref = "0.1.3" },
+            ["0.1.3"] = "XLINGS_RES",
             ["0.1.2"] = "XLINGS_RES",
             ["0.1.1"] = "XLINGS_RES",
         },
         linux = {
             deps = { "glibc", "openssl@3.1.5" },
-            ["latest"] = { ref = "0.1.2" },
+            ["latest"] = { ref = "0.1.3" },
+            ["0.1.3"] = "XLINGS_RES",
             ["0.1.2"] = "XLINGS_RES",
             ["0.1.1"] = "XLINGS_RES",
             ["0.1.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.1.2" },
-            ["0.1.2"] = "XLINGS_RES",
+            ["latest"] = { ref = "0.1.3" },
+            ["0.1.3"] = "XLINGS_RES",
         }
     },
 }

@@ -4,4 +4,8 @@ xim_indexrepos = {
         ["GLOBAL"] = "https://github.com/d2learn/xim-pkgindex-awesome.git",
         ["CN"] = "https://github.com/d2learn/xim-pkgindex-awesome.git",
     },
+    ["scode"] = {
+        ["GLOBAL"] = "https://github.com/d2learn/xim-pkgindex-scode.git",
+        ["CN"] = "https://github.com/d2learn/xim-pkgindex-scode.git",
+    },
 }

@@ -1,13 +1,14 @@
 function _linux_donwload_url(version) return string.format("https://github.com/LiRenTech/project-graph/releases/download/v%s/Project.Graph_%s_amd64.deb", version, version) end
 
 package = {
+    spec = "1",
     homepage = "https://project-graph.top",
     name = "project-graph",
     description = "快速绘制节点图的桌面工具 - 项目进程拓扑图绘制、头脑风暴草稿",
 
-    maintainers = "LiRenTech",
+    maintainers = {"LiRenTech"},
     contributors = "https://github.com/LiRenTech/project-graph/graphs/contributors",
-    licenses = "MIT",
+    licenses = {"MIT"},
     repo = "https://github.com/LiRenTech/project-graph",
     docs = "https://project-graph.top/getting-started",
     forum = "https://forum.d2learn.org/category/16/project-graph",

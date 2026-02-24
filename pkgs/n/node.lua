@@ -1,1 +1,1 @@
-package = { ref = "nodejs" }
+package = { spec = "1", type = "package", ref = "nodejs" }

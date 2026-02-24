@@ -1,15 +1,18 @@
 package = {
+    spec = "1",
+
     name = "git",
     description = "Git is a free and open source distributed version control system",
 
     homepage = "https://git-scm.com",
-    maintainers = "GNU",
-    licenses = "GPL",
+    maintainers = {"GNU"},
+    licenses = {"GPL"},
 
     repo = "https://github.com/git/git",
     docs = "https://git-scm.com/learn",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"git"},

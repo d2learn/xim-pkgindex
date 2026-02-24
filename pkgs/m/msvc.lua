@@ -1,11 +1,11 @@
 package = {
+    spec = "1",
     name = "msvc",
     description = "Microsoft Visual Studio C++ Compiler",
-    maintainers = "Microsoft",
+    maintainers = {"Microsoft"},
 
     type = "config",
     status = "stable",
-    maintainers = "Microsoft",
     categories = { "toolchain", "c++", "c", "compiler" },
     keywords = { "msvc", "c++", "c" },
 

@@ -6,15 +6,18 @@ local linux_install_script = "https://dot.net/v1/dotnet-install.sh"
 local windows_install_script = "https://dot.net/v1/dotnet-install.ps1"
 
 package = {
+    spec = "1",
+
     name = "dotnet",
     description = ".NET is the free, open-source, cross-platform framework",
     homepage = "https://dotnet.microsoft.com/",
-    maintainers = "Microsoft",
-    licenses = "MIT",
+    maintainers = {"Microsoft"},
+    licenses = {"MIT"},
     repo = "https://github.com/dotnet/sdk",
     docs = "https://learn.microsoft.com/dotnet",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"dotnet"},

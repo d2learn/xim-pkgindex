@@ -1,9 +1,10 @@
 package = {
+    spec = "1",
     -- base info
     name = "linux-headers",
     description = "Linux Kernel Header",
 
-    licenses = "GPL",
+    licenses = {"GPL"},
     repo = "https://github.com/torvalds/linux",
 
     -- xim pkg info

@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     -- base info
     name = "shortcut-tool",
     description = "Shortcut Tool: Create and manage shortcuts easily",
 
-    authors = "sunrisepeak",
-    maintainers = "d2learn",
-    licenses = "Apache-2.0",
+    authors = {"sunrisepeak"},
+    maintainers = {"d2learn"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info

@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     -- base info
     name = "musl-cross-make",
     description = "Simple makefile-based build for musl cross compiler",
 
-    authors = "Rich Felker, et al.",
+    authors = {"Rich Felker, et al."},
     contributors = "https://github.com/richfelker/musl-cross-make/graphs/contributors",
-    licenses = "MIT",
+    licenses = {"MIT"},
     repo = "https://github.com/richfelker/musl-cross-make",
 
     -- xim pkg info

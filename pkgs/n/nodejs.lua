@@ -11,11 +11,13 @@ end
 -- xpkg info
 
 package = {
+    spec = "1",
     homepage = "https://nodejs.org",
     name = "node",
     description = "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine",
-    author = "Node.js Foundation",
-    licenses = "MIT",
+    authors = {"Node.js Foundation"},
+    licenses = {"MIT"},
+    type = "package",
     repo = "https://github.com/nodejs/node",
     docs = "https://nodejs.org/docs",
 

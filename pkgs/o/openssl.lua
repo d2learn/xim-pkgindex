@@ -1,9 +1,10 @@
 package = {
+    spec = "1",
     homepage = "https://www.openssl.org",
     name = "openssl",
     description = "TLS/SSL and cryptography toolkit",
-    authors = "The OpenSSL Project",
-    licenses = "Apache-2.0",
+    authors = {"The OpenSSL Project"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/openssl/openssl",
 
     type = "package",

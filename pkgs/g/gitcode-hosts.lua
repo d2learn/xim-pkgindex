@@ -1,10 +1,12 @@
 package = {
+    spec = "1",
+
     -- base info
     name = "gitcode-hosts",
     description = "Config gitcode.com ip mapping-groups to hosts file",
 
-    authors = "sunrisepeak",
-    licenses = "Apache-2.0",
+    authors = {"sunrisepeak"},
+    licenses = {"Apache-2.0"},
 
     -- xim pkg info
     type = "config",

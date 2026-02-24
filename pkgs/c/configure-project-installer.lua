@@ -1,9 +1,10 @@
 package = {
+    spec = "1",
     name = "configure-project-installer",
     description = "Build & Install (from source) helper tools for ./configure-based projects",
-    authors = "sunrisepeak",
-    maintainers = "d2learn",
-    licenses = "Apache-2.0",
+    authors = {"sunrisepeak"},
+    maintainers = {"d2learn"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     type = "script",

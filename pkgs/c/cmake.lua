@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "cmake",
     description = "A Powerful Software Build System",
 
-    maintainers = "Kitware",
-    licenses = "BSD-3Clause",
+    maintainers = {"Kitware"},
+    licenses = {"BSD-3Clause"},
     repo = "https://github.com/Kitware/CMake",
     contributors = "https://github.com/Kitware/CMake/blob/master/CONTRIBUTORS.rst",
     docs = "https://cmake.org/documentation",

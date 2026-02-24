@@ -1,11 +1,13 @@
 function _linux_download_url(version) return "https://www.python.org/ftp/python/" .. version .. "/Python-" .. version .. ".tar.xz" end
 
 package = {
+    spec = "1",
     homepage = "https://www.python.org",
     name = "python",
     description = "The Python programming language",
-    maintainers = "Python Software Foundation",
-    licenses = "PSF License | GPL compatible",
+    maintainers = {"Python Software Foundation"},
+    licenses = {"PSF-License", "GPL-compatible"},
+    type = "package",
     repo = "https://github.com/python/cpython",
     docs = "https://docs.python.org/3",
 

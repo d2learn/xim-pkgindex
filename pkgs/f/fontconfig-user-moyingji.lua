@@ -1,10 +1,12 @@
 package = {
+    spec = "1",
+
     -- base info
     name = "fontconfig-user-moyingji",
     description = "Basic user configuration for Linux Fontconfig written by MoYingJi",
 
-    authors = "MoYingJi",
-    licenses = "Apache-2.0",
+    authors = {"MoYingJi"},
+    licenses = {"Apache-2.0"},
 
     -- xim pkg info
     type = "config",

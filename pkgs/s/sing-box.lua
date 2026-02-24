@@ -1,15 +1,17 @@
 package = {
+    spec = "1",
     -- base info
     name = "sing-box",
     description = "The universal proxy platform",
     homepage = "https://sing-box.sagernet.org/",
     
-    maintainers = "SagerNet",
-    licenses = "GPL-3.0-or-later",
+    maintainers = {"SagerNet"},
+    licenses = {"GPL-3.0-or-later"},
     repo = "https://github.com/SagerNet/sing-box",
     docs = "https://sing-box.sagernet.org/",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64", "aarch64", "arm", "armv7h"},
     status = "stable",
     categories = {"proxy", "network"},

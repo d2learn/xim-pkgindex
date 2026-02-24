@@ -1,4 +1,5 @@
 package = {
+    spec = "1",
     -- base info
     name = "wsl-ubuntu",
     description = "Windows Subsystem for Linux (WSL) Ubuntu",

@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     -- base info
     name = "linux-sysroot-create",
     description = "XScript: Linux Sysroot Create Tool",
 
-    authors = "sunrisepeak",
-    maintainers = "d2learn",
-    licenses = "Apache-2.0",
+    authors = {"sunrisepeak"},
+    maintainers = {"d2learn"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info

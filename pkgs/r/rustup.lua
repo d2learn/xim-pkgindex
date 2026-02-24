@@ -10,6 +10,7 @@ function rustup_url(version)
 end
 
 package = {
+    spec = "1",
 
     homepage = "https://rustup.rs",
 
@@ -21,6 +22,7 @@ package = {
     docs = "https://rust-lang.github.io/rustup/installation/other.html",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"rust", "toolchain"},

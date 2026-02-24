@@ -19,15 +19,17 @@ function _vscode_url(version)
 end
 
 package = {
+    spec = "1",
     homepage = "https://code.visualstudio.com",
 
     name = "code",
     description = "Visual Studio Code",
     contributors = "https://github.com/microsoft/vscode/graphs/contributors",
-    licenses = "MIT",
+    licenses = {"MIT"},
     repo = "https://github.com/microsoft/vscode",
     docs = "https://code.visualstudio.com/docs",
 
+    type = "package",
     status = "stable",
     categories = { "editor", "tools" },
     keywords = { "vscode", "cross-platform" },

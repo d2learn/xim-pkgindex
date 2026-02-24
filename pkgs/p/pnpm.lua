@@ -1,8 +1,10 @@
 package = {
+    spec = "1",
     homepage = "https://pnpm.io",
     name = "pnpm",
     description = "Fast, disk space efficient package manager",
-    licenses = "MIT",
+    licenses = {"MIT"},
+    type = "package",
     repo = "https://github.com/pnpm/pnpm",
     docs = "https://pnpm.io/motivation",
 

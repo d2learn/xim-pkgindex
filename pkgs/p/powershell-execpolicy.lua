@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "powershell-execpolicy",
     description = "fix execution policy issue when open Powershell(load .ps1 file)",
 
-    authors = "sunrisepeak",
-    licenses = "Apache-2.0",
+    authors = {"sunrisepeak"},
+    licenses = {"Apache-2.0"},
 
     -- xim pkg info
     type = "bugfix",

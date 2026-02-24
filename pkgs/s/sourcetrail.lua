@@ -1,13 +1,15 @@
 package = {
+    spec = "1",
     -- base info
     name = "sourcetrail",
     description = "Sourcetrail - free and open-source interactive source explorer",
 
     contributors = "https://github.com/CoatiSoftware/Sourcetrail/graphs/contributors",
-    licenses = "GPL-3.0",
+    licenses = {"GPL-3.0"},
     repo = "https://github.com/CoatiSoftware/Sourcetrail",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"tools", "codeviewer"},

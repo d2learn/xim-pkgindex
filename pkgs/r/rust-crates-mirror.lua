@@ -14,12 +14,13 @@ mirror_version = {
 }
 
 package = {
+    spec = "1",
     -- base info
     name = "rust-crates-mirror",
     description = "Config Index Mirror for Rust Crates (Cargo)",
 
-    authors = "xpkg:sunrisepeak",
-    licenses = "Apache-2.0",
+    authors = {"xpkg:sunrisepeak"},
+    licenses = {"Apache-2.0"},
 
     -- xim pkg info
     type = "config",

@@ -1,10 +1,12 @@
 package = {
+    spec = "1",
+
     -- base info
     name = "d2x",
     description = "xlings's d2x tool",
 
-    authors = "Sunrisepeak",
-    licenses = "Apache 2.0",
+    authors = {"Sunrisepeak"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/d2x",
 
     -- xim pkg info

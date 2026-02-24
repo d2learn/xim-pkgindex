@@ -1,10 +1,12 @@
 package = {
+    spec = "1",
+
     -- base info
     name = "griddycode",
     description = "A code editor made with Godot. Code has never been more lit!",
 
-    maintainers = "face-hh",
-    licenses = "Apache-2.0",
+    maintainers = {"face-hh"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/face-hh/griddycode",
 
     -- xim pkg info

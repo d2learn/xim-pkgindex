@@ -1,9 +1,11 @@
 package = {
+    spec = "1",
     name = "VS BuildTools",
     description = "Visual Studio Code",
 
+    type = "config",
     status = "stable",
-    maintainers = "Microsoft",
+    maintainers = {"Microsoft"},
     categories = { "build-tools" },
     keywords = { "msvc" },
 

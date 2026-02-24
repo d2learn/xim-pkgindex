@@ -1,13 +1,16 @@
 package = {
+    spec = "1",
+
     name = "devcpp",
     description = "Dev-C++: A full-featured Integrated Development Environment (IDE) for the C/C++",
     homepage = "https://sourceforge.net/projects/orwelldevcpp/",
-    maintainers = "Orwell (Johan Mes)",
-    licenses = "GPL",
+    maintainers = {"Orwell (Johan Mes)"},
+    licenses = {"GPL"},
     repo = "https://sourceforge.net/projects/orwelldevcpp/",
     docs = "https://forum.d2learn.org/topic/134",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"ide", "c", "c++"},

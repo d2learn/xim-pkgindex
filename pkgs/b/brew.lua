@@ -1,17 +1,19 @@
 -- https://github.com/Homebrew/install
 
 package = {
+    spec = "1",
     -- base info
     homepage = "https://brew.sh",
 
     name = "brew",
     description = "Homebrew: The Missing Package Manager for macOS (or Linux)",
 
-    authors = "Mike McQuaid",
-    licenses = "BSD-2-Clause",
+    authors = {"Mike McQuaid"},
+    licenses = {"BSD-2-Clause"},
     repo = "https://github.com/Homebrew/brew",
 
     -- xim pkg info
+    type = "package",
     status = "stable", -- dev, stable, deprecated
     categories = {"package-manager", "macos", "ruby"},
     keywords = {"package", "macos", "ruby"},

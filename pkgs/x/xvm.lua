@@ -1,15 +1,17 @@
 package = {
+    spec = "1",
     -- base info
     name = "xvm",
     description = "a simple and generic version management tool",
 
-    authors = "sunrisepeak",
-    maintainers = "d2learn",
+    authors = {"sunrisepeak"},
+    maintainers = {"d2learn"},
     contributors = "https://github.com/d2learn/xlings/graphs/contributors",
-    licenses = "Apache-2.0",
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xlings",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {"tools", "version-management"},

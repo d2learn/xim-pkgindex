@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     -- base info
     name = "mdbook",
     description = "Create book from markdown files. Like Gitbook but implemented in Rust",
 
-    authors = "Mathieu David, Michael-F-Bryan, Matt Ickstadt",
+    authors = {"Mathieu David", "Michael-F-Bryan", "Matt Ickstadt"},
     contributors = "https://github.com/rust-lang/mdBook/graphs/contributors",
-    licenses = "MPL-2.0",
+    licenses = {"MPL-2.0"},
     repo = "https://github.com/rust-lang/mdBook",
     docs = "https://rust-lang.github.io/mdBook",
 

@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     -- base info
 
     homepage = "https://github.com/d2learn/xim-pkgindex",
 
     name = "cpp",
     description = "C++ language toolchain",
-    maintainers = "xim team",
+    maintainers = {"xim team"},
     contributors = "https://github.com/d2learn/xim-pkgindex/graphs/contributors",
 
     -- xim pkg info

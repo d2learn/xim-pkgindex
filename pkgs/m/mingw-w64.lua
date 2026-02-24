@@ -4,11 +4,12 @@ function __mingw_cn_mirror_url(version)
 end
 
 package = {
+    spec = "1",
     -- base info
     name = "mingw-w64",
     description = "A complete runtime environment for GCC & LLVM for Windows",
 
-    licenses = "ZPL 2.1",
+    licenses = {"ZPL 2.1"},
     contributors = "https://github.com/mingw-w64/mingw-w64/graphs/contributors",
     repo = "https://github.com/mingw-w64/mingw-w64",
     homepage = "https://mingw-w64.org",

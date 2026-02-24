@@ -83,8 +83,11 @@ function install()
             verbose = true,
         })
 
-        -- Use xim auto patch mode to patch loader/rpath after install().
-        elfpatch.auto(true)
+        -- shrink=true keeps only actually-needed rpath entries.
+        elfpatch.auto({
+            enable = true,
+            shrink = true,
+        })
     end
     return true
 end

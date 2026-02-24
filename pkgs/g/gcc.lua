@@ -52,6 +52,7 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.pkgmanager")
+import("xim.libxpkg.elfpatch")
 
 local gcc_tool = {
     ["gcc-ar"] = true, ["gcc-nm"] = true, ["gcc-ranlib"] = true,
@@ -81,6 +82,9 @@ function install()
             symlink = true,
             verbose = true,
         })
+
+        -- Use xim auto patch mode to patch loader/rpath after install().
+        elfpatch.auto(true)
     end
     return true
 end
@@ -170,3 +174,4 @@ function __config_linux()
 
     return true
 end
+

@@ -134,6 +134,8 @@ function install()
 end
 ```
 
+> **预构建二进制（ELF）可重定位**：若包为 Linux 预构建且解释器/RPATH 写死构建机路径，需在 install 中做 patchelf 等修正，使任意用户/路径下可用。详见 xlings 文档 [ELF 可重定位与多 subos 设计](https://github.com/d2learn/xlings/blob/main/docs/mcpp-version/elf-relocation-and-subos-design.md)。
+
 ### config 函数
 
 通常用于注册到 xvm:

@@ -71,6 +71,10 @@ function install()
         system.exec("chmod +x " .. rustup_init_file[os.host()])
     end
     os.mv(rustup_init_file[os.host()], pkginfo.install_dir())
+    return true
+end
+
+function config()
     xvm.add("rustup-init")
     return true
 end

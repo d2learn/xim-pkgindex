@@ -46,12 +46,17 @@ function install()
     local target_script_file = path.join(pkginfo.install_dir(), "musl-cross-make.lua")
     os.tryrm(target_script_file)
     os.cp(source_script_file, target_script_file)
+    -- install musl-cross-make source
+    os.mv("musl-cross-make", pkginfo.install_dir())
+    return true
+end
+
+function config()
+    local target_script_file = path.join(pkginfo.install_dir(), "musl-cross-make.lua")
     xvm.add("musl-cross-make", {
         alias = "xlings script " .. target_script_file,
         bindir = "TODO-FIX-SPATH-ISSUES",
     })
-    -- install musl-cross-make source
-    os.mv("musl-cross-make", pkginfo.install_dir())
     return true
 end
 

@@ -72,10 +72,6 @@ local version_map_gcc2mingw = {
     ["15.1.0"] = "13.0.0",
 }
 
-local gcc_libexec_tools = {
-    "cc1", "cc1plus", "collect2", "lto-wrapper", "lto1", "f951"
-}
-
 function install()
     if is_host("windows") then
         pkgmanager.install("mingw-w64@" .. version_map_gcc2mingw[pkginfo.version()])
@@ -87,11 +83,8 @@ function install()
             verbose = true,
         })
 
-        -- Default manual mode: package author controls loader/rpath patching.
-        elfpatch.auto(false)
-
-        local rpath_list = __manual_rpath_list()
-        __patch_gcc_binaries(rpath_list)
+        -- Use xim auto patch mode to patch loader/rpath after install().
+        elfpatch.auto(true)
     end
     return true
 end
@@ -182,49 +175,3 @@ function __config_linux()
     return true
 end
 
-function __append_if_libdir_exists(values, root_dir)
-    if not root_dir then
-        return
-    end
-    for _, sub in ipairs({"lib64", "lib"}) do
-        local d = path.join(root_dir, sub)
-        if os.isdir(d) then
-            table.insert(values, d)
-            return
-        end
-    end
-end
-
-function __manual_rpath_list()
-    local values = {}
-    __append_if_libdir_exists(values, pkginfo.install_dir())
-    __append_if_libdir_exists(values, pkginfo.install_dir("glibc", "2.39"))
-    __append_if_libdir_exists(values, pkginfo.install_dir("binutils", "2.42"))
-    return values
-end
-
-function __patch_one_elf(filepath, rpath_list)
-    if not os.isfile(filepath) then
-        return
-    end
-    elfpatch.patch_elf_loader_rpath(filepath, {
-        loader = "system",
-        rpath = rpath_list,
-        strict = false
-    })
-end
-
-function __patch_gcc_binaries(rpath_list)
-    local bindir = path.join(pkginfo.install_dir(), "bin")
-    for _, prog in ipairs(package.programs) do
-        __patch_one_elf(path.join(bindir, prog), rpath_list)
-    end
-
-    local libexec_dir = path.join(
-        pkginfo.install_dir(),
-        "libexec", "gcc", "x86_64-linux-gnu", pkginfo.version()
-    )
-    for _, tool in ipairs(gcc_libexec_tools) do
-        __patch_one_elf(path.join(libexec_dir, tool), rpath_list)
-    end
-end

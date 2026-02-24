@@ -24,13 +24,20 @@ package = {
 
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.3.0" },
+            ["latest"] = { ref = "0.3.1" },
+            ["0.3.1"] = "XLINGS_RES",
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
             ["latest"] = { ref = "0.3.0" },
+            ["0.3.1"] = "XLINGS_RES",
             ["0.3.0"] = "XLINGS_RES",
         },
+        windows = {
+            ["latest"] = { ref = "0.3.1" },
+            ["0.3.1"] = "XLINGS_RES",
+            ["0.3.0"] = "XLINGS_RES",
+        }
     },
 }
 

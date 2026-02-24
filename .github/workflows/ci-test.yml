@@ -35,7 +35,7 @@ jobs:
           export PATH=/home/xlings/.xlings_data/bin:$PATH
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "---"
-            output=$(xim --add-xpkg "pkgs/$file" 2>&1)
+            output=$(xim --add-xpkg "${{ github.workspace }}/pkgs/$file" 2>&1)
             echo "$output"
             if echo "$output" | grep -i "error"; then
               echo "❌ Error detected in $file"

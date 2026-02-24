@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     -- base info
     name = "khistory",
     description = "An elegant keyboard/gamepad key detection and visualization tool",
 
-    authors = "Sunrisepeak",
-    maintainers = "Sunrisepeak",
-    licenses = "GPL-3.0",
+    authors = {"Sunrisepeak"},
+    maintainers = {"Sunrisepeak"},
+    licenses = {"GPL-3.0"},
     repo = "https://github.com/Sunrisepeak/KHistory",
 
     -- xim pkg info

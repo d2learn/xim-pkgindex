@@ -1,12 +1,14 @@
 -- https://github.com/orgs/community/discussions/174283#discussioncomment-14533335
 
 package = {
+    spec = "1",
+
     -- base info
     name = "github-notifications-clear",
     description = "Clear github's notifications (unread)",
 
-    maintainers = "d2learn",
-    licenses = "Apache-2.0",
+    maintainers = {"d2learn"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xim-pkgindex",
     docs = "https://github.com/orgs/community/discussions/174283",
 

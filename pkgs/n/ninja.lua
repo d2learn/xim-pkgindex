@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "ninja",
     description = "a small build system with a focus on speed",
 
-    maintainers = "https://github.com/ninja-build/ninja/graphs/contributors",
-    licenses = "Apache-2.0",
+    maintainers = {"https://github.com/ninja-build/ninja/graphs/contributors"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/ninja-build/ninja",
     docs = "https://ninja-build.org/manual.html",
 

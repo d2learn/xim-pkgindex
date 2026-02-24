@@ -17,7 +17,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Installation Xlings on Ubuntu
-        run: curl -fsSL https://d2learn.org/xlings-install.sh | bash
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
+          echo "PATH=$HOME/.xlings/subos/current/bin:$HOME/.xlings/bin:$PATH" >> "$GITHUB_ENV"
+
 
       - name: Get changed-files (only pull_request）
         uses: tj-actions/changed-files@v46

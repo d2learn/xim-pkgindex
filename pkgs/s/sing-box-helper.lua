@@ -1,9 +1,10 @@
 package = {
+    spec = "1",
     -- base info
     name = "sing-box-helper",
     description = "Sing-Box Helper Tools - Simple commands for server and client configuration",
 
-    licenses = "GPL-3.0-or-later",
+    licenses = {"GPL-3.0-or-later"},
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info

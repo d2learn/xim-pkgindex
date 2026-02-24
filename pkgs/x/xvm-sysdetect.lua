@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "xvm-sysdetect",
     description = "XVM - System Package Detect Tools",
 
-    authors = "sunrisepeak",
-    licenses = "Apache-2.0",
+    authors = {"sunrisepeak"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info

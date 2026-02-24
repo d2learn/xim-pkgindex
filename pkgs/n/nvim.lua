@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "nvim",
     description = "Vim-fork focused on extensibility and usability",
 
     contributors = "https://github.com/neovim/neovim/graphs/contributors",
-    licenses = "Apache 2.0",
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/neovim/neovim",
     docs = "https://neovim.io/doc",
 

@@ -1,8 +1,10 @@
 package = {
+    spec = "1",
     homepage = "https://www.npmjs.com",
     name = "npm",
     description = "The package manager for JavaScript",
-    licenses = "Artistic License 2.0",
+    licenses = {"Artistic License 2.0"},
+    type = "package",
     repo = "https://github.com/npm/cli",
     docs = "https://docs.npmjs.com/cli",
 

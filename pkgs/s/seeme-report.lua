@@ -1,15 +1,17 @@
 package = {
+    spec = "1",
     -- base info
     name = "seeme-report",
     description = "让别人知道你在干什么 seeme report端",
 
-    authors = "2412322029",
+    authors = {"2412322029"},
     contributors = "https://github.com/2412322029/seeme",
-    licenses = "",
+    licenses = {""},
     repo = "https://github.com/2412322029/seeme",
     docs = "https://github.com/2412322029/seeme",
 
     -- xim pkg info
+    type = "package",
     archs = {"x86_64"},
     status = "stable", -- dev, stable, deprecated
     categories = {},

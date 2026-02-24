@@ -1,11 +1,13 @@
 package = {
+    spec = "1",
+
     homepage = "https://www.gnu.org/software/libc",
     -- base info
     name = "glibc",
     description = "The GNU C Library",
 
-    authors = "GNU",
-    licenses = "GPL",
+    authors = {"GNU"},
+    licenses = {"GPL"},
     repo = "https://sourceware.org/git/?p=glibc.git;a=summary",
     docs = "https://www.gnu.org/doc/doc.html",
 

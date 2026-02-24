@@ -1,11 +1,12 @@
 package = {
+    spec = "1",
     homepage = "https://www.gnu.org/software/binutils",
     -- base info
     name = "binutils",
     description = "The GNU Binutils are a collection of binary tools",
 
-    authors = "GNU",
-    licenses = "GPL",
+    authors = {"GNU"},
+    licenses = {"GPL"},
     docs = "https://sourceware.org/binutils/wiki/HomePage",
 
     -- xim pkg info

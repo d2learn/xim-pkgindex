@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "musl-gcc",
     description = "GCC, the GNU Compiler Collection ( prebuild with musl )",
 
-    authors = "GNU",
-    licenses = "GPL",
+    authors = {"GNU"},
+    licenses = {"GPL"},
     repo = "https://github.com/gcc-mirror/gcc",
     docs = "https://gcc.gnu.org/wiki",
 

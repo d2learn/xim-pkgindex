@@ -1,17 +1,19 @@
 package = {
+    spec = "1",
     -- base info
     homepage = "https://www.rust-lang.org",
 
     name = "rust",
     description = "A language empowering everyone to build reliable and efficient software",
 
-    authors = "rust team",
-    maintainers = "https://prev.rust-lang.org/en-US/team.html",
-    licenses = "MIT, Apache-2.0",
+    authors = {"rust team"},
+    maintainers = {"https://prev.rust-lang.org/en-US/team.html"},
+    licenses = {"MIT", "Apache-2.0"},
     repo = "https://github.com/rust-lang/rust",
     docs = "https://prev.rust-lang.org/en-US/documentation.html",
 
     -- xim pkg info
+    type = "package",
     status = "stable", -- dev, stable, deprecated
     categories = {"plang", "compiler"},
     keywords = {"Reliability", "Performance", "Productivity"},

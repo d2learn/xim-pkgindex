@@ -1,10 +1,12 @@
 package = {
+    spec = "1",
     name = "nvm",
     description = "Node Version Manager",
     homepage = "https://github.com/nvm-sh/nvm",
-    author = "Tim Caswell",
-    maintainers = "https://github.com/nvm-sh/nvm?tab=readme-ov-file#maintainers",
-    licenses = "MIT",
+    authors = {"Tim Caswell"},
+    maintainers = {"https://github.com/nvm-sh/nvm?tab=readme-ov-file#maintainers"},
+    licenses = {"MIT"},
+    type = "config",
     repo = "https://github.com/nvm-sh/nvm",
     docs = "https://github.com/nvm-sh/nvm#installing-and-updating",
 

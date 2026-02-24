@@ -11,12 +11,13 @@ mirror_version = {
 }
 
 package = {
+    spec = "1",
     -- base info
     name = "rustup-mirror",
     description = "Config Mirror for Rustup",
 
-    authors = "xpkg:sunrisepeak",
-    licenses = "Apache-2.0",
+    authors = {"xpkg:sunrisepeak"},
+    licenses = {"Apache-2.0"},
 
     -- xim pkg info
     type = "config",

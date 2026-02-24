@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "xlings-project-templates",
     description = "Xlings - Project Templates",
 
-    authors = "d2learn",
-    licenses = "Apache-2.0",
+    authors = {"d2learn"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xlings-project-templates",
 
     -- xim pkg info

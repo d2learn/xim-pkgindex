@@ -1,10 +1,11 @@
 package = {
+    spec = "1",
     -- base info
     name = "windows-acp",
     description = "ACP: Beta: Use Unicode UTF-8 for worldwide language support",
 
-    maintainers = "d2learn",
-    licenses = "Apache-2.0",
+    maintainers = {"d2learn"},
+    licenses = {"Apache-2.0"},
     repo = "https://github.com/d2learn/xim-pkgindex",
 
     -- xim pkg info
@@ -23,6 +24,10 @@ import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 
 function install()
+    return true
+end
+
+function config()
     local cmd_alias = [[powershell -NoProfile -Command (Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage).ACP]]
 
     log.info("add to xvm ...")

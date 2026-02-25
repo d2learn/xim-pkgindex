@@ -55,7 +55,7 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mv(d2xdir, pkginfo.install_dir())
 
-    if is_host("linux") then
+    if not is_host("windows") then
         elfpatch.auto({
             enable = true,
             shrink = true,

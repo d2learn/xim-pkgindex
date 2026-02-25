@@ -171,21 +171,16 @@ function __relocate()
     }
 
 --[[
-  = note: rust-lld: error: /home/xlings/.xlings_data/subos/linux/lib/libm.so:4: cannot find /home/xlings/.xlings_data/xim/xpkgs/glibc/2.39/lib/libm.so.6 inside /home/xlings/.xlings_data/subos/linux
-          >>> GROUP ( /home/xlings/.xlings_data/xim/xpkgs/glibc/2.39/lib/libm.so.6  AS_NEEDED ( /home/xlings/.xlings_data/xim/xpkgs/glibc/2.39/lib/libmvec.so.1 ) )
-          >>>         ^
-          collect2: error: ld returned 1 exit status
+  Prebuilt tarball contains absolute paths from build machine (e.g. /home/xlings/.xlings_data/...).
+  Must replace ANY path ending with fromsource-x-glibc/VERSION/lib, not just current install path.
 ]]
 
-    local xim_xpkgs_dir = system.xpkgdir()
     local fromsource_glibc = "fromsource-x-" .. package.name
-    local glibc_path_prefix = path.join(
-        xim_xpkgs_dir,
-        fromsource_glibc,
-        pkginfo.version(), "lib"
-    )
+    local version_escaped = pkginfo.version():gsub("%.", "%%.")
+    -- Match any absolute path ending with fromsource-x-glibc/VERSION/lib (build path varies by machine)
+    local path_pattern = "([^%s)]+)/" .. fromsource_glibc:gsub("-", "%%-") .. "/" .. version_escaped .. "/lib"
 
-    log.info("relocate [ %s ] to [ %s ]", glibc_path_prefix, ".")
+    log.info("relocate glibc paths (pattern: */%s/%s/lib) -> .", fromsource_glibc, pkginfo.version())
 
     os.cd(pkginfo.install_dir())
 
@@ -193,11 +188,10 @@ function __relocate()
         if os.isfile(f) then
             log.info("relocate file: " .. f)
             local content = io.readfile(f)
-            content = content:replace(
-                glibc_path_prefix, ".",
-                { plain = true }
-            )
-            io.writefile(f, content)
+            local new_content, count = content:gsub(path_pattern, ".")
+            if count > 0 then
+                io.writefile(f, new_content)
+            end
         end
     end
 end

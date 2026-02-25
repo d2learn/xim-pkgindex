@@ -46,9 +46,9 @@ import("xim.libxpkg.xvm")
 local glibc_libs = {
     "crt1.o", "crti.o", "crtn.o", -- crt
     "ld-linux-x86-64.so.2", -- dynamic linker/loader
-    "libc.so", "libc.so.6", "libc_nonshared.a", -- C library
+    "libc.a", "libc.so", "libc.so.6", "libc_nonshared.a", -- C library
     "libdl.a", "libdl.so.2", -- dynamic loading
-    "libm.so", "libm.so.6", "libmvec.so.1", -- math
+    "libm.a", "libm-2.39.a", "libmvec.a", "libm.so", "libm.so.6", "libmvec.so.1", -- math
     "libpthread.so.0", "libpthread.a", -- pthread
     "librt.so.1", -- realtime
     "libresolv.so", "libresolv.so.2", -- resolver

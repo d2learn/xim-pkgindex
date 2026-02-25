@@ -33,7 +33,7 @@ package = {
                 "glibc@2.39", "binutils@2.42",
                 -- fix xmake project --project=.  -k compile_commands
                 -- home/xlings/.xlings_data/subos/linux/usr/include/bits/errno.h:26:11: fatal error: linux/errno.h: No such file or directory
-                "linux-headers@5.11.1"
+                "linux-headers@5.11.1",
             },
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = "XLINGS_RES",
@@ -50,6 +50,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.log")
+import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.elfpatch")
@@ -70,6 +71,15 @@ local gcc_lib = {
 
 local version_map_gcc2mingw = {
     ["15.1.0"] = "13.0.0",
+}
+
+local compiler_entry = {
+    ["gcc"] = true,
+    ["g++"] = true,
+    ["c++"] = true,
+    ["x86_64-linux-gnu-gcc"] = true,
+    ["x86_64-linux-gnu-g++"] = true,
+    ["x86_64-linux-gnu-c++"] = true,
 }
 
 function install()
@@ -130,7 +140,20 @@ end
 
 function __config_linux()
     local gcc_bindir = path.join(pkginfo.install_dir(), "bin")
-    local ld_lib_path = string.format(path.join(pkginfo.install_dir(), "lib64"))
+    local sysroot_dir = system.subos_sysrootdir()
+    local sysroot_lib = nil
+    local dynamic_linker = nil
+    local alias_args = ""
+    if sysroot_dir and sysroot_dir ~= "" then
+        sysroot_lib = path.join(sysroot_dir, "lib")
+        dynamic_linker = path.join(sysroot_lib, "ld-linux-x86-64.so.2")
+        alias_args = string.format(
+            ' --sysroot=%s -Wl,--dynamic-linker=%s -Wl,--enable-new-dtags,-rpath,%s -Wl,-rpath-link,%s',
+            sysroot_dir, dynamic_linker, sysroot_lib, sysroot_lib
+        )
+    else
+        log.warn("subos dir is empty, skip alias linker/sysroot injection")
+    end
 
     xvm.add("xim-gnu-gcc") -- root
 
@@ -144,6 +167,11 @@ function __config_linux()
     }
 
     for _, prog in ipairs(package.programs) do
+
+        config.alias = prog
+    
+        if compiler_entry[prog] then config.alias = prog .. alias_args end
+
         if gcc_tool[prog] then
             config.version = "gcc-" .. pkginfo.version()
             xvm.add(prog, config)
@@ -170,7 +198,7 @@ function __config_linux()
 
     -- "cc"
     xvm.add("cc", {
-        alias = "gcc",
+        alias = "gcc" .. alias_args,
         version = pkginfo.version(),
         binding = "xim-gnu-gcc@" .. pkginfo.version(),
     })

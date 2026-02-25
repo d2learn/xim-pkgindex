@@ -45,8 +45,8 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
-import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.elfpatch")
 
 function install()
     local d2xdir = pkginfo.install_file()
@@ -54,21 +54,18 @@ function install()
         :replace(".tar.gz", "")
     os.tryrm(pkginfo.install_dir())
     os.mv(d2xdir, pkginfo.install_dir())
+
+    if is_host("linux") then
+        elfpatch.auto({
+            enable = true,
+            shrink = true,
+        })
+    end
     return true
 end
 
 function config()
-    local sysroot_dir = system.subos_sysrootdir()
-
-    d2x_config = {}
-
-    if is_host("linux") then
-        d2x_config.envs = {
-            LD_LIBRARY_PATH = path.join(sysroot_dir, "lib"),
-        }
-    end
-
-    xvm.add("d2x", d2x_config)
+    xvm.add("d2x")
     return true
 end
 

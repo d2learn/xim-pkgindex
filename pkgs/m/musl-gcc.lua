@@ -133,7 +133,7 @@ function config()
         alias = "libc.so --list",
         envs = {
             -- ? alias = "libc.so --library-path musl_lib_dir --list",
-            LD_LIBRARY_PATH = musl_lib_dir,
+            XLINGS_EXTRA_LIBPATH = musl_lib_dir,
         },
         binding = binding_tree_root,
     })
@@ -144,7 +144,7 @@ function config()
         alias = "libc.so",
         envs = {
             -- ? alias = "libc.so --library-path musl_lib_dir",
-            LD_LIBRARY_PATH = musl_lib_dir,
+            XLINGS_EXTRA_LIBPATH = musl_lib_dir,
         },
         binding = binding_tree_root,
     })

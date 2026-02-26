@@ -1,5 +1,3 @@
--- TODO: "debain" 拼写错误，应为 "debian"；同时使用了旧 API import("xim.base.runtime")，建议迁移到 import("xim.libxpkg.pkginfo")
-
 package = {
     spec = "1",
     -- base info

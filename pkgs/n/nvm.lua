@@ -1,6 +1,3 @@
--- TODO: install() 使用了 pkginfo.install_file() 但未 import("xim.libxpkg.pkginfo")，导致安装崩溃
---       需要添加 import("xim.libxpkg.pkginfo") 或改用已导入的模块
-
 package = {
     spec = "1",
     name = "nvm",

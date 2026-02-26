@@ -89,7 +89,7 @@ function install()
         print("安装tips:")
         print("\t 0.打开安装提示")
         print("\t 1.选择对应语言")
-        print("\t 2.点击"下一步"直到安装完成")
+        print('\t 2.点击"下一步"直到安装完成')
         os.exec(pkginfo.install_file() .. " /SILENT")
     elseif os.host() == "linux" then
         os.tryrm("project-graph")

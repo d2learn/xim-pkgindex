@@ -43,6 +43,82 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
+local toolchain_dynamic_bins = {
+    "x86_64-linux-musl-addr2line",
+    "x86_64-linux-musl-ar",
+    "x86_64-linux-musl-as",
+    "x86_64-linux-musl-c++filt",
+    "x86_64-linux-musl-elfedit",
+    "x86_64-linux-musl-gprof",
+    "x86_64-linux-musl-ld",
+    "x86_64-linux-musl-ld.bfd",
+    "x86_64-linux-musl-nm",
+    "x86_64-linux-musl-objcopy",
+    "x86_64-linux-musl-objdump",
+    "x86_64-linux-musl-ranlib",
+    "x86_64-linux-musl-readelf",
+    "x86_64-linux-musl-size",
+    "x86_64-linux-musl-strings",
+    "x86_64-linux-musl-strip",
+    -- target-prefixed copies
+    "ar", "as", "ld", "ld.bfd", "nm",
+    "objcopy", "objdump", "ranlib", "readelf", "strip",
+}
+
+local function __patch_toolchain_dynamic_bins()
+    local install_dir = pkginfo.install_dir()
+    local musl_lib_dir = path.join(install_dir, "x86_64-linux-musl", "lib")
+    local musl_loader = path.join(musl_lib_dir, "libc.so")
+
+    if not os.isfile(musl_loader) then
+        raise("musl loader not found: " .. musl_loader)
+    end
+
+    local bindirs = {
+        path.join(install_dir, "bin"),
+        path.join(install_dir, "x86_64-linux-musl", "bin"),
+    }
+
+    local patched = 0
+    os.exec("patchelf --version")
+
+    for _, bindir in ipairs(bindirs) do
+        if os.isdir(bindir) then
+            for _, name in ipairs(toolchain_dynamic_bins) do
+                local target = path.join(bindir, name)
+                if os.isfile(target) then
+                    os.exec(string.format(
+                        "patchelf --set-interpreter %q %q",
+                        musl_loader, target
+                    ))
+                    os.exec(string.format(
+                        "patchelf --set-rpath %q %q",
+                        musl_lib_dir, target
+                    ))
+                    patched = patched + 1
+                end
+            end
+        end
+    end
+
+    log.info("musl-gcc relocate: patched dynamic tools = %d", patched)
+end
+
+local function __remove_specs()
+    local install_dir = pkginfo.install_dir()
+    local specs_file = path.join(
+        install_dir,
+        "lib", "gcc", "x86_64-linux-musl", pkginfo.version(), "specs"
+    )
+
+    if not os.isfile(specs_file) then
+        log.info("musl-gcc: specs file not found, skip remove: %s", specs_file)
+        return
+    end
+
+    os.tryrm(specs_file)
+    log.info("musl-gcc: removed specs file: %s", specs_file)
+end
 
 function install()
     local gccdir = pkginfo.install_file()
@@ -50,6 +126,8 @@ function install()
         :replace(".zip", "")
     os.tryrm(pkginfo.install_dir())
     os.mv(gccdir, pkginfo.install_dir())
+    __patch_toolchain_dynamic_bins()
+    __remove_specs()
     return true
 end
 

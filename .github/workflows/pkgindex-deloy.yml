@@ -37,7 +37,9 @@ jobs:
 
       # 3. 安装xlings
       - name: Installation Xlings on Ubuntu
-        run: curl -fsSL https://d2learn.org/xlings-install.sh | bash
+        run: |
+          export XLINGS_NON_INTERACTIVE=1
+          curl -fsSL https://d2learn.org/xlings-install.sh | bash
 
       # 4. 生成索引站点
       - name: Generate static site

@@ -18,6 +18,7 @@ jobs:
 
       - name: Installation Xlings on Ubuntu
         run: |
+          export XLINGS_NON_INTERACTIVE=1
           curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
           echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
           echo "PATH=$HOME/.xlings/subos/current/bin:$HOME/.xlings/bin:$PATH" >> "$GITHUB_ENV"

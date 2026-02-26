@@ -42,7 +42,6 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
-import("lib.detect.find_tool")
 
 local toolchain_dynamic_bins = {
     "x86_64-linux-musl-addr2line",
@@ -67,11 +66,6 @@ local toolchain_dynamic_bins = {
 }
 
 local function __patch_toolchain_dynamic_bins()
-    local patchelf = find_tool("patchelf")
-    if not patchelf then
-        raise("patchelf not found: musl-gcc runtime relocation requires patchelf")
-    end
-
     local install_dir = pkginfo.install_dir()
     local musl_lib_dir = path.join(install_dir, "x86_64-linux-musl", "lib")
     local musl_loader = path.join(musl_lib_dir, "libc.so")
@@ -86,13 +80,21 @@ local function __patch_toolchain_dynamic_bins()
     }
 
     local patched = 0
+    os.exec("patchelf --version")
+
     for _, bindir in ipairs(bindirs) do
         if os.isdir(bindir) then
             for _, name in ipairs(toolchain_dynamic_bins) do
                 local target = path.join(bindir, name)
                 if os.isfile(target) then
-                    os.vrunv(patchelf.program, {"--set-interpreter", musl_loader, target})
-                    os.vrunv(patchelf.program, {"--set-rpath", musl_lib_dir, target})
+                    os.exec(string.format(
+                        "patchelf --set-interpreter %q %q",
+                        musl_loader, target
+                    ))
+                    os.exec(string.format(
+                        "patchelf --set-rpath %q %q",
+                        musl_lib_dir, target
+                    ))
                     patched = patched + 1
                 end
             end

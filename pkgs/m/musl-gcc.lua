@@ -102,62 +102,20 @@ local function __patch_toolchain_dynamic_bins()
     log.info("musl-gcc relocate: patched dynamic tools = %d", patched)
 end
 
-local function __relocate_specs()
+local function __remove_specs()
     local install_dir = pkginfo.install_dir()
-    local musl_lib_dir = path.join(install_dir, "x86_64-linux-musl", "lib")
-    local musl_loader = path.join(musl_lib_dir, "libc.so")
     local specs_file = path.join(
         install_dir,
         "lib", "gcc", "x86_64-linux-musl", pkginfo.version(), "specs"
     )
 
     if not os.isfile(specs_file) then
-        log.warn("musl-gcc relocate: specs file not found: %s", specs_file)
+        log.info("musl-gcc: specs file not found, skip remove: %s", specs_file)
         return
     end
 
-    local content = io.readfile(specs_file)
-    local replace_linker = 0
-    local replace_libdir = 0
-
-    local function __gsub_plain(input, plain_pattern, replace_to)
-        local escaped = plain_pattern:gsub("%p", "%%%1")
-        return input:gsub(escaped, replace_to)
-    end
-
-    local xlings_loader_plain = "/home/xlings/.xlings_data/lib/ld-musl-x86_64.so.1"
-    local xlings_loader_dynamic = "/[^%s%)%}]+/%.xlings_data/lib/ld%-musl%-x86_64%.so%.1"
-    local system_loader_plain = "/lib/ld-musl-x86_64.so.1"
-
-    local plain_xlings_loader_count = 0
-    content, plain_xlings_loader_count = __gsub_plain(content, xlings_loader_plain, musl_loader)
-
-    local dynamic_xlings_loader_count = 0
-    content, dynamic_xlings_loader_count = content:gsub(
-        xlings_loader_dynamic,
-        musl_loader
-    )
-
-    local system_loader_count = 0
-    content, system_loader_count = __gsub_plain(content, system_loader_plain, musl_loader)
-    replace_linker = plain_xlings_loader_count + dynamic_xlings_loader_count + system_loader_count
-
-    local plain_xlings_lib = "/home/xlings/.xlings_data/lib"
-    local plain_xlings_lib_count = 0
-    content, plain_xlings_lib_count = __gsub_plain(content, plain_xlings_lib, musl_lib_dir)
-
-    local dynamic_xlings_lib_count = 0
-    content, dynamic_xlings_lib_count = content:gsub(
-        "/[^%s%)%}]+/%.xlings_data/lib",
-        musl_lib_dir
-    )
-    replace_libdir = plain_xlings_lib_count + dynamic_xlings_lib_count
-
-    io.writefile(specs_file, content)
-    log.info(
-        "musl-gcc relocate specs: linker=%d libdir=%d",
-        replace_linker, replace_libdir
-    )
+    os.tryrm(specs_file)
+    log.info("musl-gcc: removed specs file: %s", specs_file)
 end
 
 function install()
@@ -167,7 +125,7 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mv(gccdir, pkginfo.install_dir())
     __patch_toolchain_dynamic_bins()
-    __relocate_specs()
+    __remove_specs()
     return true
 end
 

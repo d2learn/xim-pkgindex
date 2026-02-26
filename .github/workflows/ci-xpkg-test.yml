@@ -1,0 +1,62 @@
+name: xpkg test
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'pkgs/**'
+      - 'tests/**'
+  pull_request:
+    paths:
+      - 'pkgs/**'
+      - 'tests/**'
+
+jobs:
+
+  # L0 + L2: 静态分析 + 隔离合规 (无需 xlings, 秒级完成)
+  static-and-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: L0 Static Analysis
+        run: pytest tests/ -m static --tb=short -q
+
+      - name: L2 Isolation Compliance
+        run: pytest tests/ -m isolation --tb=short -q
+
+  # L1: 索引注册 (需要 xlings)
+  index-registration:
+    runs-on: ubuntu-latest
+    needs: static-and-isolation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Install xlings
+        run: |
+          export XLINGS_NON_INTERACTIVE=1
+          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
+          echo "PATH=$HOME/.xlings/subos/current/bin:$HOME/.xlings/bin:$PATH" >> "$GITHUB_ENV"
+
+      - name: L1 Index Registration
+        run: pytest tests/ -m index --tb=short -q

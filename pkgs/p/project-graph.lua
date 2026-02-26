@@ -1,3 +1,6 @@
+-- TODO: Linux 运行时缺 libwebkit2gtk-4.1.so.0，pmwrapper 中 webkit2gtk 映射的是 4.0 版本(libwebkit2gtk-4.0-37)
+--       需要更新 pmwrapper.lua 或 deps 中的系统依赖为 libwebkit2gtk-4.1-dev
+
 function _linux_donwload_url(version) return string.format("https://github.com/LiRenTech/project-graph/releases/download/v%s/Project.Graph_%s_amd64.deb", version, version) end
 
 package = {
@@ -69,15 +72,8 @@ package = {
     },
 }
 
-import("common")
-import("platform")
-import("xim.base.utils")
-import("xim.base.runtime")
-
-local datadir = runtime.get_xim_data_dir()
-local bindir = platform.get_config_info().bindir
-local pkginfo = runtime.get_pkginfo()
-local os_info = utils.os_info()
+import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 local binname = {
     windows = "project-graph.exe",
@@ -93,53 +89,48 @@ function install()
         print("安装tips:")
         print("\t 0.打开安装提示")
         print("\t 1.选择对应语言")
-        print("\t 2.点击“下一步”直到安装完成")
-        common.xlings_exec(pkginfo.install_file .. " /SILENT")
+        print('\t 2.点击"下一步"直到安装完成')
+        os.exec(pkginfo.install_file() .. " /SILENT")
     elseif os.host() == "linux" then
         os.tryrm("project-graph")
-        os.tryrm(pkginfo.install_dir)
+        os.tryrm(pkginfo.install_dir())
         os.mkdir("project-graph")
         os.cd("project-graph")
-        os.exec("ar x " .. pkginfo.install_file)
+        os.exec("ar x " .. pkginfo.install_file())
         os.exec("tar -xvf data.tar.gz")
-        os.mv("usr", pkginfo.install_dir)
-        os.tryrm(pkginfo.install_file)
+        os.mv("usr", pkginfo.install_dir())
+        os.tryrm(pkginfo.install_file())
     end
     return true
 end
 
 function config()
-    local xvm_cmd_template = [[xvm add project-graph %s --path "%s"]]
-    local project_graph_path = path.join(pkginfo.install_dir, "bin")
+    local project_graph_path = path.join(pkginfo.install_dir(), "bin")
     if os.host() == "windows" then
-        -- TODO: support multi-version for windows
         print("remove old version...")
-        os.exec("xvm remove project-graph --yes") -- remove old version
+        xvm.remove("project-graph")
         project_graph_path = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph"
     else
         _config_desktop_shortcut("create")
     end
-    os.exec(string.format(xvm_cmd_template, pkginfo.version, project_graph_path))
+    xvm.add("project-graph", { bindir = project_graph_path })
     return true
 end
 
 function uninstall()
-    local xvm_rm = "xvm remove project-graph "
     if os.host() == "windows" then
-        common.xlings_exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
-        utils.prompt("等待卸载/waiting uninstall...")
-        os.exec(xvm_rm)
+        os.exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
     elseif os.host() == "linux" then
         _config_desktop_shortcut("delete")
-        os.exec(xvm_rm .. pkginfo.version)
     end
+    xvm.remove("project-graph")
     return true
 end
 
 function _config_desktop_shortcut(action)
     action = action or "delete" -- create, delete
     if os.host() == "linux" then
-        local filename = "project-graph-" .. pkginfo.version .. ".xvm.desktop"
+        local filename = "project-graph-" .. pkginfo.version() .. ".xvm.desktop"
         local shortcut_file = path.join(os.getenv("HOME"), ".local/share/applications", filename)
         local desktop_entry = [[
 [Desktop Entry]
@@ -157,9 +148,9 @@ StartupWMClass=project-graph
         if action == "create" then
             io.writefile(filename, string.format(
                 desktop_entry,
-                pkginfo.version,
-                path.join(pkginfo.install_dir, "bin", "project-graph"),
-                path.join(pkginfo.install_dir, "share/icons/hicolor/128x128/apps/project-graph.png"
+                pkginfo.version(),
+                path.join(pkginfo.install_dir(), "bin", "project-graph"),
+                path.join(pkginfo.install_dir(), "share/icons/hicolor/128x128/apps/project-graph.png"
             )))
             os.mv(filename, shortcut_file)
         elseif action == "delete" then

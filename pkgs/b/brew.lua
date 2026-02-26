@@ -63,15 +63,16 @@ end
 
 function config()
     local homebrewdir = path.join(pkginfo.install_dir(), "homebrew")
-
     local brewbindir = path.join(homebrewdir, "bin")
 
-    system.unix_api().append_to_shell_profile({
-        posix = string.format([[test -f %s/brew && eval "$(%s/brew shellenv)"]], brewbindir, brewbindir),
-        fish  = string.format([[test -f %s/brew; and eval (%s/brew shellenv)]], brewbindir, brewbindir),
+    xvm.add("brew", {
+        bindir = brewbindir,
+        envs = {
+            HOMEBREW_PREFIX = homebrewdir,
+            HOMEBREW_CELLAR = path.join(homebrewdir, "Cellar"),
+            HOMEBREW_REPOSITORY = homebrewdir,
+        },
     })
-
-    xvm.add("brew", { bindir = brewbindir })
 
     return true
 end

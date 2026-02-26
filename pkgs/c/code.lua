@@ -63,6 +63,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
+import("xim.libxpkg.xvm")
 
 local shortcut_dir = {
     linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
@@ -159,19 +160,15 @@ function config()
         end
     end
 
-    os.exec(string.format(xvm_cmd_template1, pkginfo.version(), appdir, code_alias))
-    -- TODO: fix xvm.add("vscode"), run vscode --version bug?
-    os.exec(string.format(
-        xvm_cmd_template2 .. " --binding code@" .. pkginfo.version(),
-        pkginfo.version(), appdir, code_alias
-    ))
+    xvm.add("code", { bindir = path.join(appdir, "bin"), alias = code_alias })
+    xvm.add("vscode", { bindir = path.join(appdir, "bin"), alias = code_alias, binding = "code@" .. pkginfo.version() })
 
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove code " .. pkginfo.version())
-    os.exec("xvm remove vscode " .. pkginfo.version())
+    xvm.remove("code")
+    xvm.remove("vscode")
     if os.host() == "windows" then
         -- remove desktop shortcut
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version() .. "]"

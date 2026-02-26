@@ -38,6 +38,7 @@ package = {
 
 import("xim.xinstall")
 import("xim.libxpkg.pkgmanager")
+import("xim.libxpkg.xvm")
 
 function installed()
     os.exec("rustc --version")
@@ -62,24 +63,16 @@ function install()
 end
 
 function config()
-    if is_host("windows") then
-        local home = os.getenv("USERPROFILE")
-        local cargo_bin = path.join(home, ".cargo", "bin")
-        local current_path = os.getenv("PATH") or ""
+    local home = is_host("windows") and os.getenv("USERPROFILE") or os.getenv("HOME")
+    local cargo_bin = path.join(home, ".cargo", "bin")
 
-        os.setenv("CARGO_HOME", path.join(home, ".cargo"))
-        os.setenv("RUSTUP_HOME", path.join(home, ".rustup"))
+    xvm.add("rustc", { bindir = cargo_bin })
+    xvm.add("cargo", { bindir = cargo_bin, binding = "rustc@" .. "latest" })
+    xvm.add("rustup", { bindir = cargo_bin, binding = "rustc@" .. "latest" })
+    xvm.add("rustfmt", { bindir = cargo_bin, binding = "rustc@" .. "latest" })
+    xvm.add("clippy-driver", { bindir = cargo_bin, binding = "rustc@" .. "latest" })
+    xvm.add("rust-analyzer", { bindir = cargo_bin, binding = "rustc@" .. "latest" })
 
-        if not current_path:find(cargo_bin, 1, true) then
-            os.setenv("PATH", cargo_bin .. ";" .. current_path)
-        end
-    else
-        -- Linux/macOS
-        local home = os.getenv("HOME")
-        os.addenv("PATH", path.join(home, ".cargo/bin"))
-        --local cargo_env = path.join(home, ".cargo/env")
-        --os.exec(". " .. cargo_env)
-    end
     return true
 end
 

@@ -29,7 +29,7 @@ package = {
                 sha256 = nil
             },
         },
-        debain = {
+        debian = {
             deps = {"python@3"},
             ["latest"] = { ref = "0.0.2" },
             ["0.0.2"] = {
@@ -37,42 +37,37 @@ package = {
                 sha256 = nil
             },
         },
-        ubuntu = { ref = "debain" },
-        archlinux = { ref = "debain" },
-        manjaro = { ref = "debain" },
+        ubuntu = { ref = "debian" },
+        archlinux = { ref = "debian" },
+        manjaro = { ref = "debian" },
     },
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
+import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 function installed()
     return os.iorun("xvm list seeme-server")
 end
 
 function install()
-    os.tryrm(pkginfo.install_dir) -- 移除可能存在的老代码 
-    os.trymv("server", pkginfo.install_dir)
+    os.tryrm(pkginfo.install_dir())
+    os.trymv("server", pkginfo.install_dir())
     print("Installing dependencies from requirements.txt...")
-    local install_result = os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir, "requirement.txt"))) 
-    --"C:\Users\Public\.xlings_data\xim\xpkgs\seeme\0.0.2\server\requirement.txt"
+    os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir(), "requirement.txt")))
     cprint("\n${green}use -> seeme-server${clear}\n")
     cprint("\n${green}install seeme-report after${clear}\n")
     return true
-
 end
 
 function config()
-    -- config xvm
-    os.exec(format(
-        [[xvm add seeme-server %s  --alias "python %s"]],
-        pkginfo.version, path.join(pkginfo.install_dir, "main.py")
-    ))
+    xvm.add("seeme-server", {
+        alias = "python " .. path.join(pkginfo.install_dir(), "main.py"),
+    })
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove seeme-server " .. pkginfo.version)
+    xvm.remove("seeme-server")
     return true
 end

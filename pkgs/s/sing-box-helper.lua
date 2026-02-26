@@ -14,11 +14,11 @@ package = {
     keywords = {"sing-box", "helper", "proxy", "server", "client"},
 
     xpm = {
-        debain = {
+        debian = {
             deps = {"sing-box"},
             ["1.0.0"] = { }
         },
-        ubuntu = { ref = "debain" },
+        ubuntu = { ref = "debian" },
     },
 }
 

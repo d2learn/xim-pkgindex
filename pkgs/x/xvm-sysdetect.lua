@@ -15,14 +15,14 @@ package = {
     keywords = {"xvm", "detect-tool"},
 
     -- xvm: xlings version management
-    xvm_enable = true,
-
     xpm = {
         linux = {
             ["latest"] = { },
         },
     },
 }
+
+import("xim.libxpkg.xvm")
 
 local sys_paths = {
     linux = {
@@ -58,7 +58,7 @@ function install()
     for _, pkg in ipairs(pkgs) do
         for _, p in ipairs(sys_paths.linux) do
             if os.isfile(path.join(p, pkg)) then
-                os.exec("xvm add " .. pkg .. " system" .. " --path " .. p)
+                xvm.add(pkg, { version = "system", bindir = p })
                 break
             end
         end
@@ -75,7 +75,7 @@ end
 
 function uninstall()
     for _, pkg in ipairs(pkgs) do
-        os.exec("xvm remove " .. pkg .. " system")
+        xvm.remove(pkg, "system")
     end
     return true
 end

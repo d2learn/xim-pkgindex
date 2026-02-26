@@ -21,14 +21,14 @@ package = {
     xvm_enable = true,
 
     xpm = {
-        debain = {
+        debian = {
             ["latest"] = { ref = "1.12.12" },
             ["1.12.12"] = {
                 url = "https://github.com/SagerNet/sing-box/releases/download/v1.12.12/sing-box-1.12.12-linux-amd64.tar.gz",
                 sha256 = nil
             },
         },
-        ubuntu = { ref = "debain" },
+        ubuntu = { ref = "debian" },
     },
 }
 

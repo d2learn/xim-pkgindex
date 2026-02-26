@@ -1,3 +1,5 @@
+-- TODO: "debain" 拼写错误，应为 "debian"
+
 package = {
     spec = "1",
     -- base info

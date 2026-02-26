@@ -1,3 +1,5 @@
+-- TODO: Linux 运行时缺 libglfw.so.3，需要在 xpm.linux 中添加 deps 或在描述中注明需 sudo apt install libglfw3
+
 package = {
     spec = "1",
     -- base info

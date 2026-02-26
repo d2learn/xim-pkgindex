@@ -1,3 +1,5 @@
+-- TODO: xpm 中无 linux 入口，Linux 用户无法安装；install/config 已有 Linux 逻辑，需补充 xpm.linux 版本定义
+
 function _linux_download_url(version) return "https://www.python.org/ftp/python/" .. version .. "/Python-" .. version .. ".tar.xz" end
 
 package = {

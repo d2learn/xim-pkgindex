@@ -67,6 +67,7 @@ package = {
 
 import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 local node_dir_template = {
     linux = "node-v%s-linux-x64",
@@ -86,31 +87,31 @@ end
 
 function config()
     print("Configuring Node.js ...")
-    local node_xvm_cmd_template1 = "xvm add node %s --path %s"
-    local node_xvm_cmd_template2 = "xvm add nodejs %s --path %s --alias node"
-    local npm_xvm_cmd_template = "xvm add npm node-%s --path %s"
-    local npx_xvm_cmd_template = "xvm add npx node-%s --path %s"
-
     local bindir = pkginfo.install_dir()
-    if is_host("windows") then
-        npm_xvm_cmd_template = npm_xvm_cmd_template .. " --alias npm.cmd"
-        npx_xvm_cmd_template = npx_xvm_cmd_template .. " --alias npx.cmd"
-    else
+    if not is_host("windows") then
         bindir = path.join(pkginfo.install_dir(), "bin")
     end
 
-    os.exec(string.format(node_xvm_cmd_template1, pkginfo.version(), bindir))
-    os.exec(string.format(node_xvm_cmd_template2, pkginfo.version(), bindir))
-    os.exec(string.format(npm_xvm_cmd_template, pkginfo.version(), bindir))
-    os.exec(string.format(npx_xvm_cmd_template, pkginfo.version(), bindir))
+    xvm.add("node", { bindir = bindir })
+    xvm.add("nodejs", { bindir = bindir, alias = "node" })
+
+    local npm_cfg = { bindir = bindir, version = "node-" .. pkginfo.version() }
+    local npx_cfg = { bindir = bindir, version = "node-" .. pkginfo.version() }
+    if is_host("windows") then
+        npm_cfg.alias = "npm.cmd"
+        npx_cfg.alias = "npx.cmd"
+    end
+    xvm.add("npm", npm_cfg)
+    xvm.add("npx", npx_cfg)
+
     return true
 end
 
 function uninstall()
     print("Uninstalling Node.js from %s ...", pkginfo.install_dir())
-    os.exec("xvm remove node " .. pkginfo.version())
-    os.exec("xvm remove nodejs " .. pkginfo.version())
-    os.exec("xvm remove npm node-" .. pkginfo.version())
-    os.exec("xvm remove npx node-" .. pkginfo.version())
+    xvm.remove("node")
+    xvm.remove("nodejs")
+    xvm.remove("npm", "node-" .. pkginfo.version())
+    xvm.remove("npx", "node-" .. pkginfo.version())
     return true
 end

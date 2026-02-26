@@ -38,6 +38,7 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 function install()
     local install_cmd = ""
@@ -57,12 +58,11 @@ function install()
 end
 
 function config()
-    local xvm_dotnet_cmd = "xvm add dotnet %s --path %s"
-    os.exec(string.format(xvm_dotnet_cmd, pkginfo.version(), pkginfo.install_dir()))
+    xvm.add("dotnet", { bindir = pkginfo.install_dir() })
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove dotnet " .. pkginfo.version())
+    xvm.remove("dotnet")
     return true
 end

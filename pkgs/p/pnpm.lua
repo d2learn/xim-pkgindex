@@ -33,6 +33,7 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 function install()
     local pnpm_installcmd_template = "npm install -g pnpm@%s --prefix %s"
@@ -42,18 +43,19 @@ end
 
 function config()
     print("config xvm...")
-    local xvm_pnpm_template = "xvm add pnpm %s --path %s"
     local bindir = pkginfo.install_dir()
+    local cfg = {}
     if is_host("windows") then
-        xvm_pnpm_template = xvm_pnpm_template .. " --alias pnpm.cmd"
+        cfg.alias = "pnpm.cmd"
     else
         bindir = path.join(pkginfo.install_dir(), "bin")
     end
-    os.exec(string.format(xvm_pnpm_template, pkginfo.version(), bindir))
+    cfg.bindir = bindir
+    xvm.add("pnpm", cfg)
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove pnpm " .. pkginfo.version())
+    xvm.remove("pnpm")
     return true
 end

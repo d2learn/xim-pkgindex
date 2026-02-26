@@ -37,6 +37,7 @@ package = {
 }
 
 import("xim.base.utils")
+import("xim.libxpkg.pkginfo")
 
 function installed()
     return os.iorun("nvm --version")

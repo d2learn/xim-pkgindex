@@ -58,7 +58,7 @@ end
 
 function install()
     if is_host("macosx") then
-        system.exec("brew install gcc", { retry = 3 })
+        pkgmanager.install("gcc")
     elseif pkginfo.version() == "msvc" then
         pkgmanager.install("msvc@2022")
     else
@@ -69,7 +69,7 @@ end
 
 function uninstall()
     if is_host("macosx") then
-        system.exec("brew uninstall gcc")
+        pkgmanager.uninstall("gcc")
     elseif pkginfo.version() == "msvc" then
         pkgmanager.uninstall("msvc@2022")
     elseif pkginfo.version() == "mingw" then

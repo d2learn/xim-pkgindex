@@ -96,11 +96,12 @@ function install()
 
     local clang_cfg = ""
     local clangxx_cfg = "-isystem" .. cxxinc .. "\n"
-        .. "-L" .. libdir .. "\n"
-        .. "-Wl,-rpath," .. libdir .. "\n"
-        .. "-lc++\n"
-        .. "-lc++abi\n"
-        .. "-lunwind\n"
+        -- runtime conflict with system libc++
+        --.. "-L" .. libdir .. "\n"
+        --.. "-Wl,-rpath," .. libdir .. "\n"
+        --.. "-lc++\n"
+        --.. "-lc++abi\n"
+        --.. "-lunwind\n"
 
     if sdkroot and sdkroot ~= "" then
         clang_cfg = "--sysroot=" .. sdkroot .. "\n"

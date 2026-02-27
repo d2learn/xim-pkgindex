@@ -32,33 +32,6 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
-local related_apps = {
-    "clang-20",
-    "clang",
-    "clang++",
-    "clang-cpp",
-    "clangd",
-    "clang-format",
-    "clang-tidy",
-    "lldb",
-    "llvm-ar",
-    "llvm-as",
-    "llvm-dis",
-    "llvm-libtool-darwin",
-    "llvm-nm",
-    "llvm-objcopy",
-    "llvm-objdump",
-    "llvm-ranlib",
-    "llvm-readobj",
-    "llvm-size",
-    "llvm-strings",
-    "llvm-strip",
-    "llvm-symbolizer",
-    "llvm-config",
-    "lld",
-    "ld.lld",
-}
-
 local alias_apps = {
     {name = "cc", alias = "clang"},
     {name = "c++", alias = "clang++"},
@@ -68,6 +41,28 @@ local alias_apps = {
     {name = "nm", alias = "llvm-nm"},
 }
 
+local function is_registerable_bin(pathname)
+    local name = path.filename(pathname)
+    if name == nil or name == "" then
+        return false
+    end
+    if name:endswith(".cfg") then
+        return false
+    end
+    return os.isfile(pathname)
+end
+
+local function collect_bin_apps(bindir)
+    local apps = {}
+    for _, filepath in ipairs(os.files(path.join(bindir, "*"))) do
+        if is_registerable_bin(filepath) then
+            table.insert(apps, path.filename(filepath))
+        end
+    end
+    table.sort(apps)
+    return apps
+end
+
 function install()
     local llvmdir = pkginfo.install_file()
         :replace(".tar.xz", "")
@@ -76,37 +71,63 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mv(llvmdir, pkginfo.install_dir())
 
-    -- Ensure clang/clang++ linkers use LLVM lib dir as default runtime search path.
+    -- Make packaged clang/clang++ usable out-of-box on macOS.
     local libdir = path.join(pkginfo.install_dir(), "lib")
-    local cfg_text = "-Wl,-rpath," .. libdir .. "\n"
-    io.writefile(path.join(pkginfo.install_dir(), "bin", "clang.cfg"), cfg_text)
-    io.writefile(path.join(pkginfo.install_dir(), "bin", "clang++.cfg"), cfg_text)
+    local cxxinc = path.join(pkginfo.install_dir(), "include", "c++", "v1")
+    local sdkroot = nil
+
+    if os.host() == "macosx" then
+        local env_sdkroot = os.getenv("SDKROOT")
+        if env_sdkroot and env_sdkroot ~= "" and os.isdir(env_sdkroot) then
+            sdkroot = env_sdkroot
+        else
+            local candidates = {
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            }
+            for _, cand in ipairs(candidates) do
+                if os.isdir(cand) then
+                    sdkroot = cand
+                    break
+                end
+            end
+        end
+    end
+
+    local clang_cfg = ""
+    local clangxx_cfg = "-isystem" .. cxxinc .. "\n"
+        .. "-L" .. libdir .. "\n"
+        .. "-Wl,-rpath," .. libdir .. "\n"
+        .. "-lc++\n"
+        .. "-lc++abi\n"
+        .. "-lunwind\n"
+
+    if sdkroot and sdkroot ~= "" then
+        clang_cfg = "--sysroot=" .. sdkroot .. "\n"
+        clangxx_cfg = "--sysroot=" .. sdkroot .. "\n" .. clangxx_cfg
+    else
+        log.warn("macOS SDK path not detected; clang may need manual --sysroot")
+    end
+
+    io.writefile(path.join(pkginfo.install_dir(), "bin", "clang.cfg"), clang_cfg)
+    io.writefile(path.join(pkginfo.install_dir(), "bin", "clang-20.cfg"), clang_cfg)
+    io.writefile(path.join(pkginfo.install_dir(), "bin", "clang++.cfg"), clangxx_cfg)
 
     return true
 end
 
 function config()
     local bindir = path.join(pkginfo.install_dir(), "bin")
-    local libdir = path.join(pkginfo.install_dir(), "lib")
-    local binding = package.name .. "-" .. pkginfo.version()
+    local binding = package.name .. "@" .. pkginfo.version()
+    local related_apps = collect_bin_apps(bindir)
 
-    local envs = {
-        LLVM_HOME = pkginfo.install_dir(),
-        LDFLAGS = "-Wl,-rpath," .. libdir,
-    }
-
-    xvm.add(package.name, { binding = binding })
+    xvm.add(package.name)
 
     for _, app in ipairs(related_apps) do
-        if os.isfile(path.join(bindir, app)) then
-            xvm.add(app, {
-                bindir = bindir,
-                binding = binding,
-                envs = envs,
-            })
-        else
-            log.warn("skip xvm add (not found): " .. app)
-        end
+        xvm.add(app, {
+            bindir = bindir,
+            binding = binding,
+        })
     end
 
     for _, app in ipairs(alias_apps) do
@@ -115,7 +136,6 @@ function config()
                 bindir = bindir,
                 alias = app.alias,
                 binding = binding,
-                envs = envs,
             })
         else
             log.warn("skip xvm add alias (not found): " .. app.name .. " -> " .. app.alias)
@@ -126,14 +146,17 @@ function config()
 end
 
 function uninstall()
+    local bindir = path.join(pkginfo.install_dir(), "bin")
+    local related_apps = collect_bin_apps(bindir)
+
     xvm.remove(package.name)
 
     for _, app in ipairs(related_apps) do
-        xvm.remove(app, package.name .. "-" .. pkginfo.version())
+        xvm.remove(app)
     end
 
     for _, app in ipairs(alias_apps) do
-        xvm.remove(app.name, package.name .. "-" .. pkginfo.version())
+        xvm.remove(app.name)
     end
 
     return true

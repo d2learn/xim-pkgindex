@@ -93,7 +93,11 @@ int main() {
     return 0;
 }
 CPP
-clang++ -std=c++23 -stdlib=libc++ -fexperimental-library "$tmpdir/main.cpp" -o "$tmpdir/hello"
+resdir="$(clang++ --print-resource-dir)"
+llvm_home="$(cd "$resdir/../../.." && pwd)"
+stdcppm="$llvm_home/share/libc++/v1/std.cppm"
+clang++ -std=c++23 -fexperimental-library -x c++-module --precompile "$stdcppm" -o "$tmpdir/std.pcm"
+clang++ -std=c++23 -fexperimental-library "$tmpdir/main.cpp" -fmodule-file=std="$tmpdir/std.pcm" -o "$tmpdir/hello"
 "$tmpdir/hello"
 ''',
             contains="hello from llvm clang++ c++23",

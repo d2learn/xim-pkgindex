@@ -53,6 +53,28 @@ description: 在 xim-pkgindex 中创建/更新 xpkg 包（V1），遵守 xlings 
 - 平台继承：`ubuntu = { ref = "linux" }`
 - script/config 类型可使用空资源：`["0.0.1"] = {}`
 
+#### 资源选择策略（默认使用官方 URL）
+
+优先使用官方下载 URL 作为默认资源，同时以注释形式保留 `XLINGS_RES` 备选。
+这样保证首次安装直接从官方源下载，后续如需切换到 xlings 镜像只需取消注释即可。
+
+```lua
+xpm = {
+    linux = {
+        ["latest"] = { ref = "1.0.0" },
+        -- 默认：使用官方 URL
+        ["1.0.0"] = {
+            url = "https://github.com/org/repo/releases/download/v1.0.0/tool_1.0.0_linux_amd64.tar.gz",
+            sha256 = nil,
+        },
+        -- 备选：使用 xlings 镜像资源（取消注释并删除上面的 url 配置即可切换）
+        -- ["1.0.0"] = "XLINGS_RES",
+    },
+},
+```
+
+参考实现：`pkgs/g/github-gh.lua`
+
 ## 2) hooks 实现规范（核心）
 
 ### 2.1 import 规范
@@ -130,7 +152,11 @@ package = {
   xpm = {
     linux = {
       ["latest"] = { ref = "1.0.0" },
-      ["1.0.0"] = "XLINGS_RES",
+      ["1.0.0"] = {
+        url = "https://github.com/org/repo/releases/download/v1.0.0/demo_1.0.0_linux_amd64.tar.gz",
+        sha256 = nil,
+      },
+      -- ["1.0.0"] = "XLINGS_RES",
     },
   },
 }

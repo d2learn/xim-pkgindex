@@ -1,22 +1,15 @@
 package = {
     spec = "1",
-    homepage = "https://opencloud.eu/",
-    name = "opencloud",
-    description = "OpenCloud client binary package for isolated use via xvm",
-
-    authors = {"openCloud GmbH"},
-    maintainers = {"openCloud GmbH"},
-    licenses = {"Apache-2.0"},
-    repo = "https://github.com/opencloud-eu/opencloud",
-    docs = "https://docs.opencloud.eu/",
+    name = "openclaw",
+    description = "OpenClaw binary package (minimal install, xvm-managed, isolation friendly)",
 
     type = "package",
     archs = {"x86_64", "arm64"},
     status = "stable",
-    categories = {"cloud", "storage", "sync"},
-    keywords = {"opencloud", "cloud", "storage", "sync", "client"},
+    categories = {"tools", "cli"},
+    keywords = {"openclaw", "xiaolongxia", "cli", "tool"},
 
-    programs = {"opencloud"},
+    programs = {"openclaw"},
     xvm_enable = true,
 
     xpm = {
@@ -38,10 +31,10 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
-local opencloud_bin = {
-    windows = "opencloud.exe",
-    linux = "opencloud",
-    macosx = "opencloud",
+local openclaw_bin = {
+    windows = "openclaw.exe",
+    linux = "openclaw",
+    macosx = "openclaw",
 }
 
 function install()
@@ -62,7 +55,7 @@ function install()
 
     os.mkdir(install_dir)
 
-    local host_bin = opencloud_bin[os.host()]
+    local host_bin = openclaw_bin[os.host()]
     if os.isfile(host_bin) then
         os.mv(host_bin, install_dir)
         return true
@@ -80,15 +73,15 @@ function config()
     local bindir = pkginfo.install_dir()
     local local_bin_dir = path.join(pkginfo.install_dir(), "bin")
 
-    if os.isfile(path.join(local_bin_dir, opencloud_bin[os.host()])) then
+    if os.isfile(path.join(local_bin_dir, openclaw_bin[os.host()])) then
         bindir = local_bin_dir
     end
 
-    xvm.add("opencloud", { bindir = bindir })
+    xvm.add("openclaw", { bindir = bindir })
     return true
 end
 
 function uninstall()
-    xvm.remove("opencloud")
+    xvm.remove("openclaw")
     return true
 end

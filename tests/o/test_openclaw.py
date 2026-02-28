@@ -1,4 +1,4 @@
-"""测试 opencloud 包"""
+"""测试 openclaw 包"""
 import pytest
 from tests.lib.xpkg_parser import parse_xpkg
 from tests.lib.assertions import (
@@ -10,8 +10,8 @@ from tests.lib.assertions import (
 )
 from tests.lib.platform_utils import skip_if_not
 
-PKG = "opencloud"
-PKG_FILE = "pkgs/o/opencloud.lua"
+PKG = "openclaw"
+PKG_FILE = "pkgs/o/openclaw.lua"
 
 
 @pytest.fixture(scope='module')
@@ -72,9 +72,9 @@ class TestVerify:
     @pytest.mark.verify
     @skip_if_not('linux')
     def test_help(self):
-        assert_command_output("opencloud --help", contains="opencloud")
+        assert_command_output("openclaw --help", contains="openclaw")
 
     @pytest.mark.verify
     @skip_if_not('linux')
     def test_xvm_registered(self):
-        assert_xvm_registered("opencloud")
+        assert_xvm_registered("openclaw")

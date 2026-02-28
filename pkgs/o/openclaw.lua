@@ -1,3 +1,25 @@
+function download_url(version)
+    if is_host("windows") then
+        return string.format(
+            "https://github.com/openclaw-eu/openclaw/releases/download/v%s/openclaw-v%s-windows-x86_64.zip",
+            version,
+            version
+        )
+    elseif is_host("macosx") then
+        return string.format(
+            "https://github.com/openclaw-eu/openclaw/releases/download/v%s/openclaw-v%s-macos-aarch64.tar.gz",
+            version,
+            version
+        )
+    else
+        return string.format(
+            "https://github.com/openclaw-eu/openclaw/releases/download/v%s/openclaw-v%s-linux-x86_64.tar.gz",
+            version,
+            version
+        )
+    end
+end
+
 package = {
     spec = "1",
     name = "openclaw",
@@ -15,19 +37,20 @@ package = {
     xpm = {
         windows = {
             ["latest"] = { ref = "1.0.0" },
-            ["1.0.0"] = "XLINGS_RES",
+            ["1.0.0"] = { url = download_url("1.0.0"), sha256 = nil },
         },
         linux = {
             ["latest"] = { ref = "1.0.0" },
-            ["1.0.0"] = "XLINGS_RES",
+            ["1.0.0"] = { url = download_url("1.0.0"), sha256 = nil },
         },
         macosx = {
             ["latest"] = { ref = "1.0.0" },
-            ["1.0.0"] = "XLINGS_RES",
+            ["1.0.0"] = { url = download_url("1.0.0"), sha256 = nil },
         },
     },
 }
 
+import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 

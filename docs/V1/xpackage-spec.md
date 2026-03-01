@@ -2,6 +2,88 @@
 
 > `spec = "1"`
 
+## 运行时环境
+
+### 设计原则
+
+xpkg 包脚本的运行时环境 = **标准 Lua 5.4** + **libxpkg 标准库**。
+
+- 不依赖 xmake 特有 API（`is_host()`、`format()`、`runtime.*` 等）
+- 不依赖宿主工具的实现细节
+- 任何符合规范的解析器/执行器都能正确处理
+
+### 可用 API 清单
+
+**标准 Lua：** `string`、`table`、`math`、`os`（基础）、`io`（基础）、`pcall`、`type`、`tostring`、`tonumber`、`pairs`、`ipairs`、`require`、`setmetatable` 等
+
+**libxpkg 扩展（prelude）：**
+
+| 分类 | 函数 | 说明 |
+|------|------|------|
+| 平台 | `os.host()` | 返回 `"linux"` / `"windows"` / `"macosx"` |
+| 文件 | `os.isfile(path)` | 文件是否存在 |
+| 文件 | `os.isdir(path)` | 目录是否存在 |
+| 文件 | `os.mv(src, dst)` | 移动（支持跨设备） |
+| 文件 | `os.cp(src, dst)` | 复制 |
+| 文件 | `os.dirs(pattern)` | 目录列表 |
+| 路径 | `path.join(...)` | 拼接路径 |
+| 路径 | `path.filename(p)` | 取文件名 |
+| 路径 | `path.directory(p)` | 取目录名 |
+| IO | `io.readfile(path)` | 读文件 |
+| IO | `io.writefile(path, content)` | 写文件 |
+| 字符串 | `string.split(s, sep)` | 分割字符串 |
+| 控制流 | `try { fn, catch = { handler } }` | 异常处理 |
+| 输出 | `cprint(fmt, ...)` | 带颜色打印 |
+
+**libxpkg 模块（通过 `import()` 导入）：**
+
+| 模块 | 导入方式 | 核心 API |
+|------|---------|---------|
+| pkginfo | `import("xim.libxpkg.pkginfo")` | `name()`, `version()`, `install_file()`, `install_dir()`, `dep_install_dir()`, `deps_list()` |
+| xvm | `import("xim.libxpkg.xvm")` | `add()`, `remove()`, `use()`, `has()` |
+| system | `import("xim.libxpkg.system")` | `exec()`, `rundir()`, `xpkgdir()`, `bindir()`, `subos_sysrootdir()`, `unix_api()` |
+| log | `import("xim.libxpkg.log")` | `info()`, `warn()`, `error()`, `debug()` |
+| utils | `import("xim.libxpkg.utils")` | `filepath_to_absolute()`, `try_download_and_check()`, `input_args_process()` |
+
+### 包文件结构规则
+
+```lua
+-- ① package 表：纯静态数据，只用标准 Lua 字面量和 string.format()
+package = {
+    spec = "1",
+    name = "example",
+    -- ...
+    xpm = { ... },  -- 按平台分区定义 URL，不用函数动态计算
+}
+
+-- ② import 区：导入 libxpkg 模块
+local pkginfo = import("xim.libxpkg.pkginfo")
+local xvm     = import("xim.libxpkg.xvm")
+
+-- ③ hook 函数：所有运行时逻辑在此
+function installed() ... end
+function install()   ... end
+function config()    ... end
+function uninstall() ... end
+```
+
+**关键约束：**
+
+1. **`package` 表必须静态可求值** — 只用字面量和 `string.format()`，不调用运行时函数
+2. **按平台分区定义资源** — 使用 xpm 的 `linux = {...}` / `windows = {...}`，不用 `is_host()` 判断
+3. **运行时初始化放在 hook 函数内** — 顶层作用域不调用 `path.join()`、`os.getenv()`、`system.*` 等
+4. **只用规范定义的 API** — `string.format()` 而非 `format()`，`os.host()` 而非 `is_host()`
+
+### 禁用 API 与替代方案
+
+| 禁用（xmake 特有） | 替代（xpkg 规范） |
+|-------------------|-----------------|
+| `is_host("linux")` | `os.host() == "linux"` |
+| `format(...)` | `string.format(...)` |
+| `runtime.get_pkginfo()` | `import("xim.libxpkg.pkginfo")` |
+| `os.scriptdir()` | `system.xpkgdir()` 或 `pkginfo.install_dir()` |
+| 顶层 `path.join(...)` | 移入 hook 函数内 |
+
 ## Package 域
 
 ### 基础字段
@@ -82,6 +164,22 @@ xpm = {
 | `"XLINGS_RES"` | 自动从xlings镜像生成URL | `["1.0.0"] = "XLINGS_RES"` |
 | `{ ref = "x.x.x" }` | 引用另一个版本 | `["latest"] = { ref = "1.0.0" }` |
 | `{ }` | 空资源 (用于script/config等无需下载的包) | `["0.0.1"] = { }` |
+
+**镜像 URL 格式:**
+
+`url` 字段除了普通字符串，还支持镜像表格式，为不同地区提供不同的下载源：
+
+```lua
+["1.0.0"] = {
+    url = {
+        GLOBAL = "https://github.com/xxx/releases/download/v1.0.0/pkg.tar.gz",
+        CN     = "https://gitee.com/xxx/releases/download/v1.0.0/pkg.tar.gz",
+    },
+    sha256 = "abc123..."
+}
+```
+
+解析优先级：`GLOBAL` > `CN`。
 
 ## Hooks 域
 

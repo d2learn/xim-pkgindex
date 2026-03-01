@@ -40,10 +40,14 @@ xpkg 包脚本的运行时环境 = **标准 Lua 5.4** + **libxpkg 标准库**。
 | 模块 | 导入方式 | 核心 API |
 |------|---------|---------|
 | pkginfo | `import("xim.libxpkg.pkginfo")` | `name()`, `version()`, `install_file()`, `install_dir()`, `dep_install_dir()`, `deps_list()` |
-| xvm | `import("xim.libxpkg.xvm")` | `add()`, `remove()`, `use()`, `has()` |
+| xvm | `import("xim.libxpkg.xvm")` | `add()`, `remove()`, `use()`, `has()`, `setup()`, `teardown()` |
 | system | `import("xim.libxpkg.system")` | `exec()`, `rundir()`, `xpkgdir()`, `bindir()`, `subos_sysrootdir()`, `unix_api()` |
 | log | `import("xim.libxpkg.log")` | `info()`, `warn()`, `error()`, `debug()` |
 | utils | `import("xim.libxpkg.utils")` | `filepath_to_absolute()`, `try_download_and_check()`, `input_args_process()` |
+| pkgmanager | `import("xim.libxpkg.pkgmanager")` | `install(target)`, `remove(target)`, `uninstall(target)` |
+| elfpatch | `import("xim.libxpkg.elfpatch")` | `auto()`, `is_auto()`, `apply_auto()`, `patch_elf_loader_rpath()`, `closure_lib_paths()` |
+| json | `import("xim.libxpkg.json")` | `decode(str)`, `encode(val, opts)`, `loadfile(path)`, `savefile(path, val, opts)` |
+| base64 | `import("xim.libxpkg.base64")` | `encode(data)`, `decode(data)` |
 
 ### 包文件结构规则
 
@@ -83,6 +87,14 @@ function uninstall() ... end
 | `runtime.get_pkginfo()` | `import("xim.libxpkg.pkginfo")` |
 | `os.scriptdir()` | `system.xpkgdir()` 或 `pkginfo.install_dir()` |
 | 顶层 `path.join(...)` | 移入 hook 函数内 |
+| `import("core.base.json")` | `import("xim.libxpkg.json")` |
+| `import("core.base.base64")` | `import("xim.libxpkg.base64")` |
+| `import("core.tool.toolchain")` | 用 `os.isdir()` 或 `io.popen()` 检测 |
+| `import("lib.detect.find_tool")` | 直接调用工具名或 `io.popen("which ...")` |
+| `import("common")` | 用 `os.execute()` 替代 |
+| `import("xim.base.utils")` | 用 `io.read()` / `io.open()` 等标准 Lua |
+
+> **注意**: 未注册的 `import()` 调用会打印警告并返回 stub 对象（所有方法为 no-op）。
 
 ## Package 域
 
@@ -295,6 +307,40 @@ end
 | `log.info(msg, ...)` | 信息日志 |
 | `log.warn(msg, ...)` | 警告日志 |
 | `log.error(msg, ...)` | 错误日志 |
+
+**pkgmanager** (`xim.libxpkg.pkgmanager`)
+
+| 方法 | 说明 |
+|------|------|
+| `pkgmanager.install(target)` | 安装子依赖（委托给 `xim -i`） |
+| `pkgmanager.remove(target)` | 卸载子依赖（委托给 `xim -r`） |
+| `pkgmanager.uninstall(target)` | 同 `remove()` |
+
+**elfpatch** (`xim.libxpkg.elfpatch`)
+
+| 方法 | 说明 |
+|------|------|
+| `elfpatch.auto(opts)` | 启用自动 RPATH 修复 (`{enable=true, shrink=true}`) |
+| `elfpatch.is_auto()` | 查询是否启用自动修复 |
+| `elfpatch.apply_auto(opts)` | 执行自动修复（扫描 install_dir + patchelf） |
+| `elfpatch.patch_elf_loader_rpath(target, opts)` | 手动修复指定目标的 interpreter/rpath |
+| `elfpatch.closure_lib_paths(opt)` | 收集依赖链的库路径 |
+
+**json** (`xim.libxpkg.json`)
+
+| 方法 | 说明 |
+|------|------|
+| `json.decode(str)` | 解析 JSON 字符串为 Lua 表 |
+| `json.encode(val, opts)` | 编码 Lua 值为 JSON 字符串 |
+| `json.loadfile(path)` | 从文件加载并解析 JSON |
+| `json.savefile(path, val, opts)` | 编码并保存 JSON 到文件 |
+
+**base64** (`xim.libxpkg.base64`)
+
+| 方法 | 说明 |
+|------|------|
+| `base64.encode(data)` | Base64 编码 |
+| `base64.decode(data)` | Base64 解码（返回字符串） |
 
 ## 包类型说明
 

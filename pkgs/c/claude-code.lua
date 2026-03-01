@@ -43,6 +43,14 @@ function installed()
     return os.iorun("xvm list claude")
 end
 
+-- 结构说明（基于 npm 包元数据 + 本地安装校验）:
+--   1) 包自身入口由 package.json 的 bin.claude = "cli.js" 定义
+--   2) 安装后主入口位于: <install>/node_modules/@anthropic-ai/claude-code/cli.js
+--   3) npm .bin 包装脚本在不同 OS 的形态可能不同（如 .cmd/.ps1），这里不依赖它
+function __claude_cli()
+    return path.join(pkginfo.install_dir(), "node_modules", "@anthropic-ai", "claude-code", "cli.js")
+end
+
 function install()
     os.tryrm(pkginfo.install_dir())
     os.mkdir(pkginfo.install_dir())
@@ -54,18 +62,20 @@ function install()
     )
     os.exec(npm_install)
 
+    if not os.isfile(__claude_cli()) then
+        raise("claude cli.js not found after npm install")
+    end
+
     return true
 end
 
 function config()
-    local bindir = path.join(pkginfo.install_dir(), "node_modules", ".bin")
-    local alias = "claude"
-
-    if os.host() == "windows" then
-        alias = "claude.cmd"
-    end
-
-    xvm.add("claude", { bindir = bindir, alias = alias })
+    xvm.add("claude", {
+        alias = string.format([[node "%s"]], __claude_cli()),
+        envs = {
+            CLAUDE_CONFIG_DIR = path.join(pkginfo.install_dir(), "config"),
+        }
+    })
     return true
 end
 

@@ -61,6 +61,21 @@ class TestIsolation:
         assert_uses_new_api(PKG_FILE)
 
 
+class TestDesign:
+    @pytest.mark.static
+    def test_runtime_entry_uses_cli_js(self):
+        content = open(PKG_FILE, encoding='utf-8').read()
+        assert "function __claude_cli()" in content
+        assert "@anthropic-ai" in content
+        assert "cli.js" in content
+        assert "node \"%s\"" in content
+
+    @pytest.mark.static
+    def test_claude_config_env(self):
+        content = open(PKG_FILE, encoding='utf-8').read()
+        assert "CLAUDE_CONFIG_DIR" in content
+
+
 class TestLifecycle:
     @pytest.mark.lifecycle
     @skip_if_not('linux')

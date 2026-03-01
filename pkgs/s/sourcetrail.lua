@@ -55,7 +55,7 @@ end
 
 function config()
 
-    if is_host("windows") then
+    if os.host() == "windows" then
         app_bindir = path.join(pkginfo.install_dir(), "Sourcetrail_2021_4_19_64bit")
         xvm.add("sourcetrail", {bindir = app_bindir})
     else

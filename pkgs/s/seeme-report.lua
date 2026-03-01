@@ -32,19 +32,17 @@ package = {
     },
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
+import("xim.libxpkg.pkginfo")
 
 function installed()
     return os.iorun("xvm list seeme-report")
 end
 
 function install()
-    os.tryrm(pkginfo.install_dir) -- 移除可能存在的老代码
-    os.trymv("report", pkginfo.install_dir)
+    os.tryrm(pkginfo.install_dir()) -- 移除可能存在的老代码
+    os.trymv("report", pkginfo.install_dir())
     print("Installing dependencies from requirements.txt...")
-    local install_result = os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir, "requirement.txt")))-- for win \\
+    local install_result = os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir(), "requirement.txt")))-- for win \\
     cprint("\n${green}run seeme-server first${clear}")
     cprint("\n${green}run it, use -> seeme-report run${clear} ")
     cprint("\n${green}run in background, use -> seeme-reportw run${clear}")
@@ -56,19 +54,19 @@ end
 
 function config()
     -- config xvm
-    os.exec(format(
-        [[xvm add seeme-report %s --alias "python %s" --env REPORT_KEY="seeme" --env REPORT_URL="http://127.0.0.1"]], 
-        pkginfo.version, path.join(pkginfo.install_dir, "report.py")
+    os.exec(string.format(
+        [[xvm add seeme-report %s --alias "python %s" --env REPORT_KEY="seeme" --env REPORT_URL="http://127.0.0.1"]],
+        pkginfo.version(), path.join(pkginfo.install_dir(), "report.py")
     ))
-    os.exec(format(
+    os.exec(string.format(
         [[xvm add seeme-reportw %s --alias "pythonw %s" --env REPORT_KEY="seeme" --env REPORT_URL="http://127.0.0.1"]],
-        pkginfo.version, path.join(pkginfo.install_dir, "report.py")
+        pkginfo.version(), path.join(pkginfo.install_dir(), "report.py")
     ))
     return true
 end
 
 function uninstall()
-    os.exec("xvm remove seeme-report " .. pkginfo.version)
-    os.exec("xvm remove seeme-reportw " .. pkginfo.version)
+    os.exec("xvm remove seeme-report " .. pkginfo.version())
+    os.exec("xvm remove seeme-reportw " .. pkginfo.version())
     return true
 end

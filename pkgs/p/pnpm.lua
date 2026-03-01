@@ -45,7 +45,7 @@ function config()
     print("config xvm...")
     local bindir = pkginfo.install_dir()
     local cfg = {}
-    if is_host("windows") then
+    if os.host() == "windows" then
         cfg.alias = "pnpm.cmd"
     else
         bindir = path.join(pkginfo.install_dir(), "bin")

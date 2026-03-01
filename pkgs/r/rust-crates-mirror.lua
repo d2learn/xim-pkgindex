@@ -49,38 +49,41 @@ registry = "sparse+%s"
 index = "sparse+%s"
 ]]
 
-local cargo_home = os.getenv("CARGO_HOME")
-
-if not cargo_home or cargo_home == "" then
-    if is_host("windows") then
-        cargo_home = path.join(os.getenv("USERPROFILE"), ".cargo")
-    else
-        cargo_home = path.join(os.getenv("HOME"), ".cargo")
+local function get_cargo_config_file()
+    local cargo_home = os.getenv("CARGO_HOME")
+    if not cargo_home or cargo_home == "" then
+        if os.host() == "windows" then
+            cargo_home = path.join(os.getenv("USERPROFILE"), ".cargo")
+        else
+            cargo_home = path.join(os.getenv("HOME"), ".cargo")
+        end
     end
+    return path.join(cargo_home, "config.toml")
 end
 
-local cargo_config_file = path.join(cargo_home, "config.toml")
-
-if not os.isfile(cargo_config_file) then
-    io.writefile(cargo_config_file, "")
+local function read_cargo_config()
+    local cargo_config_file = get_cargo_config_file()
+    if not os.isfile(cargo_config_file) then
+        io.writefile(cargo_config_file, "")
+    end
+    return io.readfile(cargo_config_file)
 end
-
-cargo_config_content = io.readfile(cargo_config_file)
 
 function installed()
-
+    local cargo_config_content = read_cargo_config()
     if not string.find(cargo_config_content, pkginfo.version(), 1, true) then
         return false
     end
-
     return true
 end
 
 function install()
+    local cargo_config_file = get_cargo_config_file()
+    local cargo_config_content = read_cargo_config()
 
     for version, _ in pairs(mirror_version) do
-        local installed = string.find(cargo_config_content, version, 1, true)
-        if installed then
+        local found = string.find(cargo_config_content, version, 1, true)
+        if found then
             log.warn("removing old rust-crates-mirror config: " .. version)
             pkgmanager.remove("rust-crates-mirror")
             cargo_config_content = io.readfile(cargo_config_file)
@@ -91,9 +94,8 @@ function install()
     log.info("cargo config file: " .. cargo_config_file)
     log.info("adding rust-crates-mirror config: " .. pkginfo.version())
 
-    -- backup hosts file
+    -- backup config file
     local backup_file = path.join(pkginfo.install_dir(), "config.toml")
-
     io.writefile(backup_file, cargo_config_content)
 
     cargo_config_content = cargo_config_content .. string.format(
@@ -109,6 +111,9 @@ function install()
 end
 
 function uninstall()
+    local cargo_config_file = get_cargo_config_file()
+    local cargo_config_content = read_cargo_config()
+
     -- remove the mirror config
     cargo_config_content = cargo_config_content:replace(
         string.format(mirror_config_template,

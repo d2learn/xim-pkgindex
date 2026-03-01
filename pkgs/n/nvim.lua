@@ -46,7 +46,7 @@ function install()
 
     local nvim_dir = "nvim-linux-x86_64"
 
-    if is_host("windows") then
+    if os.host() == "windows" then
         nvim_dir = "nvim-win64"
     end
 

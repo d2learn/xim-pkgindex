@@ -48,7 +48,7 @@ function installed()
 end
 
 function install()
-    if is_host("windows") then
+    if os.host() == "windows" then
         local toolchain_abi = _choice_toolchain()
         os.exec(
             "rustup-init"
@@ -63,7 +63,7 @@ function install()
 end
 
 function config()
-    local home = is_host("windows") and os.getenv("USERPROFILE") or os.getenv("HOME")
+    local home = os.host() == "windows" and os.getenv("USERPROFILE") or os.getenv("HOME")
     local cargo_bin = path.join(home, ".cargo", "bin")
 
     xvm.add("rustc", { bindir = cargo_bin })

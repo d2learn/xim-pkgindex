@@ -31,14 +31,23 @@ import("core.base.base64")
 import("core.base.bytes")
 import("core.base.json")
 
-local CONFIG_DIR = path.join(os.scriptdir(), "configs")
-local CURRENT_FILE = path.join(CONFIG_DIR, ".current")
-local SUBSCRIPTION_FILE = path.join(CONFIG_DIR, ".subscription")
 local SYSTEMD_SERVICE = "sing-box.service"
 
+local function get_config_dir()
+    return path.join(system.xpkgdir(), "configs")
+end
+
+local function get_current_file()
+    return path.join(get_config_dir(), ".current")
+end
+
+local function get_subscription_file()
+    return path.join(get_config_dir(), ".subscription")
+end
+
 function ensure_config_dir()
-    if not os.isdir(CONFIG_DIR) then
-        os.mkdir(CONFIG_DIR)
+    if not os.isdir(get_config_dir()) then
+        os.mkdir(get_config_dir())
     end
 end
 
@@ -81,19 +90,19 @@ function print_usage()
 end
 
 function get_current_config()
-    if os.isfile(CURRENT_FILE) then
-        return io.readfile(CURRENT_FILE):trim()
+    if os.isfile(get_current_file()) then
+        return io.readfile(get_current_file()):trim()
     end
     return nil
 end
 
 function set_current_config(name)
-    io.writefile(CURRENT_FILE, name)
+    io.writefile(get_current_file(), name)
 end
 
 function list_configs()
     ensure_config_dir()
-    local configs = os.files(path.join(CONFIG_DIR, "*.json"))
+    local configs = os.files(path.join(get_config_dir(), "*.json"))
     
     cprint("${bright}Available configurations:${clear}")
     if not configs or #configs == 0 then
@@ -132,7 +141,7 @@ function generate_server_config(args)
     
     log.info("Generating server configuration: %s (%s on port %d)", name, protocol, port)
     
-    local config_file = path.join(CONFIG_DIR, name .. ".json")
+    local config_file = path.join(get_config_dir(), name .. ".json")
     
     -- Build config table and save via json module (simpler and safer)
     local config_tbl
@@ -231,7 +240,7 @@ function generate_client_config(args)
         },
     }
 
-    local config_file = path.join(CONFIG_DIR, name .. ".json")
+    local config_file = path.join(get_config_dir(), name .. ".json")
     json.savefile(config_file, config_tbl, { indent = true })
     log.info("Client config saved to: %s", config_file)
     cprint(string.format("${green}✓${clear} Client configuration saved: ${yellow}%s${clear}", name))
@@ -259,7 +268,7 @@ function parse_args(...)
 end
 
 function create_systemd_service(config_name)
-    local config_file = path.join(CONFIG_DIR, config_name .. ".json")
+    local config_file = path.join(get_config_dir(), config_name .. ".json")
     
     if not os.isfile(config_file) then
         log.warn("Configuration not found: %s", config_file)
@@ -285,7 +294,7 @@ RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
-]], config_name, CONFIG_DIR, sing_box_bin, config_file)
+]], config_name, get_config_dir(), sing_box_bin, config_file)
 
     -- check config file (singbox check -c <config>)
     log.info("Checking configuration file...")
@@ -307,7 +316,7 @@ end
 function start_config(config_name)
     ensure_config_dir()
     
-    local config_file = path.join(CONFIG_DIR, config_name .. ".json")
+    local config_file = path.join(get_config_dir(), config_name .. ".json")
     
     if not os.isfile(config_file) then
         cprint(string.format("${red}✗${clear} Configuration not found: ${yellow}%s${clear}", config_name))
@@ -405,7 +414,7 @@ function generate_subscription_link()
         return
     end
     
-    local config_file = path.join(CONFIG_DIR, current .. ".json")
+    local config_file = path.join(get_config_dir(), current .. ".json")
     local config = parse_config_file(config_file)
     
     if not config then
@@ -451,7 +460,7 @@ function generate_subscription_link()
     end
     
     -- Save subscription link to file
-    io.writefile(SUBSCRIPTION_FILE, sub_link)
+    io.writefile(get_subscription_file(), sub_link)
     
     cprint("")
     cprint("${bright}Subscription Link:${clear}")
@@ -462,13 +471,13 @@ function generate_subscription_link()
     cprint("${dim}Method: %s${clear}", config.method or "aes-256-gcm")
     cprint("${dim}Config name: %s${clear}", config_name)
     cprint("")
-    cprint("${yellow}Link saved to: %s${clear}", SUBSCRIPTION_FILE)
+    cprint("${yellow}Link saved to: %s${clear}", get_subscription_file())
     cprint("")
 end
 
 function show_subscription_link()
-    if os.isfile(SUBSCRIPTION_FILE) then
-        local sub_link = io.readfile(SUBSCRIPTION_FILE):trim()
+    if os.isfile(get_subscription_file()) then
+        local sub_link = io.readfile(get_subscription_file()):trim()
         cprint("${bright}Saved Subscription Link:${clear}")
         cprint("${green}%s${clear}", sub_link)
         cprint("")
@@ -480,8 +489,8 @@ end
 function import_from_link(link)
     if not link then
         -- Try to read from subscription file
-        if os.isfile(SUBSCRIPTION_FILE) then
-            link = io.readfile(SUBSCRIPTION_FILE):trim()
+        if os.isfile(get_subscription_file()) then
+            link = io.readfile(get_subscription_file()):trim()
             cprint("${dim}Using saved subscription link...${clear}")
         else
             cprint("${yellow}Please provide a subscription link${clear}")
@@ -646,7 +655,7 @@ function import_from_link(link)
                 return
         end
 
-        local config_file = path.join(CONFIG_DIR, config_name .. ".json")
+        local config_file = path.join(get_config_dir(), config_name .. ".json")
         json.savefile(config_file, cfg_tbl, { indent = true })
     
     cprint("")

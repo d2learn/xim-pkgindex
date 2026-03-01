@@ -1,21 +1,11 @@
-local _vscode_linux_url_template = "https://update.code.visualstudio.com/%s/linux-x64/stable"
-local _vscode_windows_url_template = "https://update.code.visualstudio.com/%s/win32-x64-archive/stable"
-local _vscode_macosx_url_template = "https://update.code.visualstudio.com/%s/darwin-universal/stable"
-
-function _vscode_url(version)
-    local platform_url = nil
-    if is_host("windows") then
-        platform_url = string.format(_vscode_windows_url_template, version)
-    elseif is_host("linux") then
-        platform_url = string.format(_vscode_linux_url_template, version)
-    else -- macosx
-        platform_url = string.format(_vscode_macosx_url_template, version)
-    end
-
-    return {
-        url = platform_url,
-        sha256 = nil,
-    }
+local function _win_url(ver)
+    return { url = string.format("https://update.code.visualstudio.com/%s/win32-x64-archive/stable", ver), sha256 = nil }
+end
+local function _linux_url(ver)
+    return { url = string.format("https://update.code.visualstudio.com/%s/linux-x64/stable", ver), sha256 = nil }
+end
+local function _mac_url(ver)
+    return { url = string.format("https://update.code.visualstudio.com/%s/darwin-universal/stable", ver), sha256 = nil }
 end
 
 package = {
@@ -38,26 +28,34 @@ package = {
     xpm = {
         windows = {
             ["latest"] = { ref = "1.108.0" },
-            ["1.108.1"] = _vscode_url("1.108.1"),
-            ["1.108.0"] = _vscode_url("1.108.0"),
-            ["1.106.1"] = _vscode_url("1.106.1"),
-            ["1.100.1"] = _vscode_url("1.100.1"),
+            ["1.108.1"] = _win_url("1.108.1"),
+            ["1.108.0"] = _win_url("1.108.0"),
+            ["1.106.1"] = _win_url("1.106.1"),
+            ["1.100.1"] = _win_url("1.100.1"),
             ["1.96.2"] = {
-                url = string.format(_vscode_windows_url_template, "1.96.2"),
+                url = string.format("https://update.code.visualstudio.com/%s/win32-x64-archive/stable", "1.96.2"),
                 sha256 = "c6c2f97e5cb25a8b576b345f6b8f2021cc168f1726ee370f29d1dbd136ffe9f8",
             },
-            ["1.93.1"] = _vscode_url("1.93.1"),
+            ["1.93.1"] = _win_url("1.93.1"),
         },
         linux = {
             ["latest"] = { ref = "1.108.0" },
-            ["1.108.1"] = _vscode_url("1.108.1"),
-            ["1.108.0"] = _vscode_url("1.108.0"),
-            ["1.106.1"] = _vscode_url("1.106.1"),
-            ["1.100.1"] = _vscode_url("1.100.1"),
-            ["1.96.2"] = _vscode_url("1.96.2"),
-            ["1.93.1"] = _vscode_url("1.93.1"),
+            ["1.108.1"] = _linux_url("1.108.1"),
+            ["1.108.0"] = _linux_url("1.108.0"),
+            ["1.106.1"] = _linux_url("1.106.1"),
+            ["1.100.1"] = _linux_url("1.100.1"),
+            ["1.96.2"] = _linux_url("1.96.2"),
+            ["1.93.1"] = _linux_url("1.93.1"),
         },
-        macosx = { ref = "linux" }
+        macosx = {
+            ["latest"] = { ref = "1.108.0" },
+            ["1.108.1"] = _mac_url("1.108.1"),
+            ["1.108.0"] = _mac_url("1.108.0"),
+            ["1.106.1"] = _mac_url("1.106.1"),
+            ["1.100.1"] = _mac_url("1.100.1"),
+            ["1.96.2"] = _mac_url("1.96.2"),
+            ["1.93.1"] = _mac_url("1.93.1"),
+        },
     }
 }
 
@@ -65,10 +63,12 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 
-local shortcut_dir = {
-    linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
-    windows = tostring(os.getenv("APPDATA")) .. "/Microsoft/Windows/Start Menu/Programs"
-}
+local function get_shortcut_dir()
+    return {
+        linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
+        windows = tostring(os.getenv("APPDATA")) .. "/Microsoft/Windows/Start Menu/Programs"
+    }
+end
 
 local shortcut_template = {
     linux = [[
@@ -140,7 +140,7 @@ function config()
             pkginfo.install_dir()
         )
         os.cp(lnk_filename .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
-        os.mv(lnk_filename .. ".lnk", shortcut_dir[os.host()])
+        os.mv(lnk_filename .. ".lnk", get_shortcut_dir()[os.host()])
     elseif os.host() == "macosx" then
         appdir = path.join(pkginfo.install_dir(), "Visual Studio Code.app")
         -- xattr for macosx
@@ -172,7 +172,7 @@ function uninstall()
     if os.host() == "windows" then
         -- remove desktop shortcut
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version() .. "]"
-        local lnk_path = path.join(shortcut_dir[os.host()], lnk_filename .. ".lnk")
+        local lnk_path = path.join(get_shortcut_dir()[os.host()], lnk_filename .. ".lnk")
         print("removing desktop shortcut - %s", lnk_path)
         os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))
         os.tryrm(lnk_path)
@@ -192,7 +192,7 @@ end
 
 function desktop_shortcut_info()
     local filename = "vscode." .. pkginfo.version() .. ".xvm.desktop"
-    local filepath = path.join(shortcut_dir[os.host()], filename)
+    local filepath = path.join(get_shortcut_dir()[os.host()], filename)
     local exec_path = string.format("%s/bin/code", pkginfo.install_dir())
     local icon_path = string.format("%s/resources/app/resources/linux/code.png", pkginfo.install_dir())
 

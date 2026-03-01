@@ -41,7 +41,7 @@ function installed()
 end
 
 function install()
-    if is_host("windows") then
+    if os.host() == "windows" then
         os.exec(pkginfo.install_file() .. " /SILENT")
 
         local nvm_home = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Roaming\\nvm"
@@ -66,7 +66,7 @@ if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; fi
 end
 
 function uninstall()
-    if is_host("windows") then
+    if os.host() == "windows" then
         -- TODO: uninstall nvm-windows
     else
         local nvm_home = path.join(os.getenv("HOME"), ".nvm")

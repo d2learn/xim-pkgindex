@@ -35,7 +35,7 @@ import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
 
 function installed()
-    if is_host("windows") then
+    if os.host() == "windows" then
         return os.iorun("python --version")
     else
         return os.iorun("xvm list python")
@@ -43,7 +43,7 @@ function installed()
 end
 
 function install()
-    if is_host("windows") then
+    if os.host() == "windows" then
         local install_cmd = pkginfo.install_file()
         if utils.prompt("use default installation?(y/n)", "y") then
             install_cmd = pkginfo.install_file() ..
@@ -71,7 +71,7 @@ function install()
 end
 
 function config()
-    if is_host("windows") then
+    if os.host() == "windows" then
         print("Please restart the terminal to take effect.")
     else
         print("config xvm...")
@@ -84,7 +84,7 @@ function config()
 end
 
 function uninstall()
-    if is_host("windows") then
+    if os.host() == "windows" then
         if not os.isfile(pkginfo.install_file()) then
             cprint("$s{red}not exist: " .. pkginfo.install_file())
             return false

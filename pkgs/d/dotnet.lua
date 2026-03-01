@@ -42,7 +42,7 @@ import("xim.libxpkg.xvm")
 
 function install()
     local install_cmd = ""
-    if is_host("windows") then
+    if os.host() == "windows" then
         install_cmd = [[powershell -ExecutionPolicy Bypass -File ]] .. pkginfo.install_file() ..
             " -Channel " .. pkginfo.version() ..
             " -InstallDir " .. pkginfo.install_dir()

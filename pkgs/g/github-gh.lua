@@ -60,9 +60,9 @@ function install()
 
     local gh_dir = string.format("gh_%s_linux_amd64", pkginfo.version())
 
-    if is_host("macosx") then
+    if os.host() == "macosx" then
         gh_dir = string.format("gh_%s_macOS_amd64", pkginfo.version())
-    elseif is_host("windows") then
+    elseif os.host() == "windows" then
         gh_dir = string.format("gh_%s_windows_amd64", pkginfo.version())
     end
 

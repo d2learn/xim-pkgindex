@@ -150,7 +150,7 @@ StartupNotify=false
 StartupWMClass=project-graph
         ]]
 
-        print("[%s] - %s", action, shortcut_file)
+        print(string.format("[%s] - %s", action, shortcut_file))
 
         if action == "create" then
             io.writefile(filename, string.format(

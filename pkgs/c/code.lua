@@ -181,7 +181,7 @@ function uninstall()
         -- remove desktop shortcut
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version() .. "]"
         local lnk_path = path.join(get_shortcut_dir()[os.host()], lnk_filename .. ".lnk")
-        print("removing desktop shortcut - %s", lnk_path)
+        print("removing desktop shortcut - " .. lnk_path)
         os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))
         os.tryrm(lnk_path)
     elseif os.host() == "macosx" then
@@ -189,7 +189,7 @@ function uninstall()
     else
         local desktop_info = desktop_shortcut_info()
         if os.isfile(desktop_info.filepath) then
-            print("removing desktop shortcut - %s", desktop_info.filepath)
+            print("removing desktop shortcut - " .. desktop_info.filepath)
             os.tryrm(desktop_info.filepath)
         end
     end

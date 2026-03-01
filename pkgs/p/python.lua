@@ -30,9 +30,8 @@ package = {
     },
 }
 
-import("common")
-import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 local function iorun(cmd)
     local f = io.popen(cmd)
@@ -52,13 +51,16 @@ end
 
 function install()
     if os.host() == "windows" then
+        print("use default installation?(y/n) [y]: ")
+        io.stdout:flush()
+        local answer = io.read()
         local install_cmd = pkginfo.install_file()
-        if utils.prompt("use default installation?(y/n)", "y") then
+        if answer == nil or answer == "" or answer == "y" or answer == "Y" then
             install_cmd = pkginfo.install_file() ..
                 [[ /passive InstallAllUsers=1 PrependPath=1 Include_test=1 Include_pip=1 ]] ..
                 [[ TargetDir="]] .. pkginfo.install_dir()
         end
-        common.xlings_run_bat_script(install_cmd, true)
+        os.execute(install_cmd)
     else
         local srcdir = "Python-" .. pkginfo.version()
         --  build args - opt or todo?
@@ -80,10 +82,9 @@ function config()
         print("Please restart the terminal to take effect.")
     else
         print("config xvm...")
-        local xvm_python_template = "xvm add python %s --path %s/bin --alias python3"
-        local xvm_pip_template = "xvm add pip %s --path %s/bin --alias pip3"
-        os.execute(string.format(xvm_python_template, pkginfo.version(), pkginfo.install_dir()))
-        os.execute(string.format(xvm_pip_template, "python-" .. pkginfo.version(), pkginfo.install_dir()))
+        local bindir = path.join(pkginfo.install_dir(), "bin")
+        xvm.add("python", { bindir = bindir, alias = "python3" })
+        xvm.add("pip", { bindir = bindir, alias = "pip3", version = "python-" .. pkginfo.version() })
     end
     return true
 end
@@ -91,16 +92,13 @@ end
 function uninstall()
     if os.host() == "windows" then
         if not os.isfile(pkginfo.install_file()) then
-            cprint("$s{red}not exist: " .. pkginfo.install_file())
+            print("[error] not exist: " .. pkginfo.install_file())
             return false
         end
-        common.xlings_run_bat_script(
-            pkginfo.install_file() .. [[ /uninstall /passive ]],
-            true
-        )
+        os.execute(pkginfo.install_file() .. [[ /uninstall /passive ]])
     else
-        os.execute("xvm remove python " .. pkginfo.version())
-        os.execute("xvm remove pip " .. "python-" .. pkginfo.version())
+        xvm.remove("python", pkginfo.version())
+        xvm.remove("pip", "python-" .. pkginfo.version())
     end
 
     return true

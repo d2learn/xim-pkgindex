@@ -69,7 +69,7 @@ function config()
     local bindir = path.join(pkginfo.install_dir(), "node_modules", ".bin")
     local alias = "openclaw"
 
-    if is_host("windows") then
+    if os.host() == "windows" then
         alias = "openclaw.cmd"
     end
 

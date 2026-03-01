@@ -69,7 +69,7 @@ function config()
     local bindir = path.join(pkginfo.install_dir(), "node_modules", ".bin")
     local alias = "codex"
 
-    if is_host("windows") then
+    if os.host() == "windows" then
         alias = "codex.cmd"
     end
 

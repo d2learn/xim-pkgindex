@@ -33,8 +33,8 @@ package = {
     },
 }
 
-import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.xvm")
 
 local function iorun(cmd)
     local f = io.popen(cmd)
@@ -63,12 +63,44 @@ function install()
         os.execute(string.format('setx PATH "%s;%s;%%PATH%%"', nvm_home, node_home))
     else
         os.execute("sh " .. pkginfo.install_file())
-        utils.append_bashrc([[
-# nvm config by xlings-xim
-if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; fi
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-        ]])
+        -- append nvm config to .bashrc if not already present
+        local home = os.getenv("HOME")
+        local bashrc = path.join(home, ".bashrc")
+        local marker = "# nvm config by xlings-xim"
+        local nvm_config = "\n" .. marker .. "\n" ..
+            'if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; fi\n' ..
+            '[ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"  # This loads nvm\n' ..
+            '[ -s "$NVM_DIR/bash_completion" ] && \\. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion\n'
+
+        -- check if already configured
+        local f = io.open(bashrc, "r")
+        local already_configured = false
+        if f then
+            local content = f:read("*a")
+            f:close()
+            already_configured = content:find(marker, 1, true) ~= nil
+        end
+
+        if not already_configured then
+            local fw = io.open(bashrc, "a")
+            if fw then
+                fw:write(nvm_config)
+                fw:close()
+                print("nvm config appended to " .. bashrc)
+            end
+        end
+    end
+    return true
+end
+
+function config()
+    if os.host() == "windows" then
+        local nvm_home = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Roaming\\nvm"
+        xvm.add("nvm", { bindir = nvm_home })
+    else
+        local nvm_dir = os.getenv("NVM_DIR") or path.join(os.getenv("HOME"), ".nvm")
+        -- nvm is a shell function, not a binary; register the directory for reference
+        xvm.add("nvm", { bindir = nvm_dir })
     end
     return true
 end

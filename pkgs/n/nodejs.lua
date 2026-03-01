@@ -76,7 +76,7 @@ local node_dir_template = {
 
 function install()
     os.tryrm(pkginfo.install_dir())
-    print("Installing Node.js to %s ...", pkginfo.install_dir())
+    print("Installing Node.js to " .. pkginfo.install_dir() .. " ...")
     os.mv(
         string.format(node_dir_template[os.host()], pkginfo.version()),
         pkginfo.install_dir()
@@ -87,7 +87,7 @@ end
 function config()
     print("Configuring Node.js ...")
     local bindir = pkginfo.install_dir()
-    if not os.host() == "windows" then
+    if os.host() ~= "windows" then
         bindir = path.join(pkginfo.install_dir(), "bin")
     end
 
@@ -107,7 +107,7 @@ function config()
 end
 
 function uninstall()
-    print("Uninstalling Node.js from %s ...", pkginfo.install_dir())
+    print("Uninstalling Node.js from " .. pkginfo.install_dir() .. " ...")
     xvm.remove("node")
     xvm.remove("nodejs")
     xvm.remove("npm", "node-" .. pkginfo.version())

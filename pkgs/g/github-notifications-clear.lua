@@ -32,6 +32,14 @@ import("lib.detect.find_tool")
 
 import("xim.libxpkg.log")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function xpkg_main(person_access_token)
     if not person_access_token then
         log.error("need provide your github PERSONAL_ACCESS_TOKEN(PAT Classic)")
@@ -45,7 +53,7 @@ function xpkg_main(person_access_token)
     log.info("start get unread message list...")
 
     -- curl -H "Authorization: token %s" https://api.github.com/notifications | jq '.[] | { id, title: .subject.title, repo: .repository.full_name }'
-    local unread_msg_list_json = os.iorun(string.format([[%s -H "Authorization: token %s" https://api.github.com/notifications']],
+    local unread_msg_list_json = iorun(string.format([[%s -H "Authorization: token %s" https://api.github.com/notifications']],
         curl_tool.program,
         person_access_token
     ))
@@ -56,7 +64,7 @@ function xpkg_main(person_access_token)
 
     for _, msg in ipairs(unread_msg_list) do
         log.info("try to clearing notification: [ %s, %s ]", msg.id, msg.subject.title)
-        local response = os.iorun(string.format([[%s -X DELETE -H "Authorization: token %s" https://api.github.com/notifications/threads/%s]],
+        local response = iorun(string.format([[%s -X DELETE -H "Authorization: token %s" https://api.github.com/notifications/threads/%s]],
             curl_tool.program,
             person_access_token,msg.id
         ))

@@ -36,7 +36,7 @@ function config()
     })
 
     log.info([[run 'windows-acp' to show current status ...]])
-    os.exec("windows-acp")
+    os.execute("windows-acp")
 
     return true
 end

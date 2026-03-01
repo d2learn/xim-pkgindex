@@ -54,8 +54,7 @@ function config()
         bin_file = "GriddyCode.exe"
     end
 
-    os.cd(pkginfo.install_dir())
-    os.mv(string.format([[Bussin %s]], bin_file), bin_file)
+    os.mv(path.join(pkginfo.install_dir(), string.format([[Bussin %s]], bin_file)), path.join(pkginfo.install_dir(), bin_file))
 
     xvm.add("griddycode", { alias = bin_file })
 

@@ -88,10 +88,7 @@ function install()
     else
         local srcdir = pkginfo.install_file():replace(".tar.gz", "")
         os.tryrm(pkginfo.install_dir())
-        os.cp(srcdir, pkginfo.install_dir(), {
-            symlink = true,
-            verbose = true,
-        })
+        os.execute('cp -r "' .. srcdir .. '" "' .. pkginfo.install_dir() .. '"')
 
         -- shrink=true keeps only actually-needed rpath entries.
         elfpatch.auto({

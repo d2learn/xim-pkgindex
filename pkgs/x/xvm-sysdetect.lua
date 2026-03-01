@@ -24,6 +24,14 @@ package = {
 
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local sys_paths = {
     linux = {
         "/usr/bin",
@@ -47,7 +55,7 @@ local pkgs = {
 
 function installed()
     for _, pkg in ipairs(pkgs) do
-        if string.find(os.iorun("xvm list " .. pkg), "system", 1, true) == nil then
+        if string.find(iorun("xvm list " .. pkg), "system", 1, true) == nil then
             return false
         end
     end

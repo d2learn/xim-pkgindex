@@ -210,7 +210,11 @@ import("xim.libxpkg.utils")
 ```lua
 function installed()
     -- 返回 boolean 或 包含版本号的字符串
-    return os.iorun("program --version")
+    local f = io.popen("program --version")
+    if not f then return false end
+    local output = f:read("*a")
+    f:close()
+    return output
 end
 ```
 
@@ -249,7 +253,7 @@ end
 
 ```lua
 function build()
-    os.exec("make -j$(nproc)")
+    os.execute("make -j$(nproc)")
     return true
 end
 ```

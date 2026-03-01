@@ -51,8 +51,16 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    return os.iorun("gh --version")
+    return iorun("gh --version")
 end
 
 function install()

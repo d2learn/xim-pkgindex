@@ -22,8 +22,16 @@ package = {
 import("xim.libxpkg.log")
 import("xim.libxpkg.system")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    local policy = os.iorun([[powershell -ExecutionPolicy Bypass -Command "Get-ExecutionPolicy -Scope CurrentUser"]]):trim()
+    local policy = iorun([[powershell -ExecutionPolicy Bypass -Command "Get-ExecutionPolicy -Scope CurrentUser"]]):match("^%s*(.-)%s*$")
     if policy == "RemoteSigned" or policy == "Bypass" then
         return true
     else
@@ -34,7 +42,7 @@ end
 function install()
     log.info("config current user's execution policy to [ RemoteSigned ] ...")
     --system.exec([[powershell -ExecutionPolicy RemoteSigned -Command "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned"]])
-    os.iorun([[powershell -Command "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned"]])
+    iorun([[powershell -Command "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned"]])
     return true
 end
 

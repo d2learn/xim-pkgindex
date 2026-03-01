@@ -39,8 +39,16 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    return os.iorun("xvm list codex")
+    return iorun("xvm list codex")
 end
 
 function install()
@@ -52,7 +60,7 @@ function install()
         pkginfo.install_dir(),
         pkginfo.version()
     )
-    os.exec(npm_install)
+    os.execute(npm_install)
 
     return true
 end

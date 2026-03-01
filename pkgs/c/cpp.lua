@@ -39,18 +39,26 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkgmanager")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
     if os.host() == "macosx" then
-        local output = os.iorun("gcc --version")
+        local output = iorun("gcc --version")
         if not output then
-            output = os.iorun("clang --version")
+            output = iorun("clang --version")
         end
         return output ~= nil
     elseif pkginfo.version() == "msvc" then
         return toolchain.load("msvc"):check() == "2022"
     elseif pkginfo.version() == "mingw" or pkginfo.version() == "gnu" then
-        local output = os.iorun("gcc --version")
-        return string.find(output:trim(), "gcc", 1, true) ~= nil
+        local output = iorun("gcc --version")
+        return string.find(output:match("^%s*(.-)%s*$"), "gcc", 1, true) ~= nil
     else
         return true
     end

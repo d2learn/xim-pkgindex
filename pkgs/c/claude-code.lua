@@ -39,8 +39,16 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    return os.iorun("xvm list claude")
+    return iorun("xvm list claude")
 end
 
 -- 结构说明（基于 npm 包元数据 + 本地安装校验）:
@@ -60,7 +68,7 @@ function install()
         pkginfo.install_dir(),
         pkginfo.version()
     )
-    os.exec(npm_install)
+    os.execute(npm_install)
 
     if not os.isfile(__claude_cli()) then
         raise("claude cli.js not found after npm install")

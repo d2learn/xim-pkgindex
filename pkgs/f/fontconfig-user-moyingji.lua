@@ -29,7 +29,7 @@ end
 
 function installed()
     local config_file = get_config_file()
-    if os.exists(config_file) then return true end
+    if (os.isfile(config_file) or os.isdir(config_file)) then return true end
 
     return false
 end

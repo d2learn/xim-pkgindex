@@ -39,6 +39,14 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.log")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local function get_appdata_devcpp()
     return path.join(os.getenv("APPDATA"), "Dev-Cpp")
 end
@@ -68,8 +76,8 @@ function config()
         os.cp(path.join(pkginfo.install_dir(), "codeinsertion.ini"), path.join(get_appdata_devcpp(), "codeinsertion.ini"))
     end
 
-    local acp = os.iorun("windows-acp")
-    if acp and acp:trim() == "65001" then
+    local acp = iorun("windows-acp")
+    if acp and acp:match("^%s*(.-)%s*$") == "65001" then
         log.warn("Current system ACP is UTF-8 (65001), use utf-8 encoding in Dev-C++")
 
         local langdir = path.join(pkginfo.install_dir(), "Lang")

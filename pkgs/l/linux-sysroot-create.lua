@@ -90,7 +90,7 @@ function xpkg_main(...)
 
     if os.isdir(cmds["--output"]) then
         if cmds["--force"] then
-            os.rmdir(cmds["--output"])
+            os.tryrm(cmds["--output"])
         else
             log.warn("output dir already exists: " .. cmds["--output"])
             return
@@ -100,17 +100,17 @@ function xpkg_main(...)
     log.info("add glibc ...")
     system.exec("xpkg-helper fromsource:glibc@2.39 --export-path " .. cmds["--output"])
 
-    os.cd(cmds["--output"])
+    local outdir = cmds["--output"]
 
     log.info("add usr/include ...")
-    os.cp("include", "usr/include", { force = true, symlink = true })
+    os.execute('cp -r "' .. path.join(outdir, "include") .. '" "' .. path.join(outdir, "usr", "include") .. '"')
 
     log.info("add linux-headers...")
 
     local linuxheader_info = xvm.info("linux-headers", cmds["--linux-headers"])
     local linuxheader_dir = path.directory(linuxheader_info["SPath"])
 
-    os.cp(path.join(linuxheader_dir, "include"), "usr", { force = true, symlink = true })
+    os.execute('cp -r "' .. path.join(linuxheader_dir, "include") .. '" "' .. path.join(outdir, "usr") .. '"')
 
     log.warn("3 - relocate glibc path...")
 
@@ -129,14 +129,15 @@ function xpkg_main(...)
     local glibc_dir = path.directory(glibc_info["SPath"])
 
     for _, f in ipairs(relocate_files) do
-        if os.isfile(f) then
-            log.info("relocate file: " .. f)
-            local content = io.readfile(f)
+        local abs_f = path.join(outdir, f)
+        if os.isfile(abs_f) then
+            log.info("relocate file: " .. abs_f)
+            local content = io.readfile(abs_f)
             content = content:replace(
                 glibc_dir, "", -- sysroot
                 { plain = true }
             )
-            io.writefile(f, content)
+            io.writefile(abs_f, content)
         end
     end
 

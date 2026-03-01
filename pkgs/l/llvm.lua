@@ -32,6 +32,21 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
+local function list_files(pattern)
+    local result = {}
+    local f = io.popen('ls -d ' .. pattern .. ' 2>/dev/null')
+    if f then
+        for line in f:lines() do
+            local clean = line:gsub("[\r\n]+$", "")
+            if clean ~= "" and os.isfile(clean) then
+                table.insert(result, clean)
+            end
+        end
+        f:close()
+    end
+    return result
+end
+
 local alias_apps = {
     {name = "cc", alias = "clang"},
     {name = "c++", alias = "clang++"},
@@ -54,7 +69,7 @@ end
 
 local function collect_bin_apps(bindir)
     local apps = {}
-    for _, filepath in ipairs(os.files(path.join(bindir, "*"))) do
+    for _, filepath in ipairs(list_files(path.join(bindir, "*"))) do
         if is_registerable_bin(filepath) then
             table.insert(apps, path.filename(filepath))
         end

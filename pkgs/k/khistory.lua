@@ -40,7 +40,7 @@ import("xim.libxpkg.xvm")
 
 function install()
     if os.host() == "linux" then
-        os.exec("chmod 775 " .. pkginfo.install_file())
+        os.execute("chmod 775 " .. pkginfo.install_file())
     end
     os.mv(pkginfo.install_file(), pkginfo.install_dir())
     return true

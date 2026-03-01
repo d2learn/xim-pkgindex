@@ -109,10 +109,7 @@ function xpkg_main(xpkgname, ...)
         return
     end
 
-    os.cp(xpkg_installdir, cmds["--export-path"], {
-        symlink = true,
-        force = cmds["--force"],
-    })
+    os.execute('cp -r "' .. xpkg_installdir .. '" "' .. cmds["--export-path"] .. '"')
 
     log.info(
         "${bright}%s${clear} | ${yellow}%s${clear} - ${green}ok",

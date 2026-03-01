@@ -31,6 +31,29 @@ import("core.base.base64")
 import("core.base.bytes")
 import("core.base.json")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
+local function list_files(pattern)
+    local result = {}
+    local f = io.popen('ls -d ' .. pattern .. ' 2>/dev/null')
+    if f then
+        for line in f:lines() do
+            local clean = line:gsub("[\r\n]+$", "")
+            if clean ~= "" and os.isfile(clean) then
+                table.insert(result, clean)
+            end
+        end
+        f:close()
+    end
+    return result
+end
+
 local SYSTEMD_SERVICE = "sing-box.service"
 
 local function get_config_dir()
@@ -91,7 +114,7 @@ end
 
 function get_current_config()
     if os.isfile(get_current_file()) then
-        return io.readfile(get_current_file()):trim()
+        return io.readfile(get_current_file()):match("^%s*(.-)%s*$")
     end
     return nil
 end
@@ -102,7 +125,7 @@ end
 
 function list_configs()
     ensure_config_dir()
-    local configs = os.files(path.join(get_config_dir(), "*.json"))
+    local configs = list_files(path.join(get_config_dir(), "*.json"))
     
     cprint("${bright}Available configurations:${clear}")
     if not configs or #configs == 0 then
@@ -136,7 +159,7 @@ function generate_server_config(args)
     local port = tonumber(args.port) or 9875
     local protocol = args.protocol or "shadowsocks"
     -- password is nil, randomly generate one if not provided
-    local password = args.password or (os.iorun("sing-box generate rand --base64 18"):trim())
+    local password = args.password or (iorun("sing-box generate rand --base64 18"):match("^%s*(.-)%s*$"))
     local method = args.method or "aes-256-gcm"
     
     log.info("Generating server configuration: %s (%s on port %d)", name, protocol, port)
@@ -299,7 +322,7 @@ WantedBy=multi-user.target
     -- check config file (singbox check -c <config>)
     log.info("Checking configuration file...")
     local check_cmd = string.format('%s check -c %s', sing_box_bin, config_file)
-    local output = os.iorun(check_cmd)
+    local output = iorun(check_cmd)
 
     if not output then
         cprint("${red}✗${clear} Configuration check failed: %s", output)
@@ -308,7 +331,7 @@ WantedBy=multi-user.target
 
     log.info("Creating systemd service file...")
     system.run_in_script(string.format('echo "%s" | sudo tee /etc/systemd/system/%s > /dev/null', service_content, SYSTEMD_SERVICE))
-    os.exec("sudo systemctl daemon-reload")
+    os.execute("sudo systemctl daemon-reload")
     
     return true
 end
@@ -330,8 +353,8 @@ function start_config(config_name)
     if create_systemd_service(config_name) then
         return try {
             function()
-                os.exec("sudo systemctl restart sing-box.service")
-                os.exec("sudo systemctl enable sing-box.service")
+                os.execute("sudo systemctl restart sing-box.service")
+                os.execute("sudo systemctl enable sing-box.service")
                 -- TODO: check port - sudo ss -lunp | grep :port
                 cprint("checking port - [ sudo ss -lunp | grep :%s ]", parse_config_file(config_file).port)
                 cprint(string.format("${green}✓${clear} Sing-box started with configuration: ${yellow}%s${clear}", config_name))                
@@ -350,7 +373,7 @@ end
 
 function stop_service()
     log.info("Stopping sing-box service...")
-    os.exec("sudo systemctl stop sing-box.service")
+    os.execute("sudo systemctl stop sing-box.service")
     cprint("${green}✓${clear} Sing-box service stopped")
     return true
 end
@@ -358,7 +381,7 @@ end
 function show_status()
     try {
         function()
-            os.exec("sudo systemctl status sing-box.service")
+            os.execute("sudo systemctl status sing-box.service")
         end, catch {
             function(err)
                 --cprint("${red}✗${clear} Failed to get service status: %s", err)
@@ -429,7 +452,7 @@ function generate_subscription_link()
     end
     
     -- Get server IP
-    local server_ip = os.iorun("curl -s ifconfig.me"):trim()
+    local server_ip = iorun("curl -s ifconfig.me"):match("^%s*(.-)%s*$")
     if not server_ip or server_ip == "" then
         server_ip = "YOUR_SERVER_IP"
     end
@@ -477,7 +500,7 @@ end
 
 function show_subscription_link()
     if os.isfile(get_subscription_file()) then
-        local sub_link = io.readfile(get_subscription_file()):trim()
+        local sub_link = io.readfile(get_subscription_file()):match("^%s*(.-)%s*$")
         cprint("${bright}Saved Subscription Link:${clear}")
         cprint("${green}%s${clear}", sub_link)
         cprint("")
@@ -490,7 +513,7 @@ function import_from_link(link)
     if not link then
         -- Try to read from subscription file
         if os.isfile(get_subscription_file()) then
-            link = io.readfile(get_subscription_file()):trim()
+            link = io.readfile(get_subscription_file()):match("^%s*(.-)%s*$")
             cprint("${dim}Using saved subscription link...${clear}")
         else
             cprint("${yellow}Please provide a subscription link${clear}")

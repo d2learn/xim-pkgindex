@@ -1,0 +1,12 @@
+{
+  "lang": "en",
+  "mirror": "GLOBAL",
+  "activeSubos": "default",
+  "index_repos": [
+    { "name": "default", "url": "https://github.com/d2learn/xim-pkgindex.git" }
+  ],
+  "versions": {},
+  "subos": {
+    "default": {}
+  }
+}

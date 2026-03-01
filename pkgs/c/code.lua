@@ -63,6 +63,14 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local function get_shortcut_dir()
     return {
         linux = tostring(os.getenv("HOME")) .. "/.local/share/applications",
@@ -92,7 +100,7 @@ TODO
 }
 
 function installed()
-    return os.iorun("xvm list code")
+    return iorun("xvm list code")
 end
 
 function install()
@@ -101,22 +109,22 @@ function install()
         -- unzip the stable by powershell
         os.mv("stable", "stable.zip")
         -- avoid warning info by -ExecutionPolicy Bypass
-        os.exec(string.format([[powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir()))
+        os.execute(string.format([[powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path stable.zip -DestinationPath %s -Force"]], pkginfo.install_dir()))
         os.tryrm("stable.zip")
     elseif os.host() == "macosx" then
-        os.exec("unzip stable")
+        os.execute("unzip stable")
         os.mv("Visual Studio Code.app", pkginfo.install_dir())
         os.tryrm("stable")
     else
-        os.exec("tar -xvf stable")
+        os.execute("tar -xvf stable")
         os.tryrm(pkginfo.install_dir())
-        os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir())
+        os.execute("mv VSCode-linux-x64 " .. pkginfo.install_dir())
         -- https://github.com/flathub/com.visualstudio.code/issues/223
         -- set the correct permissions for chrome-sandbox, and as root
         print("https://github.com/flathub/com.visualstudio.code/issues/223")
         print("setting permissions for chrome-sandbox...")
-        os.exec("sudo chown root:root " .. pkginfo.install_dir() .. "/chrome-sandbox")
-        os.exec("sudo chmod 4755 " .. pkginfo.install_dir() .. "/chrome-sandbox")
+        os.execute("sudo chown root:root " .. pkginfo.install_dir() .. "/chrome-sandbox")
+        os.execute("sudo chmod 4755 " .. pkginfo.install_dir() .. "/chrome-sandbox")
         os.tryrm("stable")
     end
     return true
@@ -225,7 +233,7 @@ shortcut.Save
     file:close()
 
     -- 执行 .vbs 文件以创建快捷方式
-    os.exec("wscript " .. vbs_path)
+    os.execute("wscript " .. vbs_path)
 
     -- 删除临时的 .vbs 文件
     os.tryrm(vbs_path)

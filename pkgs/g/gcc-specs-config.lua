@@ -25,6 +25,14 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.utils")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local __xscript_input = {
     ["--dynamic-linker"] = false,
     ["--linker-type"] = false,
@@ -61,11 +69,11 @@ function xpkg_main(gcc_bin, ...)
     cprint("---")
     cprint("")
 
-    local default_specs_content = os.iorun(gcc_bin .. " -dumpspecs")
-    local default_specs_file = os.iorun(gcc_bin .. " -print-libgcc-file-name")
+    local default_specs_content = iorun(gcc_bin .. " -dumpspecs")
+    local default_specs_file = iorun(gcc_bin .. " -print-libgcc-file-name")
 
     default_specs_file = path.join(
-        path.directory(default_specs_file:trim()),
+        path.directory(default_specs_file:match("^%s*(.-)%s*$")),
         "specs"
     )
 

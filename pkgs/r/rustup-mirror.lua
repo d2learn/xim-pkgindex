@@ -36,7 +36,7 @@ import("xim.libxpkg.pkginfo")
 function install()
     local version = pkginfo.version()
     for k, v in pairs(mirror_version[version]) do
-        os.setenv(k, v)
+        -- os.setenv not available in xpkg runtime
         log.info("Set tmp env: %s=%s", k, v)
     end
     return true

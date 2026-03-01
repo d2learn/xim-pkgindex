@@ -47,9 +47,7 @@ function install()
     local glibcdir = pkginfo.install_file():replace(".tar.gz", "")
 
     os.tryrm(pkginfo.install_dir())
-    os.cp(glibcdir, pkginfo.install_dir(), {
-        force = true, symlink = true
-    })
+    os.execute('cp -r "' .. glibcdir .. '" "' .. pkginfo.install_dir() .. '"')
 
     return true
 end

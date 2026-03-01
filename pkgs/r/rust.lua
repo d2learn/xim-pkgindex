@@ -41,23 +41,23 @@ import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.xvm")
 
 function installed()
-    os.exec("rustc --version")
-    os.exec("cargo --version")
-    os.exec("rustup --version")
+    os.execute("rustc --version")
+    os.execute("cargo --version")
+    os.execute("rustup --version")
     return true
 end
 
 function install()
     if os.host() == "windows" then
         local toolchain_abi = _choice_toolchain()
-        os.exec(
+        os.execute(
             "rustup-init"
             .. " --default-host " .. toolchain_abi
             .. " --default-toolchain stable"
             .. " --profile default -y"
         )
     else
-        os.exec("rustup-init -v -y")
+        os.execute("rustup-init -v -y")
     end
     return true
 end
@@ -77,7 +77,7 @@ function config()
 end
 
 function uninstall()
-    os.exec("rustup self uninstall")
+    os.execute("rustup self uninstall")
 end
 
 ---------------------- private

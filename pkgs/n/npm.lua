@@ -35,9 +35,17 @@ package.xpm.macosx = os_common
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function install()
     local npm_installcmd_template = "npm install -g npm@%s --prefix %s"
-    os.iorun(string.format(npm_installcmd_template, pkginfo.version(), pkginfo.install_dir()))
+    iorun(string.format(npm_installcmd_template, pkginfo.version(), pkginfo.install_dir()))
     return true
 end
 

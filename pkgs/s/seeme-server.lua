@@ -46,15 +46,23 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    return os.iorun("xvm list seeme-server")
+    return iorun("xvm list seeme-server")
 end
 
 function install()
     os.tryrm(pkginfo.install_dir())
     os.trymv("server", pkginfo.install_dir())
     print("Installing dependencies from requirements.txt...")
-    os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir(), "requirement.txt")))
+    os.execute(string.format("pip install -r %s", path.join(pkginfo.install_dir(), "requirement.txt")))
     cprint("\n${green}use -> seeme-server${clear}\n")
     cprint("\n${green}install seeme-report after${clear}\n")
     return true

@@ -35,9 +35,17 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function install()
     local pnpm_installcmd_template = "npm install -g pnpm@%s --prefix %s"
-    os.iorun(string.format(pnpm_installcmd_template, pkginfo.version(), pkginfo.install_dir()))
+    iorun(string.format(pnpm_installcmd_template, pkginfo.version(), pkginfo.install_dir()))
     return true
 end
 

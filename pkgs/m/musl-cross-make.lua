@@ -40,6 +40,14 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkginfo")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local function get_source_script_file()
     return path.join(system.xpkgdir(), "musl-cross-make.lua")
 end
@@ -114,11 +122,11 @@ function config_gcc_specs(cmds)
 
     log.info("%s - ok", gcc_bin)
 
-    local default_specs_content = os.iorun(gcc_bin .. " -dumpspecs")
-    local default_specs_file = os.iorun(gcc_bin .. " -print-libgcc-file-name")
+    local default_specs_content = iorun(gcc_bin .. " -dumpspecs")
+    local default_specs_file = iorun(gcc_bin .. " -print-libgcc-file-name")
 
     default_specs_file = path.join(
-        path.directory(default_specs_file:trim()),
+        path.directory(default_specs_file:match("^%s*(.-)%s*$")),
         "specs"
     )
 
@@ -361,25 +369,27 @@ function xpkg_main(version, ...)
 
     io.writefile(config_mak_file, config_mak)
 
-    os.cd(project_dir)
+    local function make_cmd(cmd)
+        return 'cd "' .. project_dir .. '" && ' .. cmd
+    end
 
     if ret_ok and cmds["--clean"] ~= "false" then
         log.warn("-> clearing previous build files...")
-        ret_ok = __try_run("make clean")
+        ret_ok = __try_run(make_cmd("make clean"))
     else
         log.error("Project dir not found, aborting build.")
     end
 
     if ret_ok then
         log.warn("-> building with musl-cross-make...")
-        ret_ok = __try_run("make -j8")
+        ret_ok = __try_run(make_cmd("make -j8"))
     else
         log.error("Failed to clear previous build files, aborting build.")
     end
 
     if ret_ok then
         log.warn("-> installing to " .. cmds["--output"] .. " ...")
-        ret_ok = __try_run("make install")
+        ret_ok = __try_run(make_cmd("make install"))
     else
         log.error("Build failed, aborting installation.")
     end

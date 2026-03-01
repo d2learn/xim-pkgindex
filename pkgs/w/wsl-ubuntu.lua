@@ -19,13 +19,21 @@ package = {
     },
 }
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    local output = os.iorun("wsl --list --verbose")
+    local output = iorun("wsl --list --verbose")
     return string.find(output, "Ubuntu", 1, true) ~= nil
 end
 
 function install()
-    os.exec("wsl --install -d Ubuntu")
+    os.execute("wsl --install -d Ubuntu")
 
     cprint("\n\n  ${yellow}Note${clear}: maybe need to restart your computer to complete WSL installation")
     cprint("  ${yellow}注意${clear}: 可能需要重启让WSL安装和配置生效\n\n")
@@ -36,7 +44,7 @@ function install()
 end
 
 function uninstall()
-    os.exec("wsl --unregister Ubuntu")
+    os.execute("wsl --unregister Ubuntu")
     return true
 end
 

@@ -24,6 +24,14 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local hosts_file = {
     windows = "C:/Windows/System32/drivers/etc/hosts",
     linux = "/etc/hosts",
@@ -94,7 +102,7 @@ end
 function uninstall()
     local hosts_content = read_hosts()
     hosts_content = string.replace(
-        hosts_content, gitcode_domain_to_ip:trim(), "",
+        hosts_content, gitcode_domain_to_ip:match("^%s*(.-)%s*$"), "",
         { plain = true }
     )
     update_hosts(hosts_content)
@@ -112,7 +120,7 @@ function update_hosts(new_hosts_content)
         os.sleep(1000) -- wait for the script to finish
         os.tryrm(new_hosts)
     else
-        local permission = os.iorun([[stat -c "%a" ]] .. hosts_file[os.host()])
+        local permission = iorun([[stat -c "%a" ]] .. hosts_file[os.host()]):match("^%s*(.-)%s*$")
         system.exec("sudo chmod 666 " .. hosts_file[os.host()])
         io.writefile(hosts_file[os.host()], new_hosts_content)
         system.exec("sudo chmod " .. permission .. " " .. hosts_file[os.host()])

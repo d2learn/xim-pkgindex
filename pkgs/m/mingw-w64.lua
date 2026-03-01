@@ -106,7 +106,7 @@ end
 
 function __config_mingw_bin(bin_path)
     -- create temp script
-    local tmp_bat_script = path.join(os.tmpdir(), "mingw-w64-config.bat")
+    local tmp_bat_script = path.join((os.getenv("TMPDIR") or os.getenv("TMP") or "/tmp"), "mingw-w64-config.bat")
 
     -- 1. set MINGW_BIN env
     log.info("set MINGW_BIN -> %s", bin_path)

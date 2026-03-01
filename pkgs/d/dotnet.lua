@@ -47,13 +47,13 @@ function install()
             " -Channel " .. pkginfo.version() ..
             " -InstallDir " .. pkginfo.install_dir()
     else
-        os.exec("chmod +x " .. pkginfo.install_file())
+        os.execute("chmod +x " .. pkginfo.install_file())
         install_cmd = pkginfo.install_file() ..
             " --channel " .. pkginfo.version() ..
             " --install-dir " .. pkginfo.install_dir()
     end
     print("exec: " .. install_cmd)
-    os.exec(install_cmd)
+    os.execute(install_cmd)
     return true
 end
 

@@ -80,18 +80,18 @@ local function __patch_toolchain_dynamic_bins()
     }
 
     local patched = 0
-    os.exec("patchelf --version")
+    os.execute("patchelf --version")
 
     for _, bindir in ipairs(bindirs) do
         if os.isdir(bindir) then
             for _, name in ipairs(toolchain_dynamic_bins) do
                 local target = path.join(bindir, name)
                 if os.isfile(target) then
-                    os.exec(string.format(
+                    os.execute(string.format(
                         "patchelf --set-interpreter %q %q",
                         musl_loader, target
                     ))
-                    os.exec(string.format(
+                    os.execute(string.format(
                         "patchelf --set-rpath %q %q",
                         musl_lib_dir, target
                     ))

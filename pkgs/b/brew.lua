@@ -54,9 +54,9 @@ chmod -R go-w "$(brew --prefix)/share/zsh"
 ]], homebrewdir)
 
     io.writefile(tmp_file, update_script)
-    os.exec("bash " .. tmp_file)
+    os.execute("bash " .. tmp_file)
 
-    os.rm(tmp_file)
+    os.tryrm(tmp_file)
 
     return true
 end

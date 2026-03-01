@@ -44,6 +44,14 @@ package = {
 
 import("xim.libxpkg.system")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local xvm_file = {
     windows = "xvm.exe",
     linux = "xvm",
@@ -60,7 +68,7 @@ function installed()
     local bindir = system.bindir()
     local xvm_bin = path.join(bindir, xvm_file[os.host()])
     if os.isfile(xvm_bin) then
-        return os.iorun(xvm_bin .. " --version")
+        return iorun(xvm_bin .. " --version")
     end
     return false
 end

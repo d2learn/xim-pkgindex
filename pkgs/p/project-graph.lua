@@ -75,13 +75,21 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 local binname = {
     windows = "project-graph.exe",
     linux = "project-graph",
 }
 
 function installed()
-    return os.iorun("xvm list project-graph")
+    return iorun("xvm list project-graph")
 end
 
 function install()
@@ -90,15 +98,14 @@ function install()
         print("\t 0.打开安装提示")
         print("\t 1.选择对应语言")
         print('\t 2.点击"下一步"直到安装完成')
-        os.exec(pkginfo.install_file() .. " /SILENT")
+        os.execute(pkginfo.install_file() .. " /SILENT")
     elseif os.host() == "linux" then
         os.tryrm("project-graph")
         os.tryrm(pkginfo.install_dir())
         os.mkdir("project-graph")
-        os.cd("project-graph")
-        os.exec("ar x " .. pkginfo.install_file())
-        os.exec("tar -xvf data.tar.gz")
-        os.mv("usr", pkginfo.install_dir())
+        os.execute('cd "project-graph" && ar x ' .. pkginfo.install_file())
+        os.execute('cd "project-graph" && tar -xvf data.tar.gz')
+        os.mv("project-graph/usr", pkginfo.install_dir())
         os.tryrm(pkginfo.install_file())
     end
     return true
@@ -119,7 +126,7 @@ end
 
 function uninstall()
     if os.host() == "windows" then
-        os.exec("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
+        os.execute("\"C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph\\uninstall.exe\"")
     elseif os.host() == "linux" then
         _config_desktop_shortcut("delete")
     end

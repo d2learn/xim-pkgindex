@@ -36,25 +36,33 @@ package = {
 import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
 
+local function iorun(cmd)
+    local f = io.popen(cmd)
+    if not f then return "" end
+    local output = f:read("*a")
+    f:close()
+    return output or ""
+end
+
 function installed()
-    return os.iorun("nvm --version")
+    return iorun("nvm --version")
 end
 
 function install()
     if os.host() == "windows" then
-        os.exec(pkginfo.install_file() .. " /SILENT")
+        os.execute(pkginfo.install_file() .. " /SILENT")
 
         local nvm_home = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Roaming\\nvm"
         local node_home = "C:\\Program Files\\nodejs"
 
-        os.setenv("NVM_HOME", nvm_home)
-        os.setenv("NVM_SYMLINK", node_home)
+        -- TODO: os.setenv not available in xpkg runtime, using setx as workaround
+        os.execute(string.format('setx NVM_HOME "%s"', nvm_home))
+        os.execute(string.format('setx NVM_SYMLINK "%s"', node_home))
 
-        -- update path
-        os.addenv("PATH", nvm_home)
-        os.addenv("PATH", node_home)
+        -- TODO: os.addenv not available in xpkg runtime, using setx to prepend to PATH as workaround
+        os.execute(string.format('setx PATH "%s;%s;%%PATH%%"', nvm_home, node_home))
     else
-        os.exec("sh " .. pkginfo.install_file())
+        os.execute("sh " .. pkginfo.install_file())
         utils.append_bashrc([[
 # nvm config by xlings-xim
 if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; fi

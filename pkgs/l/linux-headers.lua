@@ -46,9 +46,7 @@ function config()
     log.info("Copying linux header files to subos rootfs ...")
     local sysroot_usrdir = path.join(system.subos_sysrootdir(), "usr")
     if not os.isdir(sysroot_usrdir) then os.mkdir(sysroot_usrdir) end
-    os.cp(path.join(scodedir, "include"), sysroot_usrdir, {
-        force = true, symlink = true
-    })
+    os.execute('cp -r "' .. path.join(scodedir, "include") .. '" "' .. sysroot_usrdir .. '"')
 
     xvm.add("linux-headers")
 

@@ -56,7 +56,7 @@ function download_scode(cmds)
 
     if not os.isdir(tmp_project_dir) then
         log.error("failed to download source code from xpkg: %s", xpkg)
-        os.raise("configure-project-installer: failed to download source code")
+        error("configure-project-installer: failed to download source code")
     end
 
     return tmp_project_dir
@@ -88,14 +88,12 @@ function xpkg_main(installdir, ...)
     cprint("args:   ${dim green}" .. configure_args)
     cprint("")
 
-    os.cd(abs_srcdir)
-
     local configure_file = "configure"
 
-    if not os.isfile(configure_file) then configure_file = "Configure" end
-    if not os.isfile(configure_file) then configure_file = "configure.sh" end
+    if not os.isfile(path.join(abs_srcdir, configure_file)) then configure_file = "Configure" end
+    if not os.isfile(path.join(abs_srcdir, configure_file)) then configure_file = "configure.sh" end
 
-    if not os.isfile(configure_file) then
+    if not os.isfile(path.join(abs_srcdir, configure_file)) then
         log.error("missing configure script in project directory")
         log.error("${red}error: missing or invalid project directory: ${clear}" .. abs_srcdir)
         cprint("")
@@ -107,10 +105,11 @@ function xpkg_main(installdir, ...)
     os.sleep(2000) -- wait for 2 seconds to let user cancel if needed
 
     -- run ./configure
+    local cd_prefix = string.format("cd %s && ", abs_srcdir)
     local configure_cmd = string.format("./%s %s", configure_file, configure_args)
-    system.exec(configure_cmd)
-    system.exec("make clean")
-    system.exec("make -j20", { retry = 3 })
+    system.exec(cd_prefix .. configure_cmd)
+    system.exec(cd_prefix .. "make clean")
+    system.exec(cd_prefix .. "make -j20", { retry = 3 })
 
     local make_install_cmd = "make install"
 
@@ -121,7 +120,7 @@ function xpkg_main(installdir, ...)
         )
     end
 
-    system.exec(make_install_cmd)
+    system.exec(cd_prefix .. make_install_cmd)
 
     -- remove tmp project dir if any
     if tmp_project_dir and os.isdir(tmp_project_dir) then

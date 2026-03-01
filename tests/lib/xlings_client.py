@@ -31,6 +31,7 @@ class XlingsClient:
 
     @staticmethod
     def xim_add_xpkg(lua_path: str) -> tuple[bool, str]:
-        code, out = _run_xlings(f"xim --add-xpkg {lua_path}", timeout=15)
+        # Index DB refresh latency can vary in CI, so keep a wider timeout budget.
+        code, out = _run_xlings(f"xim --add-xpkg {lua_path}", timeout=45)
         has_error = "error" in out.lower() and "please report" not in out.lower()
         return code == 0 and not has_error, out

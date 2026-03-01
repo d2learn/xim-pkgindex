@@ -40,7 +40,7 @@ import("xim.libxpkg.system")
 import("xim.libxpkg.pkgmanager")
 
 function installed()
-    if is_host("macosx") then
+    if os.host() == "macosx" then
         local output = os.iorun("gcc --version")
         if not output then
             output = os.iorun("clang --version")
@@ -57,7 +57,7 @@ function installed()
 end
 
 function install()
-    if is_host("macosx") then
+    if os.host() == "macosx" then
         pkgmanager.install("gcc")
     elseif pkginfo.version() == "msvc" then
         pkgmanager.install("msvc@2022")
@@ -68,7 +68,7 @@ function install()
 end
 
 function uninstall()
-    if is_host("macosx") then
+    if os.host() == "macosx" then
         pkgmanager.uninstall("gcc")
     elseif pkginfo.version() == "msvc" then
         pkgmanager.uninstall("msvc@2022")

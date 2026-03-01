@@ -39,8 +39,9 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.log")
 
---local appdata_devcpp = path.join(os.getenv("APPDATA"), "Roaming", "Dev-Cpp")
-local appdata_devcpp = path.join(os.getenv("APPDATA"), "Dev-Cpp")
+local function get_appdata_devcpp()
+    return path.join(os.getenv("APPDATA"), "Dev-Cpp")
+end
 
 function install()
     os.tryrm(pkginfo.install_dir())
@@ -60,11 +61,11 @@ function config()
 
     if pkginfo.version() == "chinese" then
         log.info("config Dev-C++ to use Chinese settings...")
-        log.info("config-file-dir: " .. appdata_devcpp)
-        os.tryrm(appdata_devcpp)
-        os.mkdir(appdata_devcpp)
-        os.cp(path.join(pkginfo.install_dir(), "devcpp.ini"), path.join(appdata_devcpp, "devcpp.ini"))
-        os.cp(path.join(pkginfo.install_dir(), "codeinsertion.ini"), path.join(appdata_devcpp, "codeinsertion.ini"))
+        log.info("config-file-dir: " .. get_appdata_devcpp())
+        os.tryrm(get_appdata_devcpp())
+        os.mkdir(get_appdata_devcpp())
+        os.cp(path.join(pkginfo.install_dir(), "devcpp.ini"), path.join(get_appdata_devcpp(), "devcpp.ini"))
+        os.cp(path.join(pkginfo.install_dir(), "codeinsertion.ini"), path.join(get_appdata_devcpp(), "codeinsertion.ini"))
     end
 
     local acp = os.iorun("windows-acp")
@@ -98,6 +99,6 @@ function uninstall()
     system.exec(string.format(
         [[shortcut-tool remove --name "Dev-C++ 5.11"]]
     ))
-    os.tryrm(appdata_devcpp)
+    os.tryrm(get_appdata_devcpp())
     return true
 end

@@ -1,5 +1,5 @@
 function __mingw_cn_mirror_url(version)
-    return format(
+    return string.format(
         "https://gitcode.com/xlings-res/mingw-w64/releases/download/%s/mingw-w64-%s-windows-x86_64.zip", version, version)
 end
 

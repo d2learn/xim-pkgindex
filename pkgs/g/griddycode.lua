@@ -38,7 +38,7 @@ import("xim.libxpkg.xvm")
 
 function install()
     os.tryrm(pkginfo.install_dir())
-    if is_host("windows") then
+    if os.host() == "windows" then
         os.mv("Windows", pkginfo.install_dir())
     else
         os.mv("Linux", pkginfo.install_dir())
@@ -50,7 +50,7 @@ function config()
 
     local bin_file = "GriddyCode.sh"
 
-    if is_host("windows") then
+    if os.host() == "windows" then
         bin_file = "GriddyCode.exe"
     end
 

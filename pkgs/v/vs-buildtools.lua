@@ -20,17 +20,15 @@ package = {
     }
 }
 
-import("xim.base.runtime")
-
-local pkginfo = runtime.get_pkginfo()
+import("xim.libxpkg.pkginfo")
 
 function installed()
-    return os.isfile(pkginfo.install_file)
+    return os.isfile(pkginfo.install_file())
 end
 
 function install() return true end
 
 function uninstall()
-    os.tryrm(pkginfo.install_file)
+    os.tryrm(pkginfo.install_file())
     return true
 end

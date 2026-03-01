@@ -40,13 +40,15 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkginfo")
 
-local source_script_file = path.join(os.scriptdir(), "musl-cross-make.lua")
+local function get_source_script_file()
+    return path.join(system.xpkgdir(), "musl-cross-make.lua")
+end
 
 function install()
     -- install musl-cross-make script
     local target_script_file = path.join(pkginfo.install_dir(), "musl-cross-make.lua")
     os.tryrm(target_script_file)
-    os.cp(source_script_file, target_script_file)
+    os.cp(get_source_script_file(), target_script_file)
     -- install musl-cross-make source
     os.mv("musl-cross-make", pkginfo.install_dir())
     return true
@@ -323,7 +325,7 @@ function xpkg_main(version, ...)
     cprint("start build ${blink}...")
     os.sleep(3000) -- wait user check and confirmation
 
-    local project_dir = path.join(os.scriptdir(), "musl-cross-make")
+    local project_dir = path.join(system.xpkgdir(), "musl-cross-make")
     local ret_ok = true
 
     if not os.isdir(project_dir) then

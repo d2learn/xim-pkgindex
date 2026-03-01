@@ -45,7 +45,7 @@ function config()
     print("config xvm...")
 
     config = {}
-    if is_host("windows") then
+    if os.host() == "windows" then
         config.alias = "npm.cmd"
         --config.bindir = pkginfo.install_dir() -- default
     else

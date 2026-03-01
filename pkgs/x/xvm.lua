@@ -44,8 +44,6 @@ package = {
 
 import("xim.libxpkg.system")
 
-local bindir = system.bindir()
-
 local xvm_file = {
     windows = "xvm.exe",
     linux = "xvm",
@@ -59,6 +57,7 @@ local xvm_shim_file = {
 }
 
 function installed()
+    local bindir = system.bindir()
     local xvm_bin = path.join(bindir, xvm_file[os.host()])
     if os.isfile(xvm_bin) then
         return os.iorun(xvm_bin .. " --version")
@@ -67,12 +66,14 @@ function installed()
 end
 
 function install()
+    local bindir = system.bindir()
     os.mv(xvm_file[os.host()], bindir)
     os.mv(xvm_shim_file[os.host()], bindir)
     return true
 end
 
 function uninstall()
+    local bindir = system.bindir()
     -- remove cache files
     os.tryrm(xvm_file[os.host()])
     os.tryrm(xvm_shim_file[os.host()])

@@ -22,16 +22,20 @@ package = {
 
 import("xim.libxpkg.log")
 
-local config_dir = os.getenv("XDG_CONFIG_HOME") or path.join(os.getenv("HOME"), ".config")
-local config_file = path.join(config_dir, "fontconfig/conf.d/71-fontsconfig-user-moyingji.conf")
+local function get_config_file()
+    local config_dir = os.getenv("XDG_CONFIG_HOME") or path.join(os.getenv("HOME"), ".config")
+    return path.join(config_dir, "fontconfig/conf.d/71-fontsconfig-user-moyingji.conf")
+end
 
 function installed()
+    local config_file = get_config_file()
     if os.exists(config_file) then return true end
 
     return false
 end
 
 function install()
+    local config_file = get_config_file()
     local dir = path.directory(config_file)
     if not os.isdir(dir) then os.mkdir(dir) end
     io.writefile(config_file, content())
@@ -44,7 +48,7 @@ function install()
 end
 
 function uninstall()
-    os.tryrm(config_file)
+    os.tryrm(get_config_file())
 
     return true
 end

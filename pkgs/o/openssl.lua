@@ -39,7 +39,10 @@ local libs = {
 }
 
 local xpkg_binding_tree = package.name .. "-binding-tree"
-local sys_usr_includedir = path.join(system.subos_sysrootdir(), "usr/include")
+
+local function get_sys_usr_includedir()
+    return path.join(system.subos_sysrootdir(), "usr/include")
+end
 
 function install()
     local openssl_dir = pkginfo.install_file()
@@ -85,12 +88,12 @@ function config()
         local subdirs = os.dirs(path.join(includedir, "*"))
         for _, subdir in ipairs(subdirs) do
             local name = path.filename(subdir)
-            os.tryrm(path.join(sys_usr_includedir, name))
-            os.cp(subdir, path.join(sys_usr_includedir, name), { force = true })
+            os.tryrm(path.join(get_sys_usr_includedir(), name))
+            os.cp(subdir, path.join(get_sys_usr_includedir(), name), { force = true })
         end
 
         for _, file in ipairs(os.files(path.join(includedir, "*.h"))) do
-            os.cp(file, sys_usr_includedir)
+            os.cp(file, get_sys_usr_includedir())
         end
     end
 
@@ -113,11 +116,11 @@ function uninstall()
     if os.isdir(includedir) then
         local subdirs = os.dirs(path.join(includedir, "*"))
         for _, subdir in ipairs(subdirs) do
-            os.tryrm(path.join(sys_usr_includedir, path.filename(subdir)))
+            os.tryrm(path.join(get_sys_usr_includedir(), path.filename(subdir)))
         end
 
         for _, file in ipairs(os.files(path.join(includedir, "*.h"))) do
-            os.tryrm(path.join(sys_usr_includedir, path.filename(file)))
+            os.tryrm(path.join(get_sys_usr_includedir(), path.filename(file)))
         end
     end
 

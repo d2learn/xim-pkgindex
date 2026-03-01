@@ -1,13 +1,4 @@
-function rustup_url(version)
-    local template = "https://static.rust-lang.org/rustup/archive/%s/%s/rustup-init"
-    if is_host("windows") then
-        return string.format(template, version, "x86_64-pc-windows-msvc") .. ".exe"
-    elseif is_host("linux") then
-        return string.format(template, version, "x86_64-unknown-linux-gnu")
-    elseif is_host("macosx") then
-        return string.format(template, version, "x86_64-apple-darwin")
-    end
-end
+local _rustup_tpl = "https://static.rust-lang.org/rustup/archive/%s/%s/rustup-init"
 
 package = {
     spec = "1",
@@ -33,21 +24,21 @@ package = {
         windows = {
             ["latest"] = { ref = "1.28.2" },
             ["1.28.2"] = {
-                url = rustup_url("1.28.2"),
+                url = string.format(_rustup_tpl, "1.28.2", "x86_64-pc-windows-msvc") .. ".exe",
                 sha256 = nil,
             }
         },
         linux = {
             ["latest"] = { ref = "1.28.2" },
             ["1.28.2"] = {
-                url = rustup_url("1.28.2"),
+                url = string.format(_rustup_tpl, "1.28.2", "x86_64-unknown-linux-gnu"),
                 sha256 = nil,
             }
         },
         macosx = {
             ["latest"] = { ref = "1.28.2" },
             ["1.28.2"] = {
-                url = rustup_url("1.28.2"),
+                url = string.format(_rustup_tpl, "1.28.2", "x86_64-apple-darwin"),
                 sha256 = nil,
             }
         },
@@ -69,7 +60,7 @@ function installed()
 end
 
 function install()
-    if is_host("linux") or is_host("macosx") then
+    if os.host() == "linux" or os.host() == "macosx" then
         system.exec("chmod +x " .. rustup_init_file[os.host()])
     end
     os.mv(rustup_init_file[os.host()], pkginfo.install_dir())

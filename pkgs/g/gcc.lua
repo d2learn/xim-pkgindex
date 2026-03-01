@@ -83,7 +83,7 @@ local compiler_entry = {
 }
 
 function install()
-    if is_host("windows") then
+    if os.host() == "windows" then
         pkgmanager.install("mingw-w64@" .. version_map_gcc2mingw[pkginfo.version()])
     else
         local srcdir = pkginfo.install_file():replace(".tar.gz", "")
@@ -103,7 +103,7 @@ function install()
 end
 
 function config()
-    if is_host("windows") then
+    if os.host() == "windows" then
         -- config in mingw-w64.lua
         return true
     else
@@ -112,7 +112,7 @@ function config()
 end
 
 function uninstall()
-    if is_host("windows") then
+    if os.host() == "windows" then
         pkgmanager.uninstall("mingw-w64@" .. version_map_gcc2mingw[pkginfo.version()])
         return true
     end

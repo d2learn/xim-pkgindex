@@ -64,10 +64,12 @@ Copy-Item -Path $newHosts -Destination $source -Force
 Write-Host "✅ Hosts file replaced with new content from $newHosts"
 ]]
 
-local hosts_content = io.readfile(hosts_file[os.host()])
+local function read_hosts()
+    return io.readfile(hosts_file[os.host()])
+end
 
 function installed()
-
+    local hosts_content = read_hosts()
     if not string.find(hosts_content, "gitcode.com", 1, true) then return false end
     if not string.find(hosts_content, "web-api.gitcode.com", 1, true) then return false end
     if not string.find(hosts_content, "cdn-static.gitcode.com", 1, true) then return false end
@@ -77,6 +79,7 @@ function installed()
 end
 
 function install()
+    local hosts_content = read_hosts()
 
     -- backup hosts file
     local backup_file = path.join(pkginfo.install_dir(), "hosts.bak")
@@ -89,6 +92,7 @@ function install()
 end
 
 function uninstall()
+    local hosts_content = read_hosts()
     hosts_content = string.replace(
         hosts_content, gitcode_domain_to_ip:trim(), "",
         { plain = true }
@@ -98,7 +102,7 @@ function uninstall()
 end
 
 function update_hosts(new_hosts_content)
-    if is_host("windows") then
+    if os.host() == "windows" then
         local new_hosts = path.join(pkginfo.install_dir(), "hosts")
         io.writefile(new_hosts, new_hosts_content)
         local tmp_script = path.join(pkginfo.install_dir(), "update_hosts.ps1")

@@ -61,7 +61,7 @@ function config()
     local bindir = path.join(pkginfo.install_dir(), "node_modules", ".bin")
     local alias = "claude"
 
-    if is_host("windows") then
+    if os.host() == "windows" then
         alias = "claude.cmd"
     end
 

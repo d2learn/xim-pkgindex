@@ -77,9 +77,7 @@ function install()
     local glibcdir = pkginfo.install_file():replace(".tar.gz", "")
 
     os.tryrm(pkginfo.install_dir())
-    os.cp(glibcdir, pkginfo.install_dir(), {
-        force = true, symlink = true
-    })
+    os.mv(glibcdir, pkginfo.install_dir())
 
     log.info("Relocating glibc files(path) ...")
     __relocate()
@@ -151,9 +149,8 @@ function __config_header()
     local sysroot_usrdir = path.join(subos_sysrootdir, "usr")
 
     log.info("Copying glibc header files to subos rootfs ...")
-    os.cp(include_dir, sysroot_usrdir, {
-        force = true, symlink = true
-    })
+    os.mkdir(sysroot_usrdir)
+    os.execute('cp -r "' .. include_dir .. '" "' .. sysroot_usrdir .. '/"')
     
 end
 
@@ -180,17 +177,17 @@ function __relocate()
     -- Match any absolute path ending with fromsource-x-glibc/VERSION/lib (build path varies by machine)
     local path_pattern = "([^%s)]+)/" .. fromsource_glibc:gsub("-", "%%-") .. "/" .. version_escaped .. "/lib"
 
+    local base = pkginfo.install_dir()
     log.info("relocate glibc paths (pattern: */%s/%s/lib) -> .", fromsource_glibc, pkginfo.version())
 
-    os.cd(pkginfo.install_dir())
-
     for _, f in ipairs(relocate_files) do
-        if os.isfile(f) then
+        local abs_f = path.join(base, f)
+        if os.isfile(abs_f) then
             log.info("relocate file: " .. f)
-            local content = io.readfile(f)
+            local content = io.readfile(abs_f)
             local new_content, count = content:gsub(path_pattern, ".")
             if count > 0 then
-                io.writefile(f, new_content)
+                io.writefile(abs_f, new_content)
             end
         end
     end

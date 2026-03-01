@@ -38,6 +38,22 @@ local libs = {
     "libssl.so",    "libssl.so.3",    "libssl.a"
 }
 
+-- list files matching a glob pattern (standard Lua, replaces xmake os.files)
+local function list_files(pattern)
+    local result = {}
+    local f = io.popen('ls -d ' .. pattern .. ' 2>/dev/null')
+    if f then
+        for line in f:lines() do
+            local clean = line:gsub("[\r\n]+$", "")
+            if clean ~= "" and os.isfile(clean) then
+                table.insert(result, clean)
+            end
+        end
+        f:close()
+    end
+    return result
+end
+
 local xpkg_binding_tree = package.name .. "-binding-tree"
 
 local function get_sys_usr_includedir()
@@ -85,15 +101,17 @@ function config()
 
     log.info("Installing headers to sysroot...")
     if os.isdir(includedir) then
+        local sys_includedir = get_sys_usr_includedir()
         local subdirs = os.dirs(path.join(includedir, "*"))
         for _, subdir in ipairs(subdirs) do
             local name = path.filename(subdir)
-            os.tryrm(path.join(get_sys_usr_includedir(), name))
-            os.cp(subdir, path.join(get_sys_usr_includedir(), name), { force = true })
+            local dst = path.join(sys_includedir, name)
+            os.tryrm(dst)
+            os.execute('cp -r "' .. subdir .. '" "' .. dst .. '"')
         end
 
-        for _, file in ipairs(os.files(path.join(includedir, "*.h"))) do
-            os.cp(file, get_sys_usr_includedir())
+        for _, file in ipairs(list_files(path.join(includedir, "*.h"))) do
+            os.execute('cp "' .. file .. '" "' .. sys_includedir .. '/"')
         end
     end
 
@@ -114,13 +132,14 @@ function uninstall()
 
     local includedir = path.join(pkginfo.install_dir(), "include")
     if os.isdir(includedir) then
+        local sys_includedir = get_sys_usr_includedir()
         local subdirs = os.dirs(path.join(includedir, "*"))
         for _, subdir in ipairs(subdirs) do
-            os.tryrm(path.join(get_sys_usr_includedir(), path.filename(subdir)))
+            os.tryrm(path.join(sys_includedir, path.filename(subdir)))
         end
 
-        for _, file in ipairs(os.files(path.join(includedir, "*.h"))) do
-            os.tryrm(path.join(get_sys_usr_includedir(), path.filename(file)))
+        for _, file in ipairs(list_files(path.join(includedir, "*.h"))) do
+            os.tryrm(path.join(sys_includedir, path.filename(file)))
         end
     end
 

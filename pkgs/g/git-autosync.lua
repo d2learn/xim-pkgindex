@@ -38,7 +38,7 @@ end
 
 -- xscript code area
 
-import("core.base.json")
+import("xim.libxpkg.json")
 
 local __git_autosync_sh = [[
 #!/bin/bash

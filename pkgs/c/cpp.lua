@@ -33,8 +33,6 @@ package = {
     },
 }
 
-import("core.tool.toolchain")
-
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkgmanager")
@@ -55,7 +53,8 @@ function installed()
         end
         return output ~= nil
     elseif pkginfo.version() == "msvc" then
-        return toolchain.load("msvc"):check() == "2022"
+        local msvc_path = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC]]
+        return os.isdir(msvc_path)
     elseif pkginfo.version() == "mingw" or pkginfo.version() == "gnu" then
         local output = iorun("gcc --version")
         return string.find(output:match("^%s*(.-)%s*$"), "gcc", 1, true) ~= nil

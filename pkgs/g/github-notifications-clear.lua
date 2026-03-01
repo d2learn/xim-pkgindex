@@ -27,9 +27,7 @@ package = {
     },
 }
 
-import("core.base.json")
-import("lib.detect.find_tool")
-
+import("xim.libxpkg.json")
 import("xim.libxpkg.log")
 
 local function iorun(cmd)
@@ -48,13 +46,9 @@ function xpkg_main(person_access_token)
         return
     end
 
-    local curl_tool = find_tool("curl")
-
     log.info("start get unread message list...")
 
-    -- curl -H "Authorization: token %s" https://api.github.com/notifications | jq '.[] | { id, title: .subject.title, repo: .repository.full_name }'
-    local unread_msg_list_json = iorun(string.format([[%s -H "Authorization: token %s" https://api.github.com/notifications']],
-        curl_tool.program,
+    local unread_msg_list_json = iorun(string.format([[curl -s -H "Authorization: token %s" https://api.github.com/notifications]],
         person_access_token
     ))
 
@@ -64,9 +58,8 @@ function xpkg_main(person_access_token)
 
     for _, msg in ipairs(unread_msg_list) do
         log.info("try to clearing notification: [ %s, %s ]", msg.id, msg.subject.title)
-        local response = iorun(string.format([[%s -X DELETE -H "Authorization: token %s" https://api.github.com/notifications/threads/%s]],
-            curl_tool.program,
-            person_access_token,msg.id
+        local response = iorun(string.format([[curl -s -X DELETE -H "Authorization: token %s" https://api.github.com/notifications/threads/%s]],
+            person_access_token, msg.id
         ))
         print("\n" .. tostring(response) .. "\n")
     end

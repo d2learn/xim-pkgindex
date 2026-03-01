@@ -27,9 +27,8 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.utils")
 
-import("core.base.base64")
-import("core.base.bytes")
-import("core.base.json")
+import("xim.libxpkg.base64")
+import("xim.libxpkg.json")
 
 local function iorun(cmd)
     local f = io.popen(cmd)
@@ -556,8 +555,7 @@ function import_from_link(link)
         end
         
         -- Decode base64 to get method:password
-        -- TODO: optimize decode input and return types? -> xmake
-        local decoded = base64.decode(auth_encoded):str()
+        local decoded = base64.decode(auth_encoded)
         method, password = decoded:match("^([^:]+):(.+)$")
 
         if not method or not password then

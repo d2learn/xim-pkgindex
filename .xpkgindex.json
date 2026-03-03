@@ -15,7 +15,7 @@
   },
   "about": {
     "project_name": "xlings",
-    "project_url": "https://github.com/d2learn/xlings",
+    "project_url": "https://xlings.d2learn.org",
     "description": "Highly abstract package manager — multi-version management, everything is a package",
     "maintainers": ["d2learn", "Sunrisepeak"],
     "license": "Apache-2.0"

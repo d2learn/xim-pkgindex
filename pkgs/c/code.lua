@@ -108,16 +108,23 @@ function install()
         os.mv("Visual Studio Code.app", pkginfo.install_dir())
         os.tryrm("stable")
     else
-        os.exec("tar -xvf stable")
+        -- libxpkg auto-extracts the tar.gz; CWD is the extraction root
+        -- which contains VSCode-linux-x64/ subdirectory
         os.tryrm(pkginfo.install_dir())
-        os.exec("mv VSCode-linux-x64 " .. pkginfo.install_dir())
+        local extracted = pkginfo.install_file():replace(".tar.gz", "")
+        if os.isdir(extracted) then
+            os.mv(extracted, pkginfo.install_dir())
+        elseif os.isdir("VSCode-linux-x64") then
+            os.mv("VSCode-linux-x64", pkginfo.install_dir())
+        end
         -- https://github.com/flathub/com.visualstudio.code/issues/223
         -- set the correct permissions for chrome-sandbox, and as root
-        print("https://github.com/flathub/com.visualstudio.code/issues/223")
-        print("setting permissions for chrome-sandbox...")
-        os.exec("sudo chown root:root " .. pkginfo.install_dir() .. "/chrome-sandbox")
-        os.exec("sudo chmod 4755 " .. pkginfo.install_dir() .. "/chrome-sandbox")
-        os.tryrm("stable")
+        local sandbox = path.join(pkginfo.install_dir(), "chrome-sandbox")
+        if os.isfile(sandbox) then
+            print("setting permissions for chrome-sandbox...")
+            os.exec("sudo chown root:root " .. sandbox)
+            os.exec("sudo chmod 4755 " .. sandbox)
+        end
     end
     return true
 end

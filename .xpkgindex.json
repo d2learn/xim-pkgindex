@@ -1,0 +1,29 @@
+{
+  "site": {
+    "title": "XIM Package Index",
+    "description": "Official package index for xlings package manager",
+    "logo": "XIM Package Index"
+  },
+  "links": {
+    "github": "https://github.com/d2learn/xim-pkgindex",
+    "forum": "https://forum.d2learn.org",
+    "docs": "https://d2learn.org",
+    "custom": [
+      {"label": "xpkgindex Tool", "url": "https://github.com/d2learn/xpkgindex"},
+      {"label": "xlings", "url": "https://github.com/d2learn/xlings"}
+    ]
+  },
+  "about": {
+    "project_name": "xlings",
+    "project_url": "https://github.com/d2learn/xlings",
+    "description": "Highly abstract package manager — multi-version management, everything is a package",
+    "maintainers": ["d2learn", "Sunrisepeak"],
+    "license": "Apache-2.0"
+  },
+  "theme": {
+    "primary_color": "#00d4ff",
+    "style": "dark"
+  },
+  "install_command_template": "xlings install {name}@{version}",
+  "pkgs_dir": "pkgs"
+}

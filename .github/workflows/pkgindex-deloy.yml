@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - 'pkgs/**'
+      - '.xpkgindex.json'
 
   # Manual trigger for deployment
   workflow_dispatch:
@@ -23,38 +24,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取xpkgindex索引站点生成工具
-      - name: Checkout repository xpkgindex
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          repository: d2learn/xpkgindex
-          path: xpkgindex
+          python-version: '3.12'
 
-      # 2. 拉取包索引仓库
-      - name: Clone xim-pkgindex into subdirectory
-        run: |
-          git clone --depth=1 https://github.com/d2learn/xim-pkgindex.git xpkgindex/xim-pkgindex
+      - name: Install xpkgindex
+        run: pip install git+https://github.com/d2learn/xpkgindex.git
 
-      # 3. 安装xlings
-      - name: Installation Xlings on Ubuntu
-        run: |
-          export XLINGS_NON_INTERACTIVE=1
-          curl -fsSL https://d2learn.org/xlings-install.sh | bash
-
-      # 4. 生成索引站点
       - name: Generate static site
-        run: |
-          source ~/.bashrc
-          export PATH=/home/xlings/.xlings_data/bin:$PATH
-          cd xpkgindex
-          python3 -m pip install -r requirements.txt
-          python3 src/xpkgindex.py xim-pkgindex/pkgs
+        run: xpkgindex generate . --output site
 
-      # 5. 上传生成的索引站点
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./xpkgindex/site
+          path: ./site
 
   # Deployment job
   deploy:

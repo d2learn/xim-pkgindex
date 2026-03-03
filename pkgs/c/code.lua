@@ -108,13 +108,15 @@ function install()
         os.mv("Visual Studio Code.app", pkginfo.install_dir())
         os.tryrm("stable")
     else
-        -- libxpkg auto-extracts the tar.gz; CWD is the extraction root
-        -- which contains VSCode-linux-x64/ subdirectory
         os.tryrm(pkginfo.install_dir())
-        local extracted = pkginfo.install_file():replace(".tar.gz", "")
-        if os.isdir(extracted) then
-            os.mv(extracted, pkginfo.install_dir())
-        elseif os.isdir("VSCode-linux-x64") then
+        -- The download URL returns a file named "stable" with no extension,
+        -- but it is actually a tar.gz. If auto-extraction didn't happen
+        -- (because is_archive_ checks extensions), extract manually.
+        if os.isfile("stable") then
+            os.exec("tar -xzf stable")
+            os.tryrm("stable")
+        end
+        if os.isdir("VSCode-linux-x64") then
             os.mv("VSCode-linux-x64", pkginfo.install_dir())
         end
         -- https://github.com/flathub/com.visualstudio.code/issues/223

@@ -19,7 +19,7 @@ package = {
 }
 
 os_common = {
-    deps = { "nodejs" },
+    deps = { "node" },
     ["latest"] = { ref = "11.2.0" },
     ["11.2.0"] = { },
     ["11.0.0"] = { },
@@ -57,7 +57,6 @@ function config()
 end
 
 function uninstall()
-    --xvm.remove("npm")
-    xvm.remove()
+    xvm.remove("npm")
     return true
 end

@@ -49,15 +49,18 @@ end
 function config()
 
     local bin_file = "GriddyCode.sh"
+    local target_name = "griddycode"
 
     if os.host() == "windows" then
         bin_file = "GriddyCode.exe"
+        target_name = "griddycode.exe"
     end
 
-    os.cd(pkginfo.install_dir())
-    os.mv(string.format([[Bussin %s]], bin_file), bin_file)
+    local src = path.join(pkginfo.install_dir(), string.format("Bussin %s", bin_file))
+    local dst = path.join(pkginfo.install_dir(), target_name)
+    os.mv(src, dst)
 
-    xvm.add("griddycode", { alias = bin_file })
+    xvm.add("griddycode")
 
     return true
 end

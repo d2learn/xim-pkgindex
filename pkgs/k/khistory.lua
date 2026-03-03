@@ -42,7 +42,8 @@ function install()
     if os.host() == "linux" then
         os.exec("chmod 775 " .. pkginfo.install_file())
     end
-    os.mv(pkginfo.install_file(), pkginfo.install_dir())
+    os.mkdir(pkginfo.install_dir())
+    os.mv(pkginfo.install_file(), path.join(pkginfo.install_dir(), _exe_filename_by_version(pkginfo.version())))
     return true
 end
 

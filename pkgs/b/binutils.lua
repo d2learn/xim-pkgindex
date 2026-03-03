@@ -41,6 +41,7 @@ import("xim.libxpkg.log")
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.elfpatch")
 
 function install()
 
@@ -50,6 +51,8 @@ function install()
     os.cp(glibcdir, pkginfo.install_dir(), {
         force = true, symlink = true
     })
+
+    elfpatch.auto({enable = true, shrink = true})
 
     return true
 end

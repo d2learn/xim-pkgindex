@@ -25,5 +25,9 @@
     "style": "dark"
   },
   "install_command_template": "xlings install {name}@{version}",
-  "pkgs_dir": "pkgs"
+  "pkgs_dir": "pkgs",
+  "install_commands": {
+    "unix": "curl -fsSL https://d2learn.org/xlings-install.sh | bash",
+    "windows": "irm https://d2learn.org/xlings-install.ps1.txt | iex"
+  }
 }

@@ -36,7 +36,6 @@ package = {
     },
 }
 
-import("xim.xinstall")
 import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.xvm")
 

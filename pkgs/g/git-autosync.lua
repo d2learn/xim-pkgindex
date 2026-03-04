@@ -38,7 +38,7 @@ end
 
 -- xscript code area
 
-import("core.base.json")
+import("xim.libxpkg.json")
 
 local __git_autosync_sh = [[
 #!/bin/bash
@@ -88,7 +88,7 @@ function config_file_check()
 
     if not os.isfile(get_git_autosync_sh_file()) then
         io.writefile(get_git_autosync_sh_file(), __git_autosync_sh)
-        os.exec("chmod +x %s", get_git_autosync_sh_file())
+        os.exec(string.format("chmod +x %s", get_git_autosync_sh_file()))
     end
 
     if not os.isfile(get_crontab_file()) then
@@ -226,7 +226,7 @@ function action_sync(cmds)
 
         if not os.isdir(repo_dir) then
             log.info("Cloning repository %s into %s", git_url, repo_dir)
-            os.exec("git clone --recursive %s %s", git_url, repo_dir)
+            os.exec(string.format("git clone --recursive %s %s", git_url, repo_dir))
         else
             log.info("Pulling latest changes for repository %s", git_url)
             os.cd(repo_dir)
@@ -271,10 +271,18 @@ local __xscript_input = {
 
 function xpkg_main(action, projectdir, ...)
 
-    local _, cmds = utils.input_args_process(
-        __xscript_input,
-        { ... }
-    )
+    local extra_args = { ... }
+    local cmds = {}
+    local i = 1
+    while i <= #extra_args do
+        local arg = extra_args[i]
+        if __xscript_input[arg] ~= nil and i < #extra_args then
+            cmds[arg] = extra_args[i + 1]
+            i = i + 2
+        else
+            i = i + 1
+        end
+    end
 
     config_file_check()
 
@@ -286,7 +294,7 @@ function xpkg_main(action, projectdir, ...)
         cmds["--project-dir"] = system.rundir()
     end
 
-    _, cmds["--project-dir"] = utils.filepath_to_absolute(cmds["--project-dir"])
+    cmds["--project-dir"] = utils.filepath_to_absolute(cmds["--project-dir"])
 
     cmds["--time"] = time_format(cmds)
 
@@ -342,7 +350,7 @@ function xpkg_main(action, projectdir, ...)
         log.info("Task for project dir [ %s ] removed!", cmds["--project-dir"])
     elseif action == "log" then
         if os.isfile(get_log_file()) then
-            os.exec("tail -n 100 %s", get_log_file())
+            os.exec(string.format("tail -n 100 %s", get_log_file()))
         else
             log.warn("Log file does not exist!")
         end

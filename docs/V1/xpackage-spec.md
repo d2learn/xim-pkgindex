@@ -40,10 +40,14 @@ xpkg 包脚本的运行时环境 = **标准 Lua 5.4** + **libxpkg 标准库**。
 | 模块 | 导入方式 | 核心 API |
 |------|---------|---------|
 | pkginfo | `import("xim.libxpkg.pkginfo")` | `name()`, `version()`, `install_file()`, `install_dir()`, `dep_install_dir()`, `deps_list()` |
-| xvm | `import("xim.libxpkg.xvm")` | `add()`, `remove()`, `use()`, `has()` |
+| xvm | `import("xim.libxpkg.xvm")` | `add()`, `remove()`, `setup()`, `teardown()`, `use()`, `has()` |
 | system | `import("xim.libxpkg.system")` | `exec()`, `rundir()`, `xpkgdir()`, `bindir()`, `subos_sysrootdir()`, `unix_api()` |
 | log | `import("xim.libxpkg.log")` | `info()`, `warn()`, `error()`, `debug()` |
 | utils | `import("xim.libxpkg.utils")` | `filepath_to_absolute()`, `try_download_and_check()`, `input_args_process()` |
+| pkgmanager | `import("xim.libxpkg.pkgmanager")` | `install()`, `remove()` |
+| elfpatch | `import("xim.libxpkg.elfpatch")` | `patch_elf_loader_rpath()`, `auto()`, `apply_auto()`, `closure_lib_paths()` |
+| json | `import("xim.libxpkg.json")` | `encode()`, `decode()`, `loadfile()`, `savefile()` |
+| base64 | `import("xim.libxpkg.base64")` | `encode()`, `decode()` |
 
 ### 包文件结构规则
 
@@ -271,9 +275,35 @@ end
 | 方法 | 说明 |
 |------|------|
 | `xvm.add(name)` | 注册到xvm (自动检测bindir) |
-| `xvm.add(name, { bindir = "..." })` | 注册到xvm (指定bindir) |
+| `xvm.add(name, { bindir = "...", envs = {...} })` | 注册到xvm (指定bindir，可选环境变量) |
 | `xvm.remove(name)` | 从xvm移除当前版本 |
 | `xvm.remove(name, version)` | 从xvm移除指定版本 |
+| `xvm.setup(name, opt)` | 批量注册程序、库和头文件 |
+| `xvm.teardown(name, opt)` | 批量注销程序、库和头文件 |
+
+`xvm.add()` 的 `opt` 参数：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `version` | string | 版本号（默认取 `_RUNTIME.version`） |
+| `bindir` | string | 可执行文件目录 |
+| `alias` | string | 别名 |
+| `type` | string | `"program"` (默认) 或 `"lib"` |
+| `filename` | string | 文件名 |
+| `binding` | string | 绑定关系（如 `"python@3.12.6"`） |
+| `envs` | table | 环境变量表（如 `{ HOMEBREW_PREFIX = "/opt/homebrew" }`） |
+
+`xvm.setup()` / `xvm.teardown()` 的 `opt` 参数：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `install_dir` | string | 安装根目录（默认 `_RUNTIME.install_dir`） |
+| `version` | string | 版本号 |
+| `bindir` | string | 程序目录（相对或绝对，默认 `"bin"`） |
+| `libdir` | string | 库目录（相对或绝对，可选） |
+| `includedir` | string | 头文件目录（相对或绝对，可选） |
+| `programs` | list | 程序名列表 |
+| `libs` | list | 库文件名列表 |
 
 **system** (`xim.libxpkg.system`)
 
@@ -291,6 +321,38 @@ end
 | `log.info(msg, ...)` | 信息日志 |
 | `log.warn(msg, ...)` | 警告日志 |
 | `log.error(msg, ...)` | 错误日志 |
+
+**pkgmanager** (`xim.libxpkg.pkgmanager`)
+
+| 方法 | 说明 |
+|------|------|
+| `pkgmanager.install(target)` | 通过 xim CLI 安装子依赖 |
+| `pkgmanager.remove(target)` | 通过 xim CLI 卸载子依赖 |
+
+**elfpatch** (`xim.libxpkg.elfpatch`)
+
+| 方法 | 说明 |
+|------|------|
+| `elfpatch.auto(enable)` | 启用/禁用自动 ELF 补丁（install hook 后自动应用） |
+| `elfpatch.auto({ enable = true, shrink = true })` | 启用自动补丁并压缩 RPATH |
+| `elfpatch.patch_elf_loader_rpath(target, opts)` | 手动补丁 ELF 的 interpreter 和 RPATH |
+| `elfpatch.closure_lib_paths(opt)` | 收集自身+依赖的 lib 路径（用于 RPATH） |
+
+**json** (`xim.libxpkg.json`)
+
+| 方法 | 说明 |
+|------|------|
+| `json.encode(val, opts)` | 编码 Lua 值为 JSON 字符串 |
+| `json.decode(str)` | 解码 JSON 字符串为 Lua 值 |
+| `json.loadfile(path)` | 从文件加载 JSON |
+| `json.savefile(path, val, opts)` | 将 Lua 值保存为 JSON 文件 |
+
+**base64** (`xim.libxpkg.base64`)
+
+| 方法 | 说明 |
+|------|------|
+| `base64.encode(data)` | Base64 编码 |
+| `base64.decode(data)` | Base64 解码（返回字符串） |
 
 ## 包类型说明
 
@@ -321,7 +383,7 @@ local __xscript_input = {
 }
 
 function xpkg_main(action, ...)
-    local _, cmds = utils.input_args_process(__xscript_input, { ... })
+    local cmds = utils.input_args_process(__xscript_input, { ... })
     -- 脚本逻辑...
 end
 ```
@@ -478,7 +540,7 @@ local __xscript_input = {
 }
 
 function xpkg_main(action, ...)
-    local _, cmds = utils.input_args_process(__xscript_input, { ... })
+    local cmds = utils.input_args_process(__xscript_input, { ... })
     -- 脚本逻辑
     log.info("Running my-tool with action: %s", action)
 end

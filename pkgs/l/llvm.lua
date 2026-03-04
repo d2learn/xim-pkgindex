@@ -46,7 +46,7 @@ local function is_registerable_bin(pathname)
     if name == nil or name == "" then
         return false
     end
-    if name:endswith(".cfg") then
+    if name:sub(-4) == ".cfg" then
         return false
     end
     return os.isfile(pathname)
@@ -54,10 +54,19 @@ end
 
 local function collect_bin_apps(bindir)
     local apps = {}
-    for _, filepath in ipairs(os.files(path.join(bindir, "*"))) do
-        if is_registerable_bin(filepath) then
-            table.insert(apps, path.filename(filepath))
+    local pattern = path.join(bindir, "*")
+    local f = io.popen('ls -1 "' .. bindir .. '" 2>/dev/null')
+    if f then
+        for name in f:lines() do
+            local clean = name:gsub("[\r\n]+$", "")
+            if clean ~= "" then
+                local filepath = path.join(bindir, clean)
+                if is_registerable_bin(filepath) then
+                    table.insert(apps, clean)
+                end
+            end
         end
+        f:close()
     end
     table.sort(apps)
     return apps

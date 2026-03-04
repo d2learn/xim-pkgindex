@@ -102,7 +102,7 @@ function xpkg_main(xpkgname, ...)
         cmds["--export-path"] = xpkg_fullname .. "@" .. info["Version"]
     end
 
-    _, cmds["--export-path"] = utils.filepath_to_absolute(cmds["--export-path"])
+    cmds["--export-path"] = utils.filepath_to_absolute(cmds["--export-path"])
 
     if os.isdir(cmds["--export-path"]) then
         log.warn("${yellow}xpkg already exported: " .. cmds["--export-path"])

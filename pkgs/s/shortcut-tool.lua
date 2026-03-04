@@ -135,7 +135,7 @@ function xpkg_main(action, ...)
         { ... }
     )
 
-    _, cmds["--target"] = utils.filepath_to_absolute(cmds["--target"] or "?")
+    cmds["--target"] = utils.filepath_to_absolute(cmds["--target"] or "?")
 
     if action == "create" and cmds["--target"] and not os.isfile(cmds["--target"]) then
         log.error("target not found")

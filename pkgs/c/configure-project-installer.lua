@@ -44,7 +44,7 @@ function download_scode(cmds)
 
     local xpkg = "scode:" .. cmds["--xpkg-scode"]
 
-    tmp_project_dir = path.absolute(".configure-project-installer")
+    tmp_project_dir = utils.filepath_to_absolute(".configure-project-installer")
 
     pkgmanager.install(xpkg)
 
@@ -56,7 +56,7 @@ function download_scode(cmds)
 
     if not os.isdir(tmp_project_dir) then
         log.error("failed to download source code from xpkg: %s", xpkg)
-        os.raise("configure-project-installer: failed to download source code")
+        raise("configure-project-installer: failed to download source code")
     end
 
     return tmp_project_dir
@@ -65,12 +65,12 @@ end
 function xpkg_main(installdir, ...)
 
     installdir = installdir or "configure-project-installer"
-    installdir = path.absolute(installdir)
+    installdir = utils.filepath_to_absolute(installdir)
 
     local _, cmds = utils.input_args_process(__xscript_input, {...})
     local configure_args = cmds["--args"] or ""
     local srcdir = cmds["--project-dir"] or "."
-    local abs_srcdir = path.absolute(srcdir)
+    local abs_srcdir = utils.filepath_to_absolute(srcdir)
 
     if cmds["--xpkg-scode"] then
         abs_srcdir = download_scode(cmds)

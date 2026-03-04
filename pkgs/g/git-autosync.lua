@@ -38,7 +38,7 @@ end
 
 -- xscript code area
 
-import("core.base.json")
+import("xim.libxpkg.json")
 
 local __git_autosync_sh = [[
 #!/bin/bash
@@ -271,10 +271,18 @@ local __xscript_input = {
 
 function xpkg_main(action, projectdir, ...)
 
-    local _, cmds = utils.input_args_process(
-        __xscript_input,
-        { ... }
-    )
+    local extra_args = { ... }
+    local cmds = {}
+    local i = 1
+    while i <= #extra_args do
+        local arg = extra_args[i]
+        if __xscript_input[arg] ~= nil and i < #extra_args then
+            cmds[arg] = extra_args[i + 1]
+            i = i + 2
+        else
+            i = i + 1
+        end
+    end
 
     config_file_check()
 
@@ -286,7 +294,7 @@ function xpkg_main(action, projectdir, ...)
         cmds["--project-dir"] = system.rundir()
     end
 
-    _, cmds["--project-dir"] = utils.filepath_to_absolute(cmds["--project-dir"])
+    cmds["--project-dir"] = utils.filepath_to_absolute(cmds["--project-dir"])
 
     cmds["--time"] = time_format(cmds)
 

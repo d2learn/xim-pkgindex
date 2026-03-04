@@ -27,9 +27,8 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.utils")
 
-import("core.base.base64")
-import("core.base.bytes")
-import("core.base.json")
+import("xim.libxpkg.base64")
+import("xim.libxpkg.json")
 
 local SYSTEMD_SERVICE = "sing-box.service"
 
@@ -102,17 +101,25 @@ end
 
 function list_configs()
     ensure_config_dir()
-    local configs = os.files(path.join(get_config_dir(), "*.json"))
-    
+    local configs = {}
+    local f = io.popen('ls "' .. get_config_dir() .. '"/*.json 2>/dev/null')
+    if f then
+        for line in f:lines() do
+            local clean = line:gsub("[\r\n]+$", "")
+            if clean ~= "" then table.insert(configs, clean) end
+        end
+        f:close()
+    end
+
     cprint("${bright}Available configurations:${clear}")
-    if not configs or #configs == 0 then
+    if #configs == 0 then
         cprint("  ${dim}(none)${clear}")
         return
     end
-    
+
     local current = get_current_config()
     for _, config_file in ipairs(configs) do
-        local name = path.basename(config_file):replace(".json", "")
+        local name = path.filename(config_file):gsub("%.json$", "")
         if name ~= ".current" then
             local marker = (current == name) and "${green}✓${clear}" or " "
             cprint(string.format("  %s %s", marker, name))
@@ -254,9 +261,9 @@ function parse_args(...)
     
     for i = 1, #cmds do
         local arg = cmds[i]
-        if arg:startswith("--") then
+        if arg:sub(1, 2) == "--" then
             local key = arg:sub(3)
-            if i < #cmds and not cmds[i+1]:startswith("--") then
+            if i < #cmds and cmds[i+1]:sub(1, 2) ~= "--" then
                 args[key] = cmds[i+1]
             else
                 args[key] = true
@@ -533,8 +540,7 @@ function import_from_link(link)
         end
         
         -- Decode base64 to get method:password
-        -- TODO: optimize decode input and return types? -> xmake
-        local decoded = base64.decode(auth_encoded):str()
+        local decoded = base64.decode(auth_encoded)
         method, password = decoded:match("^([^:]+):(.+)$")
 
         if not method or not password then

@@ -33,8 +33,8 @@ package = {
     },
 }
 
-import("xim.base.utils")
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.system")
 
 function installed()
     return os.iorun("nvm --version")
@@ -55,12 +55,16 @@ function install()
         os.addenv("PATH", node_home)
     else
         os.exec("sh " .. pkginfo.install_file())
-        utils.append_bashrc([[
+        system.unix_api().append_to_shell_profile({
+            posix = [[
 # nvm config by xlings-xim
 if [ "$NVM_DIR" == "" ]; then export NVM_DIR="$HOME/.nvm"; fi
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-        ]])
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"]],
+            fish = [[
+# nvm config by xlings-xim
+if not set -q NVM_DIR; set -gx NVM_DIR "$HOME/.nvm"; end]],
+        })
     end
     return true
 end

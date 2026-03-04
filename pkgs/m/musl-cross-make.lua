@@ -34,11 +34,11 @@ package = {
     },
 }
 
-import("xim.libxpkg")
 import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.utils")
 
 local function get_source_script_file()
     return path.join(system.xpkgdir(), "musl-cross-make.lua")
@@ -264,10 +264,21 @@ local __xscript_input = {
 -- avoid to call main when import this package?
 function xpkg_main(version, ...)
 
-    local _, cmds = libxpkg.utils.input_args_process(
-        __xscript_input,
-        { ... }
-    )
+    local extra_args = { ... }
+    local cmds = {}
+    local i = 1
+    while i <= #extra_args do
+        local arg = extra_args[i]
+        if __xscript_input[arg] ~= nil and i < #extra_args then
+            cmds[arg] = extra_args[i + 1]
+            i = i + 2
+        elseif __xscript_input[arg] ~= nil then
+            cmds[arg] = true
+            i = i + 1
+        else
+            i = i + 1
+        end
+    end
 
     --print(cmds)
 
@@ -314,7 +325,7 @@ function xpkg_main(version, ...)
     )
 
     cmds["--output"] = cmds["--output"] or default_outputdir
-    _, cmds["--output"] = libxpkg.utils.filepath_to_absolute(cmds["--output"])
+    cmds["--output"] = utils.filepath_to_absolute(cmds["--output"])
 
     if cmds["--compress"] then
         cmds["--compress"] = cmds["--output"] .. ".tar.gz"
@@ -347,14 +358,19 @@ function xpkg_main(version, ...)
     )
 
     if cmds["--config-mak"] then
-        local ok, config_file
+        local config_file
         -- if network file
         if string.find(cmds["--config-mak"], "://", 1, true) then
-            ok, config_file = libxpkg.utils.try_download_and_verify(cmds["--config-mak"])
+            local tmpdir = os.tmpname() .. "_dl"
+            os.mkdir(tmpdir)
+            if utils.try_download_and_check(cmds["--config-mak"], tmpdir) then
+                local fname = cmds["--config-mak"]:match("[^/]+$") or "config.mak"
+                config_file = path.join(tmpdir, fname)
+            end
         else
-            ok, config_file = libxpkg.utils.filepath_to_absolute(cmds["--config-mak"])
+            config_file = utils.filepath_to_absolute(cmds["--config-mak"])
         end
-        if ok then
+        if config_file and os.isfile(config_file) then
             config_mak = io.readfile(config_file)
         end
     end
@@ -392,11 +408,9 @@ function xpkg_main(version, ...)
     if ret_ok and cmds["--compress"] then
         if os.isfile(cmds["--compress"]) then os.tryrm(cmds["--compress"]) end
         log.warn("-> start compress...")
-        import("utils.archive")
-        archive.archive(cmds["--compress"], path.filename(cmds["--output"]), {
-            recurse = true,
-            curdir = path.directory(cmds["--output"]),
-        })
+        local parent_dir = path.directory(cmds["--output"])
+        local dir_name = path.filename(cmds["--output"])
+        os.exec(string.format('tar -czf "%s" -C "%s" "%s"', cmds["--compress"], parent_dir, dir_name))
     end
 
     -- tips

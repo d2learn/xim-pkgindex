@@ -33,8 +33,6 @@ package = {
     },
 }
 
-import("core.tool.toolchain")
-
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.pkgmanager")
@@ -47,10 +45,12 @@ function installed()
         end
         return output ~= nil
     elseif pkginfo.version() == "msvc" then
-        return toolchain.load("msvc"):check() == "2022"
+        -- Check for MSVC cl.exe via vswhere or PATH
+        local output = os.iorun("where cl 2>nul") or os.iorun("cl 2>&1")
+        return output ~= nil and output ~= ""
     elseif pkginfo.version() == "mingw" or pkginfo.version() == "gnu" then
         local output = os.iorun("gcc --version")
-        return string.find(output:trim(), "gcc", 1, true) ~= nil
+        return output ~= nil and string.find(output:trim(), "gcc", 1, true) ~= nil
     else
         return true
     end

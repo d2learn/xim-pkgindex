@@ -49,7 +49,7 @@ function xpkg_main(...)
         cmds["--force"] = true
     end
 
-    _, cmds["--output"] = utils.filepath_to_absolute(cmds["--output"])
+    cmds["--output"] = utils.filepath_to_absolute(cmds["--output"])
 
 
     -- printinfo
@@ -90,7 +90,7 @@ function xpkg_main(...)
 
     if os.isdir(cmds["--output"]) then
         if cmds["--force"] then
-            os.rmdir(cmds["--output"])
+            os.tryrm(cmds["--output"])
         else
             log.warn("output dir already exists: " .. cmds["--output"])
             return

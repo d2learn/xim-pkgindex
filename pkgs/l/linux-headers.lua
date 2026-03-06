@@ -35,13 +35,7 @@ function install()
 end
 
 function config()
-
-    local scode_linux_headers_info = xvm.info(
-        "scode-linux-headers",
-        pkginfo.version()
-    )
-
-    local scodedir = path.directory(scode_linux_headers_info["SPath"])
+    local scodedir = pkginfo.install_dir("scode:linux-headers", pkginfo.version())
 
     log.info("Copying linux header files to subos rootfs ...")
     local sysroot_usrdir = path.join(system.subos_sysrootdir(), "usr")

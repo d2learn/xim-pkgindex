@@ -128,7 +128,7 @@ package = {
 }
 ```
 
-### 引用包 (Ref Package)
+### 引用包 (Ref Package) - 废弃
 
 可以通过 `ref` 字段创建包别名, 指向另一个已有的包:
 
@@ -505,7 +505,7 @@ package = {
 }
 ```
 
-### 示例3: 引用包 (node -> nodejs)
+### 示例3: 引用包 (node -> nodejs)  - 废弃
 
 ```lua
 package = { spec = "1", type = "package", ref = "nodejs" }

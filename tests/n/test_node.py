@@ -20,6 +20,4 @@ def meta():
 
 
 class TestStatic:
-    @pytest.mark.static
-    def test_is_ref(self, meta):
-        assert meta.is_ref, "应为 ref 包"
+    pass

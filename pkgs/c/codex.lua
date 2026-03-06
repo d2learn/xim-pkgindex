@@ -19,17 +19,17 @@ package = {
 
     xpm = {
         linux = {
-            deps = {"nodejs", "npm"},
+            deps = {"node", "npm"},
             ["latest"] = { ref = "0.106.0" },
             ["0.106.0"] = {},
         },
         macosx = {
-            deps = {"nodejs", "npm"},
+            deps = {"node", "npm"},
             ["latest"] = { ref = "0.106.0" },
             ["0.106.0"] = {},
         },
         windows = {
-            deps = {"nodejs", "npm"},
+            deps = {"node", "npm"},
             ["latest"] = { ref = "0.106.0" },
             ["0.106.0"] = {},
         },

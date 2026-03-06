@@ -17,6 +17,10 @@ package = {
 
     xpm = {
         linux = {
+            -- TODO: Temporary workaround for pkgmanager.install() install-dir resolution issue.
+            deps = {
+                "scode:linux-headers@5.11.1",
+            },
             ["latest"] = { ref = "5.11.1" },
             ["5.11.1"] = { },
         },
@@ -30,7 +34,6 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
 function install()
-    pkgmanager.install("scode:linux-headers@" .. pkginfo.version())
     return true
 end
 

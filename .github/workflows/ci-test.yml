@@ -46,7 +46,7 @@ jobs:
               echo "⏩ Skip ref package: $file"
               continue
             fi
-            output=$(xim --add-xpkg "$xpkg_file" 2>&1)
+            output=$(xlings config --add-xpkg "$xpkg_file" 2>&1)
             echo "$output"
             if echo "$output" | grep -i "error"; then
               echo "❌ Error detected in $file"

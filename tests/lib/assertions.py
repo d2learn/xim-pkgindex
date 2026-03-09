@@ -122,12 +122,12 @@ def assert_no_direct_pkg_manager(lua_path: str):
 # ═══════════════════════════════════════════
 
 def assert_xim_add_succeeds(lua_path: str):
-    """xim --add-xpkg 能成功注册"""
+    """xlings config --add-xpkg 能成功注册"""
     if not os.path.isabs(lua_path):
         from tests.lib.platform_utils import project_root
         lua_path = os.path.join(project_root(), lua_path)
     ok, out = XlingsClient.xim_add_xpkg(lua_path)
-    assert ok, f"xim --add-xpkg 失败: {out}"
+    assert ok, f"xlings config --add-xpkg 失败: {out}"
 
 
 # ═══════════════════════════════════════════

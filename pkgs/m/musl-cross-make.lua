@@ -65,7 +65,7 @@ end
 
 function verify_and_choice_from_list(target, target_list, opt)
     if opt.header_tips then
-        cprint(opt.header_tips)
+        log.debug(opt.header_tips)
     end
 
     target = target or opt.default
@@ -75,19 +75,19 @@ function verify_and_choice_from_list(target, target_list, opt)
         if string.find(t, target, 1, true) then target = t end
         if t == target then
             in_list = true
-            cprint("  ${green}" .. t .. " ${blink}<")
+            log.debug("  ${green}" .. t .. " ${blink}<")
         else
-            cprint("  " .. t)
+            log.debug("  " .. t)
         end
         os.sleep(200) -- sleep to avoid too fast output
     end
 
     if not in_list and target then
-        cprint("  ${green}" .. target .. " ${blink}<")
+        log.debug("  ${green}" .. target .. " ${blink}<")
     end
 
     if opt.footer_tips and target then
-        cprint(opt.footer_tips .. " - ${green}" .. target)
+        log.debug(opt.footer_tips .. " - ${green}" .. target)
     end
 
     return target
@@ -160,27 +160,27 @@ function config_gcc_specs(cmds)
 end
 
 function info_tips(version, cmds)
-    cprint("\n${dim}---\n")
+    log.debug("\n${dim}---\n")
 
-    cprint("${bright}version: ${green}" .. version)
-    cprint("${bright}target: ${green}" .. cmds["--target"])
-    cprint("${bright}output: ${green}" .. cmds["--output"])
+    log.debug("${bright}version: ${green}" .. version)
+    log.debug("${bright}target: ${green}" .. cmds["--target"])
+    log.debug("${bright}output: ${green}" .. cmds["--output"])
 
     if cmds["--with-dynamic-linker"] then
-        cprint("${bright}with-dynamic-linker: ${green}" .. cmds["--with-dynamic-linker"])
+        log.debug("${bright}with-dynamic-linker: ${green}" .. cmds["--with-dynamic-linker"])
     end
     if cmds["--static"] then
-        cprint("${bright}static: ${green}" .. cmds["--static"])
+        log.debug("${bright}static: ${green}" .. cmds["--static"])
     end
     if cmds["--config-mak"] then
-        cprint("${bright}config-mak: ${green}" .. cmds["--config-mak"])
+        log.debug("${bright}config-mak: ${green}" .. cmds["--config-mak"])
     end
 
     if cmds["--compress"] then
-        cprint("${bright}compress: ${green}" .. cmds["--compress"])
+        log.debug("${bright}compress: ${green}" .. cmds["--compress"])
     end
 
-    cprint("\n${dim}---\n")
+    log.debug("\n${dim}---\n")
 end
 
 function __try_run(cmd)
@@ -283,12 +283,12 @@ function xpkg_main(version, ...)
     --print(cmds)
 
     if (version == "-h" or version == "--help") or cmds["-h"] or cmds["--help"] then
-        cprint("Usage: ${cyan}musl-cross-make [version] [options]")
-        cprint("")
-        cprint("Example:")
-        cprint("  ${cyan}musl-cross-make 15.1.0")
-        cprint("  ${cyan}musl-cross-make 15.1.0 --target x86_64 --output mygcc15")
-        cprint("")
+        log.debug("Usage: ${cyan}musl-cross-make [version] [options]")
+        log.debug("")
+        log.debug("Example:")
+        log.debug("  ${cyan}musl-cross-make 15.1.0")
+        log.debug("  ${cyan}musl-cross-make 15.1.0 --target x86_64 --output mygcc15")
+        log.debug("")
         return
     end
 
@@ -333,19 +333,19 @@ function xpkg_main(version, ...)
 
     info_tips(version, cmds)
 
-    cprint("start build ${blink}...")
+    log.debug("start build ${blink}...")
     os.sleep(3000) -- wait user check and confirmation
 
     local project_dir = path.join(system.xpkgdir(), "musl-cross-make")
     local ret_ok = true
 
     if not os.isdir(project_dir) then
-        cprint("${red}Error: musl-cross-make project directory not found!")
-        cprint("Tips: try remove and reinstall musl-cross-make package.")
-        cprint("")
-        cprint("  ${cyan}xlings remove musl-cross-make")
-        cprint("  ${cyan}xlings install musl-cross-make")
-        cprint("")
+        log.debug("${red}Error: musl-cross-make project directory not found!")
+        log.debug("Tips: try remove and reinstall musl-cross-make package.")
+        log.debug("")
+        log.debug("  ${cyan}xlings remove musl-cross-make")
+        log.debug("  ${cyan}xlings install musl-cross-make")
+        log.debug("")
         ret_ok = false
     end
 
@@ -416,16 +416,16 @@ function xpkg_main(version, ...)
     -- tips
     info_tips(version, cmds)
 
-    cprint("\n\t${bright dim}[ musl-cross-make(xlings) 0.0.1 ]\n")
+    log.debug("\n\t${bright dim}[ musl-cross-make(xlings) 0.0.1 ]\n")
 
     if ret_ok then
-        cprint("${green}Build and install completed successfully!")
+        log.debug("${green}Build and install completed successfully!")
     else
-        cprint("${red}Build or install failed!")
-        cprint("Please check the output for errors.")
-        cprint("")
-        cprint("QA-List: https://xlings.d2learn.org/documents/qa.html")
-        cprint("")
+        log.debug("${red}Build or install failed!")
+        log.debug("Please check the output for errors.")
+        log.debug("")
+        log.debug("QA-List: https://xlings.d2learn.org/documents/qa.html")
+        log.debug("")
         raise("musl-cross-make build failed!")
     end
 end

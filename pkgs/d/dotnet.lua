@@ -39,6 +39,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function install()
     local install_cmd = ""
@@ -52,7 +53,7 @@ function install()
             " --channel " .. pkginfo.version() ..
             " --install-dir " .. pkginfo.install_dir()
     end
-    print("exec: " .. install_cmd)
+    log.debug("exec: " .. install_cmd)
     os.exec(install_cmd)
     return true
 end

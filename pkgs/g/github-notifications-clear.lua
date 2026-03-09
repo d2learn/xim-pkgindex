@@ -33,7 +33,7 @@ import("xim.libxpkg.log")
 function xpkg_main(person_access_token)
     if not person_access_token then
         log.error("need provide your github PERSONAL_ACCESS_TOKEN(PAT Classic)")
-        cprint("\n\t${bright dim cyan}github-notifications-clear ${green}PERSONAL_ACCESS_TOKEN\n")
+        log.debug("\n\t${bright dim cyan}github-notifications-clear ${green}PERSONAL_ACCESS_TOKEN\n")
         log.warn(" -> https://github.com/settings/tokens <-")
         return
     end
@@ -51,7 +51,7 @@ function xpkg_main(person_access_token)
         person_access_token
     ))
 
-    print(unread_msg_list_json)
+    log.debug(unread_msg_list_json)
 
     local unread_msg_list = json.decode(unread_msg_list_json)
 
@@ -60,7 +60,7 @@ function xpkg_main(person_access_token)
         local response = os.iorun(string.format([[curl -s -X DELETE -H "Authorization: token %s" https://api.github.com/notifications/threads/%s]],
             person_access_token, msg.id
         ))
-        print("\n" .. tostring(response) .. "\n")
+        log.debug("\n" .. tostring(response) .. "\n")
     end
 
     log.info("All notifications cleared")

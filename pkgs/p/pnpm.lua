@@ -34,6 +34,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function install()
     local pnpm_installcmd_template = "npm install -g pnpm@%s --prefix %s"
@@ -42,7 +43,7 @@ function install()
 end
 
 function config()
-    print("config xvm...")
+    log.debug("config xvm...")
     local bindir = pkginfo.install_dir()
     local cfg = {}
     if os.host() == "windows" then

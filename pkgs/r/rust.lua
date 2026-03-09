@@ -38,6 +38,7 @@ package = {
 
 import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function installed()
     os.exec("rustc --version")
@@ -84,8 +85,8 @@ end
 -- host toolchain abi -- only for windows
 function _choice_toolchain()
     local toolchain_abi = "x86_64-pc-windows-gnu"
-    print("[xlings:xim]: Select toolchain ABI:")
-    print([[
+    log.debug("[xlings:xim]: Select toolchain ABI:")
+    log.debug([[
 
         1. x86_64-pc-windows-gnu (default)
         2. x86_64-pc-windows-msvc

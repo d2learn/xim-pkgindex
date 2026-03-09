@@ -51,41 +51,41 @@ function ensure_config_dir()
 end
 
 function print_usage()
-    cprint("\t${bright}Sing-Box Helper Tools - 1.0.0${clear}")
-    cprint("")
-    cprint("Usage: ${dim cyan}sing-box-helper <command> [options]")
-    cprint("")
-    cprint("Commands:")
-    cprint("  ${dim cyan}server${clear}      - Generate server configuration")
-    cprint("  ${dim cyan}client${clear}      - Generate client configuration")
-    cprint("  ${dim cyan}config${clear}      - Manage configurations (list, current, etc.)")
-    cprint("  ${dim cyan}start${clear}       - Start sing-box with a configuration")
-    cprint("  ${dim cyan}stop${clear}        - Stop sing-box service")
-    cprint("  ${dim cyan}status${clear}      - Show service status")
-    cprint("  ${dim cyan}sub${clear}         - Generate & save subscription link (for server)")
-    cprint("  ${dim cyan}getsub${clear}      - Show saved subscription link")
-    cprint("  ${dim cyan}import${clear}      - Import configuration from subscription link")
-    cprint("  ${dim cyan}help${clear}        - Show this help message")
-    cprint("")
-    cprint("Examples:")
-    cprint("  ${dim cyan}# Server setup")
-    cprint("  ${dim cyan}sing-box-helper server --name my-server --port 9875 --protocol shadowsocks --password mypass")
-    cprint("  ${dim cyan}sing-box-helper start my-server")
-    cprint("  ${dim cyan}sing-box-helper sub")
-    cprint("  ${dim cyan}sing-box-helper getsub")
-    cprint("")
-    cprint("  ${dim cyan}# Client setup")
-    cprint("  ${dim cyan}sing-box-helper import ss://YmFzZTI0LXRybWVkYXRlOm15cGFzc0AxLjIuMy40Ojk4NzUjc3MtY29uZmln")
-    cprint("  ${dim cyan}sing-box-helper start imported-ss-20251209-120000")
-    cprint("")
-    cprint("  ${dim cyan}# Config management")
-    cprint("  ${dim cyan}sing-box-helper config list")
-    cprint("  ${dim cyan}sing-box-helper config current")
-    cprint("")
-    cprint("${dim}Local proxy (client):${clear}")
-    cprint("  ${dim}SOCKS5: 127.0.0.1:1080${clear}")
-    cprint("  ${dim}HTTP:   127.0.0.1:1087${clear}")
-    cprint("")
+    log.debug("\t${bright}Sing-Box Helper Tools - 1.0.0${clear}")
+    log.debug("")
+    log.debug("Usage: ${dim cyan}sing-box-helper <command> [options]")
+    log.debug("")
+    log.debug("Commands:")
+    log.debug("  ${dim cyan}server${clear}      - Generate server configuration")
+    log.debug("  ${dim cyan}client${clear}      - Generate client configuration")
+    log.debug("  ${dim cyan}config${clear}      - Manage configurations (list, current, etc.)")
+    log.debug("  ${dim cyan}start${clear}       - Start sing-box with a configuration")
+    log.debug("  ${dim cyan}stop${clear}        - Stop sing-box service")
+    log.debug("  ${dim cyan}status${clear}      - Show service status")
+    log.debug("  ${dim cyan}sub${clear}         - Generate & save subscription link (for server)")
+    log.debug("  ${dim cyan}getsub${clear}      - Show saved subscription link")
+    log.debug("  ${dim cyan}import${clear}      - Import configuration from subscription link")
+    log.debug("  ${dim cyan}help${clear}        - Show this help message")
+    log.debug("")
+    log.debug("Examples:")
+    log.debug("  ${dim cyan}# Server setup")
+    log.debug("  ${dim cyan}sing-box-helper server --name my-server --port 9875 --protocol shadowsocks --password mypass")
+    log.debug("  ${dim cyan}sing-box-helper start my-server")
+    log.debug("  ${dim cyan}sing-box-helper sub")
+    log.debug("  ${dim cyan}sing-box-helper getsub")
+    log.debug("")
+    log.debug("  ${dim cyan}# Client setup")
+    log.debug("  ${dim cyan}sing-box-helper import ss://YmFzZTI0LXRybWVkYXRlOm15cGFzc0AxLjIuMy40Ojk4NzUjc3MtY29uZmln")
+    log.debug("  ${dim cyan}sing-box-helper start imported-ss-20251209-120000")
+    log.debug("")
+    log.debug("  ${dim cyan}# Config management")
+    log.debug("  ${dim cyan}sing-box-helper config list")
+    log.debug("  ${dim cyan}sing-box-helper config current")
+    log.debug("")
+    log.debug("${dim}Local proxy (client):${clear}")
+    log.debug("  ${dim}SOCKS5: 127.0.0.1:1080${clear}")
+    log.debug("  ${dim}HTTP:   127.0.0.1:1087${clear}")
+    log.debug("")
 end
 
 function get_current_config()
@@ -111,9 +111,9 @@ function list_configs()
         f:close()
     end
 
-    cprint("${bright}Available configurations:${clear}")
+    log.debug("${bright}Available configurations:${clear}")
     if #configs == 0 then
-        cprint("  ${dim}(none)${clear}")
+        log.debug("  ${dim}(none)${clear}")
         return
     end
 
@@ -122,7 +122,7 @@ function list_configs()
         local name = path.filename(config_file):gsub("%.json$", "")
         if name ~= ".current" then
             local marker = (current == name) and "${green}✓${clear}" or " "
-            cprint(string.format("  %s %s", marker, name))
+            log.debug(string.format("  %s %s", marker, name))
         end
     end
 end
@@ -130,9 +130,9 @@ end
 function show_current_config()
     local current = get_current_config()
     if current then
-        cprint(string.format("${bright}Current configuration:${clear} ${yellow}%s${clear}", current))
+        log.debug(string.format("${bright}Current configuration:${clear} ${yellow}%s${clear}", current))
     else
-        cprint("${yellow}No configuration is currently selected${clear}")
+        log.debug("${yellow}No configuration is currently selected${clear}")
     end
 end
 
@@ -179,13 +179,13 @@ function generate_server_config(args)
             outbounds = { { type = "direct", tag = "direct" } },
         }
     else
-        cprint("${red}✗${clear} Unsupported protocol: %s", protocol)
+        log.debug("${red}✗${clear} Unsupported protocol: %s", protocol)
         return false
     end
     
     json.savefile(config_file, config_tbl, { indent = true })
     log.info("Server config saved to: %s", config_file)
-    cprint(string.format("${green}✓${clear} Server configuration saved: ${yellow}%s${clear}", name))
+    log.debug(string.format("${green}✓${clear} Server configuration saved: ${yellow}%s${clear}", name))
     
     return true
 end
@@ -250,7 +250,7 @@ function generate_client_config(args)
     local config_file = path.join(get_config_dir(), name .. ".json")
     json.savefile(config_file, config_tbl, { indent = true })
     log.info("Client config saved to: %s", config_file)
-    cprint(string.format("${green}✓${clear} Client configuration saved: ${yellow}%s${clear}", name))
+    log.debug(string.format("${green}✓${clear} Client configuration saved: ${yellow}%s${clear}", name))
     
     return true
 end
@@ -309,7 +309,7 @@ WantedBy=multi-user.target
     local output = os.iorun(check_cmd)
 
     if not output then
-        cprint("${red}✗${clear} Configuration check failed: %s", output)
+        log.debug("${red}✗${clear} Configuration check failed: %s", output)
         return false
     end
 
@@ -326,7 +326,7 @@ function start_config(config_name)
     local config_file = path.join(get_config_dir(), config_name .. ".json")
     
     if not os.isfile(config_file) then
-        cprint(string.format("${red}✗${clear} Configuration not found: ${yellow}%s${clear}", config_name))
+        log.debug(string.format("${red}✗${clear} Configuration not found: ${yellow}%s${clear}", config_name))
         return false
     end
     
@@ -340,12 +340,12 @@ function start_config(config_name)
                 os.exec("sudo systemctl restart sing-box.service")
                 os.exec("sudo systemctl enable sing-box.service")
                 -- TODO: check port - sudo ss -lunp | grep :port
-                cprint("checking port - [ sudo ss -lunp | grep :%s ]", parse_config_file(config_file).port)
-                cprint(string.format("${green}✓${clear} Sing-box started with configuration: ${yellow}%s${clear}", config_name))                
+                log.debug("checking port - [ sudo ss -lunp | grep :%s ]", parse_config_file(config_file).port)
+                log.debug(string.format("${green}✓${clear} Sing-box started with configuration: ${yellow}%s${clear}", config_name))                
                 return true
             end, catch {
                 function(err)
-                    cprint("${red}✗${clear} Failed to start sing-box service: %s", err)
+                    log.debug("${red}✗${clear} Failed to start sing-box service: %s", err)
                     return false
                 end
             }
@@ -358,7 +358,7 @@ end
 function stop_service()
     log.info("Stopping sing-box service...")
     os.exec("sudo systemctl stop sing-box.service")
-    cprint("${green}✓${clear} Sing-box service stopped")
+    log.debug("${green}✓${clear} Sing-box service stopped")
     return true
 end
 
@@ -368,7 +368,7 @@ function show_status()
             os.exec("sudo systemctl status sing-box.service")
         end, catch {
             function(err)
-                --cprint("${red}✗${clear} Failed to get service status: %s", err)
+                --log.debug("${red}✗${clear} Failed to get service status: %s", err)
             end
         }
     }
@@ -380,8 +380,8 @@ function handle_config_command(subcmd, ...)
     elseif subcmd == "current" then
         show_current_config()
     else
-        cprint("${yellow}Unknown config subcommand: ${yellow}%s${clear}", subcmd or "none")
-        cprint("Available: list, current")
+        log.debug("${yellow}Unknown config subcommand: ${yellow}%s${clear}", subcmd or "none")
+        log.debug("Available: list, current")
     end
 end
 
@@ -417,7 +417,7 @@ end
 function generate_subscription_link()
     local current = get_current_config()
     if not current then
-        cprint("${yellow}No configuration is currently running${clear}")
+        log.debug("${yellow}No configuration is currently running${clear}")
         return
     end
     
@@ -425,13 +425,13 @@ function generate_subscription_link()
     local config = parse_config_file(config_file)
     
     if not config then
-        cprint("${red}✗${clear} Failed to parse configuration file")
+        log.debug("${red}✗${clear} Failed to parse configuration file")
         return
     end
 
     -- Check if it's a server config (listen on 0.0.0.0)
     if config.listen ~= "0.0.0.0" then
-        cprint("${yellow}Current configuration is not a server${clear}")
+        log.debug("${yellow}Current configuration is not a server${clear}")
         return
     end
     
@@ -462,34 +462,34 @@ function generate_subscription_link()
         local name_encoded = url_encode(config_name)
         sub_link = string.format("trojan://%s@%s:%d#%s", config.password, server_ip, config.port, name_encoded)
     else
-        cprint("${yellow}Protocol '%s' subscription link generation not yet supported${clear}", config.protocol)
+        log.debug("${yellow}Protocol '%s' subscription link generation not yet supported${clear}", config.protocol)
         return
     end
     
     -- Save subscription link to file
     io.writefile(get_subscription_file(), sub_link)
     
-    cprint("")
-    cprint("${bright}Subscription Link:${clear}")
-    cprint("${green}%s${clear}", sub_link)
-    cprint("")
-    cprint("${dim}Server: %s:%d${clear}", server_ip, config.port)
-    cprint("${dim}Protocol: %s${clear}", config.protocol)
-    cprint("${dim}Method: %s${clear}", config.method or "aes-256-gcm")
-    cprint("${dim}Config name: %s${clear}", config_name)
-    cprint("")
-    cprint("${yellow}Link saved to: %s${clear}", get_subscription_file())
-    cprint("")
+    log.debug("")
+    log.debug("${bright}Subscription Link:${clear}")
+    log.debug("${green}%s${clear}", sub_link)
+    log.debug("")
+    log.debug("${dim}Server: %s:%d${clear}", server_ip, config.port)
+    log.debug("${dim}Protocol: %s${clear}", config.protocol)
+    log.debug("${dim}Method: %s${clear}", config.method or "aes-256-gcm")
+    log.debug("${dim}Config name: %s${clear}", config_name)
+    log.debug("")
+    log.debug("${yellow}Link saved to: %s${clear}", get_subscription_file())
+    log.debug("")
 end
 
 function show_subscription_link()
     if os.isfile(get_subscription_file()) then
         local sub_link = io.readfile(get_subscription_file()):trim()
-        cprint("${bright}Saved Subscription Link:${clear}")
-        cprint("${green}%s${clear}", sub_link)
-        cprint("")
+        log.debug("${bright}Saved Subscription Link:${clear}")
+        log.debug("${green}%s${clear}", sub_link)
+        log.debug("")
     else
-        cprint("${yellow}No subscription link has been generated yet${clear}")
+        log.debug("${yellow}No subscription link has been generated yet${clear}")
     end
 end
 
@@ -498,18 +498,18 @@ function import_from_link(link)
         -- Try to read from subscription file
         if os.isfile(get_subscription_file()) then
             link = io.readfile(get_subscription_file()):trim()
-            cprint("${dim}Using saved subscription link...${clear}")
+            log.debug("${dim}Using saved subscription link...${clear}")
         else
-            cprint("${yellow}Please provide a subscription link${clear}")
-            cprint("Usage: sing-box-helper import <link>")
-            cprint("       sing-box-helper import  (uses saved link)")
+            log.debug("${yellow}Please provide a subscription link${clear}")
+            log.debug("Usage: sing-box-helper import <link>")
+            log.debug("       sing-box-helper import  (uses saved link)")
             return
         end
     end
     
     ensure_config_dir()
     
-    print("link: " .. link)
+    log.debug("link: " .. link)
 
     local protocol, data = link:match("^(%w+)://(.+)$")
 
@@ -517,7 +517,7 @@ function import_from_link(link)
     --print("data: " .. tostring(data))
 
     if not protocol then
-        cprint("${red}✗${clear} Invalid subscription link format")
+        log.debug("${red}✗${clear} Invalid subscription link format")
         return
     end
     
@@ -529,13 +529,13 @@ function import_from_link(link)
         auth_encoded, host_port, name_part = data:match("^([^@]+)@([^#]+)#?(.*)$")
         
         if not auth_encoded or not host_port then
-            cprint("${red}✗${clear} Invalid SS link format")
+            log.debug("${red}✗${clear} Invalid SS link format")
             return
         end
         
         server, port = host_port:match("^([^:]+):(%d+)$")
         if not server or not port then
-            cprint("${red}✗${clear} Failed to parse server and port")
+            log.debug("${red}✗${clear} Failed to parse server and port")
             return
         end
         
@@ -544,8 +544,8 @@ function import_from_link(link)
         method, password = decoded:match("^([^:]+):(.+)$")
 
         if not method or not password then
-            cprint("${red}✗${clear} Failed to decode authentication info from: %s", auth_encoded)
-            cprint("${dim}Decoded: %s${clear}", decoded)
+            log.debug("${red}✗${clear} Failed to decode authentication info from: %s", auth_encoded)
+            log.debug("${dim}Decoded: %s${clear}", decoded)
             return
         end
         
@@ -560,13 +560,13 @@ function import_from_link(link)
         password, host_port, name_part = data:match("^([^@]+)@([^#]+)#?(.*)$")
         
         if not password or not host_port then
-            cprint("${red}✗${clear} Invalid Trojan link format")
+            log.debug("${red}✗${clear} Invalid Trojan link format")
             return
         end
         
         server, port = host_port:match("^([^:]+):(%d+)$")
         if not server or not port then
-            cprint("${red}✗${clear} Failed to parse server and port")
+            log.debug("${red}✗${clear} Failed to parse server and port")
             return
         end
         
@@ -576,12 +576,12 @@ function import_from_link(link)
             config_name = "imported-trojan-" .. os.date("%Y%m%d-%H%M%S")
         end
     else
-        cprint("${red}✗${clear} Unsupported protocol: %s", protocol)
+        log.debug("${red}✗${clear} Unsupported protocol: %s", protocol)
         return
     end
     
     if not server or not port then
-        cprint("${red}✗${clear} Failed to parse subscription link")
+        log.debug("${red}✗${clear} Failed to parse subscription link")
         return
     end
     
@@ -657,22 +657,22 @@ function import_from_link(link)
                 }
                 cfg_tbl.route.final = "trojan-out"
         else
-                cprint("${red}✗${clear} Unsupported protocol: %s", protocol)
+                log.debug("${red}✗${clear} Unsupported protocol: %s", protocol)
                 return
         end
 
         local config_file = path.join(get_config_dir(), config_name .. ".json")
         json.savefile(config_file, cfg_tbl, { indent = true })
     
-    cprint("")
-    cprint(string.format("${green}✓${clear} Configuration imported: ${yellow}%s${clear}", config_name))
-    cprint("${dim}Server: %s:%s${clear}", server, port)
-    cprint("${dim}Protocol: %s${clear}", protocol)
+    log.debug("")
+    log.debug(string.format("${green}✓${clear} Configuration imported: ${yellow}%s${clear}", config_name))
+    log.debug("${dim}Server: %s:%s${clear}", server, port)
+    log.debug("${dim}Protocol: %s${clear}", protocol)
     if method then
-        cprint("${dim}Method: %s${clear}", method)
+        log.debug("${dim}Method: %s${clear}", method)
     end
-    cprint("")
-    cprint("Start with: ${cyan}sing-box-helper start %s${clear}", config_name)
+    log.debug("")
+    log.debug("Start with: ${cyan}sing-box-helper start %s${clear}", config_name)
 end
 
 function xpkg_main(command, ...)
@@ -693,8 +693,8 @@ function xpkg_main(command, ...)
     elseif command == "start" then
         local config_name = ({...})[1]
         if not config_name then
-            cprint("${yellow}Please specify a configuration name${clear}")
-            cprint("Usage: sing-box-helper start <config-name>")
+            log.debug("${yellow}Please specify a configuration name${clear}")
+            log.debug("Usage: sing-box-helper start <config-name>")
             return
         end
         start_config(config_name)

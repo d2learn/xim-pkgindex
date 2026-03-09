@@ -53,17 +53,17 @@ function xpkg_main(...)
 
 
     -- printinfo
-    cprint("\tlinux-sysroot-create - 0.0.1")
-    cprint("")
-    cprint("---")
-    cprint("glibc version: ${green}%s${clear}", tostring(cmds["--glibc"]))
-    cprint("linux-headers version: ${green}%s${clear}", cmds["--linux-headers"])
-    cprint("output path: ${green}%s${clear}", cmds["--output"])
-    cprint("---")
-    cprint("")
+    log.debug("\tlinux-sysroot-create - 0.0.1")
+    log.debug("")
+    log.debug("---")
+    log.debug("glibc version: ${green}%s${clear}", tostring(cmds["--glibc"]))
+    log.debug("linux-headers version: ${green}%s${clear}", cmds["--linux-headers"])
+    log.debug("output path: ${green}%s${clear}", cmds["--output"])
+    log.debug("---")
+    log.debug("")
 
     if not cmds["--glibc"] then
-        cprint("${red}error: --glibc is required!${clear}")
+        log.debug("${red}error: --glibc is required!${clear}")
         return
     end
 

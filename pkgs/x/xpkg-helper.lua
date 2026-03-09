@@ -38,15 +38,15 @@ function xpkgname_process(pkgname)
     local version = ""
 
     if not pkgname then
-        cprint("\t${bright}XPackage Helper Tools - 0.0.1${clear}")
-        cprint("")
-        cprint("Usage: ${dim cyan}xpkg-helper [namespace:]<pkgname>[@version]")
-        cprint("")
-        cprint("Example:")
-        cprint("  ${dim cyan}xpkg-helper code")
-        cprint("  ${dim cyan}xpkg-helper code@1.100.1")
-        cprint("  ${dim cyan}xpkg-helper fromesource:musl-gcc@15.1.0")
-        cprint("")
+        log.debug("\t${bright}XPackage Helper Tools - 0.0.1${clear}")
+        log.debug("")
+        log.debug("Usage: ${dim cyan}xpkg-helper [namespace:]<pkgname>[@version]")
+        log.debug("")
+        log.debug("Example:")
+        log.debug("  ${dim cyan}xpkg-helper code")
+        log.debug("  ${dim cyan}xpkg-helper code@1.100.1")
+        log.debug("  ${dim cyan}xpkg-helper fromesource:musl-gcc@15.1.0")
+        log.debug("")
         return
     else
         log.info("checking [ %s ] ...", tostring(pkgname))

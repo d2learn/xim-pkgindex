@@ -79,14 +79,14 @@ function xpkg_main(installdir, ...)
 
     configure_args = string.format("%s --prefix=%s", configure_args, installdir)
 
-    cprint("")
-    cprint("\t ${bright}Configure Project Installer - 0.0.1${clear}")
-    cprint("")
-    cprint("xpkg-scode: ${dim green}" .. tostring(cmds["--xpkg-scode"]))
-    cprint("project-dir: ${dim green}" .. abs_srcdir)
-    cprint("install-dir: ${dim green}" .. installdir)
-    cprint("args:   ${dim green}" .. configure_args)
-    cprint("")
+    log.debug("")
+    log.debug("\t ${bright}Configure Project Installer - 0.0.1${clear}")
+    log.debug("")
+    log.debug("xpkg-scode: ${dim green}" .. tostring(cmds["--xpkg-scode"]))
+    log.debug("project-dir: ${dim green}" .. abs_srcdir)
+    log.debug("install-dir: ${dim green}" .. installdir)
+    log.debug("args:   ${dim green}" .. configure_args)
+    log.debug("")
 
     os.cd(abs_srcdir)
 
@@ -98,9 +98,9 @@ function xpkg_main(installdir, ...)
     if not os.isfile(configure_file) then
         log.error("missing configure script in project directory")
         log.error("${red}error: missing or invalid project directory: ${clear}" .. abs_srcdir)
-        cprint("")
-        cprint("Usage: ${dim cyan}configure-project-installer <install-dir> [ --project-dir xx ] [--args xx] [--force]")
-        cprint("")
+        log.debug("")
+        log.debug("Usage: ${dim cyan}configure-project-installer <install-dir> [ --project-dir xx ] [--args xx] [--force]")
+        log.debug("")
         return
     end
 

@@ -67,6 +67,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 local node_dir_template = {
     linux = "node-v%s-linux-x64",
@@ -76,7 +77,7 @@ local node_dir_template = {
 
 function install()
     os.tryrm(pkginfo.install_dir())
-    print("Installing Node.js to %s ...", pkginfo.install_dir())
+    log.debug("Installing Node.js to %s ...", pkginfo.install_dir())
     os.mv(
         string.format(node_dir_template[os.host()], pkginfo.version()),
         pkginfo.install_dir()
@@ -85,7 +86,7 @@ function install()
 end
 
 function config()
-    print("Configuring Node.js ...")
+    log.debug("Configuring Node.js ...")
     local bindir = pkginfo.install_dir()
     if not os.host() == "windows" then
         bindir = path.join(pkginfo.install_dir(), "bin")
@@ -107,7 +108,7 @@ function config()
 end
 
 function uninstall()
-    print("Uninstalling Node.js from %s ...", pkginfo.install_dir())
+    log.debug("Uninstalling Node.js from %s ...", pkginfo.install_dir())
     xvm.remove("node")
     xvm.remove("nodejs")
     xvm.remove("npm", "node-" .. pkginfo.version())

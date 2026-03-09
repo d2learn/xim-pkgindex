@@ -33,6 +33,7 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.log")
 
 function installed()
     return os.iorun("xvm list seeme-report")
@@ -41,12 +42,12 @@ end
 function install()
     os.tryrm(pkginfo.install_dir()) -- 移除可能存在的老代码
     os.trymv("report", pkginfo.install_dir())
-    print("Installing dependencies from requirements.txt...")
+    log.debug("Installing dependencies from requirements.txt...")
     local install_result = os.exec(string.format("pip install -r %s", path.join(pkginfo.install_dir(), "requirement.txt")))-- for win \\
-    cprint("\n${green}run seeme-server first${clear}")
-    cprint("\n${green}run it, use -> seeme-report run${clear} ")
-    cprint("\n${green}run in background, use -> seeme-reportw run${clear}")
-    cprint("\n${green}for help use -> seeme-report -h${clear}")
+    log.debug("\n${green}run seeme-server first${clear}")
+    log.debug("\n${green}run it, use -> seeme-report run${clear} ")
+    log.debug("\n${green}run in background, use -> seeme-reportw run${clear}")
+    log.debug("\n${green}for help use -> seeme-report -h${clear}")
 
     return true
 

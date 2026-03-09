@@ -27,8 +27,8 @@ end
 function install()
     os.exec("wsl --install -d Ubuntu")
 
-    cprint("\n\n  ${yellow}Note${clear}: maybe need to restart your computer to complete WSL installation")
-    cprint("  ${yellow}注意${clear}: 可能需要重启让WSL安装和配置生效\n\n")
+    log.debug("\n\n  ${yellow}Note${clear}: maybe need to restart your computer to complete WSL installation")
+    log.debug("  ${yellow}注意${clear}: 可能需要重启让WSL安装和配置生效\n\n")
 
     guide_wsl_setup()
 
@@ -40,8 +40,10 @@ function uninstall()
     return true
 end
 
+import("xim.libxpkg.log")
+
 function guide_wsl_setup()
-    print([[
+    log.debug([[
 
 [xlings]: WSL Ubuntu 初步指导:
 

@@ -74,6 +74,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 local binname = {
     windows = "project-graph.exe",
@@ -86,10 +87,10 @@ end
 
 function install()
     if os.host() == "windows" then
-        print("安装tips:")
-        print("\t 0.打开安装提示")
-        print("\t 1.选择对应语言")
-        print('\t 2.点击"下一步"直到安装完成')
+        log.debug("安装tips:")
+        log.debug("\t 0.打开安装提示")
+        log.debug("\t 1.选择对应语言")
+        log.debug('\t 2.点击"下一步"直到安装完成')
         os.exec(pkginfo.install_file() .. " /SILENT")
     elseif os.host() == "linux" then
         os.tryrm("project-graph")
@@ -107,7 +108,7 @@ end
 function config()
     local project_graph_path = path.join(pkginfo.install_dir(), "bin")
     if os.host() == "windows" then
-        print("remove old version...")
+        log.debug("remove old version...")
         xvm.remove("project-graph")
         project_graph_path = "C:\\Users\\" .. os.getenv("USERNAME") .. "\\AppData\\Local\\Project Graph"
     else
@@ -143,7 +144,7 @@ StartupNotify=false
 StartupWMClass=project-graph
         ]]
 
-        print("[%s] - %s", action, shortcut_file)
+        log.debug("[%s] - %s", action, shortcut_file)
 
         if action == "create" then
             io.writefile(filename, string.format(

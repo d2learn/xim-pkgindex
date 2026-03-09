@@ -342,7 +342,7 @@ function xpkg_main(action, projectdir, ...)
                 new_crontab_content = new_crontab_content .. line .. "\n"
             end
         end
-        print(new_crontab_content)
+        cprint(new_crontab_content)
         io.writefile(get_crontab_file(), new_crontab_content)
         sync_to_system()
         json.savefile(get_task_list_file(), task_list, { indent = true })

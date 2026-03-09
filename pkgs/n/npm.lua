@@ -34,6 +34,7 @@ package.xpm.macosx = os_common
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function install()
     local npm_installcmd_template = "npm install -g npm@%s --prefix %s"
@@ -42,7 +43,7 @@ function install()
 end
 
 function config()
-    print("config xvm...")
+    log.debug("config xvm...")
 
     config = {}
     if os.host() == "windows" then

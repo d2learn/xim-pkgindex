@@ -23,6 +23,7 @@ package = {
 }
 
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 local sys_paths = {
     linux = {
@@ -67,9 +68,9 @@ function install()
 end
 
 function config()
-    cprint("")
-    cprint("\t run [${yellow bright}xvm use ${green}name${clear} ${yellow bright}system${clear}] switch to system version")
-    cprint("")
+    log.debug("")
+    log.debug("\t run [${yellow bright}xvm use ${green}name${clear} ${yellow bright}system${clear}] switch to system version")
+    log.debug("")
     return true
 end
 

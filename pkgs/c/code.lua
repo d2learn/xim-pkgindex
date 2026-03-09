@@ -62,6 +62,7 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 local function get_shortcut_dir()
     return {
@@ -123,7 +124,7 @@ function install()
         -- set the correct permissions for chrome-sandbox, and as root
         local sandbox = path.join(pkginfo.install_dir(), "chrome-sandbox")
         if os.isfile(sandbox) then
-            print("setting permissions for chrome-sandbox...")
+            log.debug("setting permissions for chrome-sandbox...")
             os.exec("sudo chown root:root " .. sandbox)
             os.exec("sudo chmod 4755 " .. sandbox)
         end
@@ -164,7 +165,7 @@ function config()
     else
         local desktop_info = desktop_shortcut_info()
         if not os.isfile(desktop_info.filepath) then
-            print("creating desktop shortcut...")
+            log.debug("creating desktop shortcut...")
             io.writefile(desktop_info.filepath, desktop_info.content)
         end
     end
@@ -182,7 +183,7 @@ function uninstall()
         -- remove desktop shortcut
         local lnk_filename = "Visual Studio Code - [" .. pkginfo.version() .. "]"
         local lnk_path = path.join(get_shortcut_dir()[os.host()], lnk_filename .. ".lnk")
-        print("removing desktop shortcut - %s", lnk_path)
+        log.debug("removing desktop shortcut - %s", lnk_path)
         os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", lnk_filename .. ".lnk"))
         os.tryrm(lnk_path)
     elseif os.host() == "macosx" then
@@ -190,7 +191,7 @@ function uninstall()
     else
         local desktop_info = desktop_shortcut_info()
         if os.isfile(desktop_info.filepath) then
-            print("removing desktop shortcut - %s", desktop_info.filepath)
+            log.debug("removing desktop shortcut - %s", desktop_info.filepath)
             os.tryrm(desktop_info.filepath)
         end
     end
@@ -239,5 +240,5 @@ shortcut.Save
     -- 删除临时的 .vbs 文件
     os.tryrm(vbs_path)
 
-    print("Shortcut created: " .. name .. ".lnk")
+    log.debug("Shortcut created: " .. name .. ".lnk")
 end

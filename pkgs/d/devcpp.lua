@@ -84,7 +84,7 @@ function config()
         os.cp(tips_file_utf8, tips_file)
     end
 
-    cprint([[${yellow}
+    log.debug([[${yellow}
 
            ConfigDoc | 配置文档
     https://forum.d2learn.org/topic/134

@@ -51,7 +51,7 @@ function xpkg_main(person_access_token)
         person_access_token
     ))
 
-    print(unread_msg_list_json)
+    cprint(unread_msg_list_json)
 
     local unread_msg_list = json.decode(unread_msg_list_json)
 
@@ -60,7 +60,7 @@ function xpkg_main(person_access_token)
         local response = os.iorun(string.format([[curl -s -X DELETE -H "Authorization: token %s" https://api.github.com/notifications/threads/%s]],
             person_access_token, msg.id
         ))
-        print("\n" .. tostring(response) .. "\n")
+        cprint("\n" .. tostring(response) .. "\n")
     end
 
     log.info("All notifications cleared")

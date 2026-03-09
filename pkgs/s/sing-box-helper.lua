@@ -509,7 +509,7 @@ function import_from_link(link)
     
     ensure_config_dir()
     
-    print("link: " .. link)
+    cprint("link: " .. link)
 
     local protocol, data = link:match("^(%w+)://(.+)$")
 

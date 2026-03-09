@@ -33,10 +33,11 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function install()
     -- install prebuild binary
-    print("Installing sing-box from prebuild...")
+    log.debug("Installing sing-box from prebuild...")
     
     -- Create installation directory
     os.tryrm(pkginfo.install_dir())

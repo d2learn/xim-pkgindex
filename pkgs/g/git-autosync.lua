@@ -239,24 +239,24 @@ function action_sync(cmds)
 end
 
 function action_help()
-    log.debug("${bright}Git AutoSync Tools - 0.0.1${clear}")
-    log.debug("")
-    log.debug("Usage: xscript git-autosync <action> [options]")
-    log.debug("")
-    log.debug("Actions:")
-    log.debug("  add       Add a new git autosync task")
-    log.debug("  list      List all git autosync tasks")
-    log.debug("  remove    Remove a git autosync task")
-    log.debug("  log       Show the last 20 lines of the log file")
-    log.debug("")
-    log.debug("Options:")
-    log.debug("  --project-dir <path>   The project directory to sync (default: current directory)")
-    log.debug("  --postCommand <cmd>    The command to run after syncing (default: none)")
-    log.debug("  --time <cron>          The cron time format (default: '* * * * *')")
-    log.debug("")
-    log.debug("Example:")
-    log.debug("  git-autosync add --project-dir /path/to/repo --postCommand 'echo Hello' --time '0 * * * *'")
-    log.debug("")
+    cprint("${bright}Git AutoSync Tools - 0.0.1${clear}")
+    cprint("")
+    cprint("Usage: xscript git-autosync <action> [options]")
+    cprint("")
+    cprint("Actions:")
+    cprint("  add       Add a new git autosync task")
+    cprint("  list      List all git autosync tasks")
+    cprint("  remove    Remove a git autosync task")
+    cprint("  log       Show the last 20 lines of the log file")
+    cprint("")
+    cprint("Options:")
+    cprint("  --project-dir <path>   The project directory to sync (default: current directory)")
+    cprint("  --postCommand <cmd>    The command to run after syncing (default: none)")
+    cprint("  --time <cron>          The cron time format (default: '* * * * *')")
+    cprint("")
+    cprint("Example:")
+    cprint("  git-autosync add --project-dir /path/to/repo --postCommand 'echo Hello' --time '0 * * * *'")
+    cprint("")
 end
 
 
@@ -299,16 +299,16 @@ function xpkg_main(action, projectdir, ...)
     cmds["--time"] = time_format(cmds)
 
     -- print info
-    log.debug("\t${bright}Git AutoSync Task - 0.0.1${clear}")
+    cprint("\t${bright}Git AutoSync Task - 0.0.1${clear}")
 
-    log.debug("")
-    log.debug("${dim}---")
-    log.debug("${bright}Action: ${dim bright cyan}%s${clear}", action)
-    log.debug("${bright}Project Dir: ${dim bright cyan}%s${clear}", cmds["--project-dir"])
-    log.debug("${bright}Time: ${dim bright cyan}%s${clear}", cmds["--time"])
-    log.debug("${bright}Post Command: ${dim bright cyan}%s${clear}", tostring(cmds["--post-command"]))
-    log.debug("${dim}---${clear}")
-    log.debug("")
+    cprint("")
+    cprint("${dim}---")
+    cprint("${bright}Action: ${dim bright cyan}%s${clear}", action)
+    cprint("${bright}Project Dir: ${dim bright cyan}%s${clear}", cmds["--project-dir"])
+    cprint("${bright}Time: ${dim bright cyan}%s${clear}", cmds["--time"])
+    cprint("${bright}Post Command: ${dim bright cyan}%s${clear}", tostring(cmds["--post-command"]))
+    cprint("${dim}---${clear}")
+    cprint("")
 
     -- load task list
     local task_list = json.loadfile(get_task_list_file()) or {}
@@ -319,11 +319,11 @@ function xpkg_main(action, projectdir, ...)
     if action == "add" then
         action_add(cmds, task_list)
     elseif action == "list" then
-        log.debug("${bright}\tCurrent Tasks${clear}")
-        log.debug("\n${dim cyan}[project-dir]\t${bright yellow}[time]\t${green}[postCommand]")
+        cprint("${bright}\tCurrent Tasks${clear}")
+        cprint("\n${dim cyan}[project-dir]\t${bright yellow}[time]\t${green}[postCommand]")
         for project_dir, task in pairs(task_list) do
             -- [project-dir] [time] [postCommand]
-            log.debug("${dim cyan}%s${clear}  ${bright yellow}%s${clear}  ${dim green}%s${clear}", project_dir, task["time"], tostring(task["postCommand"]))
+            cprint("${dim cyan}%s${clear}  ${bright yellow}%s${clear}  ${dim green}%s${clear}", project_dir, task["time"], tostring(task["postCommand"]))
         end
     elseif action == "remove" then
         if not task_list[cmds["--project-dir"]] then
@@ -342,7 +342,7 @@ function xpkg_main(action, projectdir, ...)
                 new_crontab_content = new_crontab_content .. line .. "\n"
             end
         end
-        log.debug(new_crontab_content)
+        cprint(new_crontab_content)
         io.writefile(get_crontab_file(), new_crontab_content)
         sync_to_system()
         json.savefile(get_task_list_file(), task_list, { indent = true })

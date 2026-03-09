@@ -139,7 +139,7 @@ function xpkg_main(action, ...)
 
     if action == "create" and cmds["--target"] and not os.isfile(cmds["--target"]) then
         log.error("target not found")
-        log.debug("shortcut-tool <action> <--target xx> [--name xx --icon xx]")
+        cprint("shortcut-tool <action> <--target xx> [--name xx --icon xx]")
         return
     end
 
@@ -151,6 +151,6 @@ function xpkg_main(action, ...)
     elseif action == "remove" then
         shortcut_remove(cmds["--name"])
     else
-        log.debug("shortcut-tool <action> <--target xx> [--name xx --icon xx]")
+        cprint("shortcut-tool <action> <--target xx> [--name xx --icon xx]")
     end
 end

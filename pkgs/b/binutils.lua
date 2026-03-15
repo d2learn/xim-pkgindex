@@ -52,7 +52,15 @@ function install()
         force = true, symlink = true
     })
 
-    elfpatch.auto({enable = true, shrink = true})
+    -- Point interpreter directly to glibc xpkgs
+    local glibc_dir = pkginfo.dep_install_dir("glibc", "2.39")
+    local loader = glibc_dir and path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2") or nil
+    elfpatch.auto({
+        enable = true,
+        shrink = true,
+        bins = { "bin" },
+        interpreter = loader,
+    })
 
     return true
 end

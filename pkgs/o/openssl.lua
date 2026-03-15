@@ -21,7 +21,7 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "glibc" },
+            deps = { "glibc@2.39" },
             ["latest"] = { ref = "3.1.5" },
             ["3.1.5"] = "XLINGS_RES",
         },
@@ -32,6 +32,7 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
+import("xim.libxpkg.elfpatch")
 
 local libs = {
     "libcrypto.so", "libcrypto.so.3", "libcrypto.a",
@@ -66,6 +67,17 @@ function install()
         :replace(".tar.gz", "")
     os.tryrm(pkginfo.install_dir())
     os.mv(openssl_dir, pkginfo.install_dir())
+
+    -- Point interpreter directly to glibc xpkgs
+    local glibc_dir = pkginfo.dep_install_dir("glibc", "2.39")
+    local loader = glibc_dir and path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2") or nil
+    elfpatch.auto({
+        enable = true,
+        shrink = true,
+        bins = { "bin" },
+        libs = { "lib64" },
+        interpreter = loader,
+    })
     return true
 end
 
@@ -77,7 +89,7 @@ function config()
     local libdir = path.join(pkginfo.install_dir(), "lib64")
     local includedir = path.join(pkginfo.install_dir(), "include")
 
-    log.info("Registering CLI programs...")
+    log.debug("Registering CLI programs...")
     for _, prog in ipairs(package.programs) do
         xvm.add(prog, {
             bindir = bindir,
@@ -85,7 +97,7 @@ function config()
         })
     end
 
-    log.info("Registering libraries...")
+    log.debug("Registering libraries...")
     local config = {
         type = "lib",
         version = package.name .. "-" .. pkginfo.version(),
@@ -99,7 +111,7 @@ function config()
         xvm.add(lib, config)
     end
 
-    log.info("Installing headers to sysroot...")
+    log.debug("Installing headers to sysroot...")
     if os.isdir(includedir) then
         local sys_includedir = get_sys_usr_includedir()
         local subdirs = os.dirs(path.join(includedir, "*"))

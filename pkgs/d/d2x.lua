@@ -31,7 +31,7 @@ package = {
             ["0.1.1"] = "XLINGS_RES",
         },
         linux = {
-            deps = { "glibc", "openssl@3.1.5" },
+            deps = { "glibc@2.39", "openssl@3.1.5" },
             ["latest"] = { ref = "0.1.4" },
             ["0.1.4"] = "XLINGS_RES",
             ["0.1.3"] = "XLINGS_RES",
@@ -59,9 +59,12 @@ function install()
     os.mv(d2xdir, pkginfo.install_dir())
 
     if os.host() ~= "windows" then
+        local glibc_dir = pkginfo.dep_install_dir("glibc", "2.39")
+        local loader = glibc_dir and path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2") or nil
         elfpatch.auto({
             enable = true,
             shrink = true,
+            interpreter = loader,
         })
     end
     return true

@@ -187,7 +187,7 @@ function __config_linux()
     end
 
     -- lib
-    log.info("add gcc libs...")
+    log.debug("add gcc libs...")
     local lib_config = {
         type = "lib",
         version = "gcc-" .. pkginfo.version(),

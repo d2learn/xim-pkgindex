@@ -89,7 +89,7 @@ function config()
     local libdir = path.join(pkginfo.install_dir(), "lib64")
     local includedir = path.join(pkginfo.install_dir(), "include")
 
-    log.info("Registering CLI programs...")
+    log.debug("Registering CLI programs...")
     for _, prog in ipairs(package.programs) do
         xvm.add(prog, {
             bindir = bindir,
@@ -97,7 +97,7 @@ function config()
         })
     end
 
-    log.info("Registering libraries...")
+    log.debug("Registering libraries...")
     local config = {
         type = "lib",
         version = package.name .. "-" .. pkginfo.version(),
@@ -111,7 +111,7 @@ function config()
         xvm.add(lib, config)
     end
 
-    log.info("Installing headers to sysroot...")
+    log.debug("Installing headers to sysroot...")
     if os.isdir(includedir) then
         local sys_includedir = get_sys_usr_includedir()
         local subdirs = os.dirs(path.join(includedir, "*"))

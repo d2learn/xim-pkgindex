@@ -93,10 +93,15 @@ function install()
             verbose = true,
         })
 
-        -- shrink=true keeps only actually-needed rpath entries.
+        -- Point interpreter directly to glibc xpkgs (not subos symlink)
+        local glibc_dir = pkginfo.dep_install_dir("glibc", "2.39")
+        local loader = glibc_dir and path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2") or nil
         elfpatch.auto({
             enable = true,
             shrink = true,
+            bins = { "bin", "libexec" },
+            libs = { "lib64" },
+            interpreter = loader,
         })
     end
     return true

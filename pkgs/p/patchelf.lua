@@ -1,7 +1,7 @@
 package = {
     spec = "1",
 
-    name = "elfpatch",
+    name = "patchelf",
     description = "ELF patch tool for interpreter and RPATH",
 
     homepage = "https://github.com/NixOS/patchelf",
@@ -16,7 +16,8 @@ package = {
     categories = {"elf", "binary", "tool"},
     keywords = {"elfpatch", "patchelf", "rpath", "interpreter"},
 
-    programs = {"patchelf", "elfpatch"},
+    programs = {"patchelf"},
+    aliases = {"elfpatch"},
     xvm_enable = true,
 
     xpm = {

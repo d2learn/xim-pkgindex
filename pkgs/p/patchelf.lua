@@ -24,13 +24,9 @@ package = {
         linux = {
             ["latest"] = { ref = "0.18.0" },
             ["0.18.0"] = {
-                ["GLOBAL"] = {
-                    url = "https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz",
-                    sha256 = nil,
-                },
-                ["CN"] = {
-                    url = "https://gitcode.com/xlings-res/mirror-cn/releases/download/patchelf/patchelf-0.18.0-x86_64.tar.gz",
-                    sha256 = nil,
+                url = {
+                    ["GLOBAL"] = "https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz",
+                    ["CN"] = "https://gitcode.com/xlings-res/mirror-cn/releases/download/patchelf/patchelf-0.18.0-x86_64.tar.gz",
                 },
             },
         },

@@ -92,10 +92,6 @@ TODO
 ]],
 }
 
-function installed()
-    return os.iorun("xvm list code")
-end
-
 function install()
     if os.host() == "windows" then
         os.tryrm(pkginfo.install_dir())

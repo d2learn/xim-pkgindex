@@ -1,7 +1,3 @@
--- TODO: xpm 中无 linux 入口，Linux 用户无法安装；install/config 已有 Linux 逻辑，需补充 xpm.linux 版本定义
-
-function _linux_download_url(version) return "https://www.python.org/ftp/python/" .. version .. "/Python-" .. version .. ".tar.xz" end
-
 package = {
     spec = "1",
     homepage = "https://www.python.org",
@@ -19,7 +15,19 @@ package = {
     categories = {"python", "plang", "interpreter"},
     keywords = {"python", "programming", "scripting", "language"},
 
+    xvm_enable = true,
+
     xpm = {
+        linux = {
+            ["latest"] = { ref = "3.13.12" },
+            ["3.13.12"] = {
+                url = "https://gitcode.com/xlings-res/mirror-cn/releases/download/python/cpython-3.13.12%2B20260310-x86_64-unknown-linux-gnu-install_only.tar.gz",
+                sha256 = "a1d58266fede23e795b1b7d1dee3cc77470538fd14292a46cc96e735af030fec",
+            },
+            ["3.12.3"] = {
+                
+            }
+        },
         windows = {
             ["latest"] = { ref = "3.12.6"},
             ["3.12.6"] = {
@@ -34,14 +42,6 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
-function installed()
-    if os.host() == "windows" then
-        return os.iorun("python --version")
-    else
-        return os.iorun("python3 --version")
-    end
-end
-
 function install()
     if os.host() == "windows" then
         local install_cmd = pkginfo.install_file()
@@ -49,14 +49,9 @@ function install()
             .. [[ TargetDir="]] .. pkginfo.install_dir() .. [["]]
         os.exec(install_cmd)
     else
-        os.cd("Python-" .. pkginfo.version())
-        os.exec([[./configure --enable-optimizations
-            --prefix=]] .. pkginfo.install_dir()
-        )
-        os.exec("make -j$(nproc)")
-        os.exec("make install")
-        os.cd("..")
-        os.tryrm("Python-" .. pkginfo.version())
+        -- python-build-standalone tarball extracts to "python/" directory
+        os.tryrm(pkginfo.install_dir())
+        os.mv("python", pkginfo.install_dir())
     end
     return true
 end
@@ -66,7 +61,10 @@ function config()
         log.info("Please restart the terminal to take effect.")
     else
         local bindir = path.join(pkginfo.install_dir(), "bin")
+        
+        xvm.add("python3", { bindir = bindir })
         xvm.add("python", { bindir = bindir, alias = "python3" })
+        xvm.add("pip3", { bindir = bindir, binding = "python@" .. pkginfo.version() })
         xvm.add("pip", { version = "python-" .. pkginfo.version(), bindir = bindir, alias = "pip3", binding = "python@" .. pkginfo.version() })
     end
     return true

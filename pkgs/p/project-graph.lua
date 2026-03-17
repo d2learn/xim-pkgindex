@@ -81,10 +81,6 @@ local binname = {
     linux = "project-graph",
 }
 
-function installed()
-    return os.iorun("xvm list project-graph")
-end
-
 function install()
     if os.host() == "windows" then
         log.debug("安装tips:")

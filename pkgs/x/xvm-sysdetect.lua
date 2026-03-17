@@ -46,14 +46,6 @@ local pkgs = {
     "git",
 }
 
-function installed()
-    for _, pkg in ipairs(pkgs) do
-        if string.find(os.iorun("xvm list " .. pkg), "system", 1, true) == nil then
-            return false
-        end
-    end
-    return true
-end
 
 function install()
     for _, pkg in ipairs(pkgs) do

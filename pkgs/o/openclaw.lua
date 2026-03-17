@@ -39,10 +39,6 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
-function installed()
-    return os.iorun("xvm list openclaw")
-end
-
 function install()
     os.tryrm(pkginfo.install_dir())
     os.mkdir(pkginfo.install_dir())

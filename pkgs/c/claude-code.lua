@@ -39,9 +39,6 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
-function installed()
-    return os.iorun("xvm list claude")
-end
 
 -- 结构说明（基于 npm 包元数据 + 本地安装校验）:
 --   1) 包自身入口由 package.json 的 bin.claude = "cli.js" 定义

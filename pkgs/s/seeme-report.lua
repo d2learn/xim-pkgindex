@@ -35,10 +35,6 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.log")
 
-function installed()
-    return os.iorun("xvm list seeme-report")
-end
-
 function install()
     os.tryrm(pkginfo.install_dir()) -- 移除可能存在的老代码
     os.trymv("report", pkginfo.install_dir())

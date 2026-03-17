@@ -47,9 +47,6 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
-function installed()
-    return os.iorun("xvm list seeme-server")
-end
 
 function install()
     os.tryrm(pkginfo.install_dir())

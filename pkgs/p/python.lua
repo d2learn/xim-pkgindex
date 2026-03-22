@@ -24,8 +24,9 @@ package = {
                 url = "https://gitcode.com/xlings-res/mirror-cn/releases/download/python/cpython-3.13.12%2B20260310-x86_64-unknown-linux-gnu-install_only.tar.gz",
                 sha256 = "a1d58266fede23e795b1b7d1dee3cc77470538fd14292a46cc96e735af030fec",
             },
-            ["3.12.3"] = {
-                
+            ["3.12.13"] = {
+                url = "https://gitcode.com/xlings-res/mirror-cn/releases/download/python/cpython-3.12.13%2B20260310-x86_64-unknown-linux-gnu-install_only.tar.gz",
+                sha256 = nil,
             }
         },
         windows = {
@@ -39,6 +40,7 @@ package = {
 }
 
 import("xim.libxpkg.pkginfo")
+import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 
@@ -61,11 +63,24 @@ function config()
         log.info("Please restart the terminal to take effect.")
     else
         local bindir = path.join(pkginfo.install_dir(), "bin")
-        
+
         xvm.add("python3", { bindir = bindir })
         xvm.add("python", { bindir = bindir, alias = "python3" })
         xvm.add("pip3", { bindir = bindir, binding = "python@" .. pkginfo.version() })
         xvm.add("pip", { version = "python-" .. pkginfo.version(), bindir = bindir, alias = "pip3", binding = "python@" .. pkginfo.version() })
+
+        -- Install Python dev headers into subos sysroot so that the subos GCC
+        -- can compile C extensions (e.g. evdev, mujoco) without missing pyconfig.h
+        local includedir = path.join(pkginfo.install_dir(), "include")
+        local sysrootdir = system.subos_sysrootdir()
+        if sysrootdir and os.isdir(includedir) then
+            local sysroot_usrdir = path.join(sysrootdir, "usr")
+            if not os.isdir(sysroot_usrdir) then os.mkdir(sysroot_usrdir) end
+            log.info("Installing Python dev headers into subos sysroot...")
+            os.cp(includedir, sysroot_usrdir, {
+                force = true, symlink = true
+            })
+        end
     end
     return true
 end

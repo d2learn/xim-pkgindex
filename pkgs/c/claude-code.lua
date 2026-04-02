@@ -73,7 +73,8 @@ function config()
     xvm.add("claude", {
         alias = string.format([[node "%s"]], __claude_cli()),
         envs = {
-            CLAUDE_CONFIG_DIR = path.join(pkginfo.install_dir(), "config"),
+            -- should be set by user, not hardcoded here
+            --CLAUDE_CONFIG_DIR = path.join(pkginfo.install_dir(), "config"),
         }
     })
     return true

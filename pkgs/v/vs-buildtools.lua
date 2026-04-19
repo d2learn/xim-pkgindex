@@ -1,7 +1,7 @@
 package = {
     spec = "1",
-    name = "VS BuildTools",
-    description = "Visual Studio Code",
+    name = "vs-buildtools",
+    description = "Visual Studio Build Tools",
 
     type = "config",
     status = "stable",

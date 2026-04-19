@@ -18,7 +18,6 @@ package = {
     }
 }
 
-import("common")
 import("xim.libxpkg.pkgmanager")
 import("core.tool.toolchain")
 
@@ -33,7 +32,7 @@ function installed()
 end
 
 function install()
-    common.xlings_exec(
+    os.exec(
         "vs_BuildTools.exe" ..
         -- " --installPath " .. vs_install_path ..
         " --add " .. msvc_component ..
@@ -48,7 +47,7 @@ end
 
 function uninstall()
     if not os.isfile("vs_BuildTools.exe") then pkgmanager.install("vs-buildtools") end
-    common.xlings_exec(
+    os.exec(
         "vs_BuildTools.exe" ..
         " --remove " .. msvc_component ..
         " --passive " ..

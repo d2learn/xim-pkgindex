@@ -6,6 +6,9 @@ on:
       - '**'
     paths:
       - 'pkgs/**'
+      - '.github/workflows/ci-test.yml'
+      - '.github/scripts/**'
+  workflow_dispatch:
 
 jobs:
 
@@ -53,3 +56,54 @@ jobs:
               exit 1
             fi
           done
+
+  windows-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install xlings on Windows
+        shell: pwsh
+        run: |
+          $env:XLINGS_NON_INTERACTIVE = "1"
+          iex (Invoke-WebRequest `
+            -Uri "https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.ps1" `
+            -UseBasicParsing).Content
+
+          $xlingsHome = "$env:USERPROFILE\.xlings"
+          if (-not (Test-Path "$xlingsHome\bin\xlings.exe")) {
+            throw "xlings install did not produce $xlingsHome\bin\xlings.exe"
+          }
+
+          Add-Content $env:GITHUB_PATH "$xlingsHome\bin"
+          Add-Content $env:GITHUB_PATH "$xlingsHome\subos\current\bin"
+          Add-Content $env:GITHUB_ENV  "XLINGS_HOME=$xlingsHome"
+
+      - name: Verify xlings
+        shell: pwsh
+        run: |
+          xlings --version
+          xlings config
+
+      - name: Get changed-files
+        uses: tj-actions/changed-files@v46
+        id: changed-files
+        with:
+          files: pkgs/**/*.lua
+
+      - name: Windows install/uninstall test (changed packages)
+        if: steps.changed-files.outputs.any_changed == 'true'
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -File .github/scripts/windows-test.ps1 `
+            -ChangedFiles "${{ steps.changed-files.outputs.all_changed_files }}" `
+            -WorkspaceRoot "${{ github.workspace }}"

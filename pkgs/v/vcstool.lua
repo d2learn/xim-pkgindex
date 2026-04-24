@@ -50,22 +50,52 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 
+-- Python venv lays out its entry-point scripts under "bin/" on POSIX and
+-- "Scripts/" on Windows; select the right subdir instead of hardcoding.
+local function __venv_bindir()
+    local sub = is_host("windows") and "Scripts" or "bin"
+    return path.join(pkginfo.install_dir(), sub)
+end
+
 function install()
     os.tryrm(pkginfo.install_dir())
 
     -- create venv and install vcstool into it (standard pip/pipx approach)
     system.exec(string.format([[python3 -m venv "%s"]], pkginfo.install_dir()))
-    local venv_pip = path.join(pkginfo.install_dir(), "bin", "pip")
-    -- vcstool uses pkg_resources which was removed in setuptools >= 71
-    system.exec(string.format([["%s" install "setuptools<71"]], venv_pip))
-    system.exec(string.format([["%s" install "%s"]], venv_pip, pkginfo.install_file()))
+
+    if is_host("windows") then
+        -- Windows: xlings' Lua runtime does not expose os.execv, so the
+        -- only way to run pip from the venv is to build a command string
+        -- that xmake hands to a Windows shell. Several things bite when
+        -- we do that through os.exec directly:
+        --   * path.join returns mixed-separator strings that cmd.exe
+        --     mis-parses as switches
+        --   * CreateProcess won't auto-append .exe for an absolute path
+        --   * cmd.exe interprets `<` in a quoted arg as stdin redirect
+        -- Driving the install through PowerShell with single-quoted
+        -- arguments sidesteps all three. Any `'` in a spec would need
+        -- `''` escaping, but our specs are plain package names.
+        local venv = (pkginfo.install_dir():gsub("/", "\\"))
+        local wheel = (pkginfo.install_file():gsub("/", "\\"))
+        local py = venv .. "\\Scripts\\python.exe"
+        system.exec(string.format(
+            [[powershell -NoProfile -ExecutionPolicy Bypass -Command ]] ..
+            [["& '%s' -m pip install 'setuptools<71'; ]] ..
+            [[if ($LASTEXITCODE) { exit $LASTEXITCODE }; ]] ..
+            [[& '%s' -m pip install '%s'"]],
+            py, py, wheel))
+    else
+        local venv_pip = path.join(__venv_bindir(), "pip")
+        -- vcstool uses pkg_resources which was removed in setuptools >= 71
+        system.exec(string.format([["%s" install "setuptools<71"]], venv_pip))
+        system.exec(string.format([["%s" install "%s"]], venv_pip, pkginfo.install_file()))
+    end
 
     return true
 end
 
 function config()
-    local bindir = path.join(pkginfo.install_dir(), "bin")
-    xvm.add("vcs", { bindir = bindir })
+    xvm.add("vcs", { bindir = __venv_bindir() })
     return true
 end
 

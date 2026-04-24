@@ -51,6 +51,13 @@ import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
 import("xim.libxpkg.system")
 
+-- Python venv lays out its entry-point scripts under "bin/" on POSIX and
+-- "Scripts/" on Windows; select the right subdir instead of hardcoding.
+local function __venv_bindir()
+    local sub = is_host("windows") and "Scripts" or "bin"
+    return path.join(pkginfo.install_dir(), sub)
+end
+
 function install()
     os.tryrm(pkginfo.install_dir())
 
@@ -58,7 +65,7 @@ function install()
     system.exec(string.format([[python3 -m venv "%s"]], pkginfo.install_dir()))
     system.exec(string.format(
         [["%s" install "%s"]],
-        path.join(pkginfo.install_dir(), "bin", "pip"),
+        path.join(__venv_bindir(), "pip"),
         pkginfo.install_file()
     ))
 
@@ -66,7 +73,7 @@ function install()
 end
 
 function config()
-    local bindir = path.join(pkginfo.install_dir(), "bin")
+    local bindir = __venv_bindir()
     xvm.add("rosdep", { bindir = bindir })
     xvm.add("rosdep-source", { bindir = bindir })
     return true

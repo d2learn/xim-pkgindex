@@ -39,7 +39,11 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
 function install()
-    os.mv("ninja", pkginfo.install_dir())
+    -- XLINGS_RES ships the platform-native binary: `ninja` on Linux/macOS,
+    -- `ninja.exe` on Windows. Handle both forms so the move doesn't fail
+    -- on a fresh Windows install where the source file has the extension.
+    local exe = is_host("windows") and "ninja.exe" or "ninja"
+    os.mv(exe, path.join(pkginfo.install_dir(), exe))
     return true
 end
 

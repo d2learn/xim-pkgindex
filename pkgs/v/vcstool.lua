@@ -50,12 +50,19 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 
+-- Python venv lays out its entry-point scripts under "bin/" on POSIX and
+-- "Scripts/" on Windows; select the right subdir instead of hardcoding.
+local function __venv_bindir()
+    local sub = is_host("windows") and "Scripts" or "bin"
+    return path.join(pkginfo.install_dir(), sub)
+end
+
 function install()
     os.tryrm(pkginfo.install_dir())
 
     -- create venv and install vcstool into it (standard pip/pipx approach)
     system.exec(string.format([[python3 -m venv "%s"]], pkginfo.install_dir()))
-    local venv_pip = path.join(pkginfo.install_dir(), "bin", "pip")
+    local venv_pip = path.join(__venv_bindir(), "pip")
     -- vcstool uses pkg_resources which was removed in setuptools >= 71
     system.exec(string.format([["%s" install "setuptools<71"]], venv_pip))
     system.exec(string.format([["%s" install "%s"]], venv_pip, pkginfo.install_file()))
@@ -64,8 +71,7 @@ function install()
 end
 
 function config()
-    local bindir = path.join(pkginfo.install_dir(), "bin")
-    xvm.add("vcs", { bindir = bindir })
+    xvm.add("vcs", { bindir = __venv_bindir() })
     return true
 end
 

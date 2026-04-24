@@ -58,6 +58,14 @@ local function __venv_bindir()
     return path.join(pkginfo.install_dir(), sub)
 end
 
+-- Absolute path of the venv's pip entry point. Windows needs the .exe
+-- suffix: when CreateProcess is given a full path it does NOT consult
+-- PATHEXT, so `Scripts\pip` alone would resolve to "file not found".
+local function __venv_pip()
+    local pip = is_host("windows") and "pip.exe" or "pip"
+    return path.join(__venv_bindir(), pip)
+end
+
 function install()
     os.tryrm(pkginfo.install_dir())
 
@@ -65,7 +73,7 @@ function install()
     system.exec(string.format([[python3 -m venv "%s"]], pkginfo.install_dir()))
     system.exec(string.format(
         [["%s" install "%s"]],
-        path.join(__venv_bindir(), "pip"),
+        __venv_pip(),
         pkginfo.install_file()
     ))
 

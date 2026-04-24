@@ -88,15 +88,16 @@ end
 function config()
     log.debug("Configuring Node.js ...")
     local bindir = pkginfo.install_dir()
-    if not os.host() == "windows" then
+    if os.host() ~= "windows" then
         bindir = path.join(pkginfo.install_dir(), "bin")
     end
 
-    xvm.add("node", { bindir = bindir })
-    xvm.add("node", { bindir = bindir, alias = "node" })
+    local node_binding = "node@" .. pkginfo.version()
 
-    local npm_cfg = { bindir = bindir, version = "node-" .. pkginfo.version() }
-    local npx_cfg = { bindir = bindir, version = "node-" .. pkginfo.version() }
+    xvm.add("node", { bindir = bindir })
+
+    local npm_cfg = { bindir = bindir, version = "node-" .. pkginfo.version(), binding = node_binding }
+    local npx_cfg = { bindir = bindir, version = "node-" .. pkginfo.version(), binding = node_binding }
     if os.host() == "windows" then
         npm_cfg.alias = "npm.cmd"
         npx_cfg.alias = "npx.cmd"

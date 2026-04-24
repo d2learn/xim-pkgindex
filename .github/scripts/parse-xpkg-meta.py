@@ -26,6 +26,7 @@ def main() -> int:
     meta = parse_xpkg(sys.argv[1])
     print(json.dumps({
         "name": meta.name,
+        "type": meta.pkg_type,
         "programs": list(meta.programs),
         "is_ref": bool(meta.is_ref),
         "has_windows": bool(meta.platforms.get("windows")),

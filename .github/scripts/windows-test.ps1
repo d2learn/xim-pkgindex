@@ -94,9 +94,16 @@ foreach ($relFile in $files) {
 
     $tested++
     $pkg = $meta.name
+    # Package types that are expected to produce an install dir and (when
+    # `programs = {...}` is declared) shims via xvm.add. Other types —
+    # bugfix, config, courses, plugin, script — may legitimately install
+    # without touching xpkgs/ or subos/bin/, so we only log their state
+    # rather than asserting specific artifacts.
+    $pkgType = if ($meta.type) { $meta.type } else { "package" }
+    $expectArtifacts = $pkgType -in @("package", "app", "lib")
 
     # --- register ---
-    Log-Step "[$pkg] register"
+    Log-Step "[$pkg] register (type=$pkgType)"
     & xlings config --add-xpkg $luaFile 2>&1 | Write-Host
     if ($LASTEXITCODE -ne 0) {
         Log-Fail "config --add-xpkg failed"
@@ -121,15 +128,22 @@ foreach ($relFile in $files) {
     Log-Step "[$pkg] post-install checks"
     $installDirs = @(Get-PkgInstallDirs -pkgName $pkg)
     if ($installDirs.Count -eq 0) {
-        Log-Fail "no install dir matching '*-x-$pkg' found under $xpkgsDir"
-        $failures += "$relFile (install-dir-missing)"
-        # still attempt uninstall below
+        if ($expectArtifacts) {
+            Log-Fail "no install dir matching '*-x-$pkg' found under $xpkgsDir"
+            $failures += "$relFile (install-dir-missing)"
+        } else {
+            Log-Info "no install dir (expected for type '$pkgType')"
+        }
     } else {
         foreach ($d in $installDirs) {
             $versions = @(Get-ChildItem $d.FullName -Directory -ErrorAction SilentlyContinue)
             if ($versions.Count -eq 0) {
-                Log-Fail "install dir has no version subdir: $($d.FullName)"
-                $failures += "$relFile (install-dir-empty)"
+                if ($expectArtifacts) {
+                    Log-Fail "install dir has no version subdir: $($d.FullName)"
+                    $failures += "$relFile (install-dir-empty)"
+                } else {
+                    Log-Info "install dir exists but has no version subdir: $($d.FullName)"
+                }
             } else {
                 foreach ($v in $versions) { Log-Pass "install dir: $($v.FullName)" }
             }
@@ -139,16 +153,16 @@ foreach ($relFile in $files) {
     $shimsAfter = Get-ShimSet
     $newShims = $shimsAfter.Keys | Where-Object { -not $shimsBefore.ContainsKey($_) }
     if (-not $newShims -or $newShims.Count -eq 0) {
-        if ($meta.programs -and $meta.programs.Count -gt 0) {
+        if ($expectArtifacts -and $meta.programs -and $meta.programs.Count -gt 0) {
             Log-Fail "no new shim appeared in $shimDir (expected one per program: $($meta.programs -join ','))"
             $failures += "$relFile (no-shim)"
         } else {
-            Log-Info "no new shim appeared (package has no 'programs' declared — not a program-type package)"
+            Log-Info "no new shim appeared (type='$pkgType', programs declared: $($meta.programs.Count))"
         }
     } else {
         foreach ($s in $newShims) { Log-Pass "new shim: $s" }
 
-        if ($meta.programs -and $meta.programs.Count -gt 0) {
+        if ($expectArtifacts -and $meta.programs -and $meta.programs.Count -gt 0) {
             foreach ($prog in $meta.programs) {
                 $matched = $newShims | Where-Object { $_ -eq $prog -or $_ -eq "$prog.exe" -or $_ -eq "$prog.cmd" }
                 if (-not $matched) {

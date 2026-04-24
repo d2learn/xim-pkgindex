@@ -87,7 +87,10 @@ function create_windows_shortcut(name, target, icon, args)
     os.tryrm(vbs_path)
 
     -- copy to desktop and move to start menu
-    os.cp(name .. ".lnk", path.join("C:/Users", os.getenv("USERNAME"), "Desktop"))
+    -- Use %USERPROFILE% so the Desktop resolves correctly on systems
+    -- where the user profile is not under C:\Users\<name>\ (different
+    -- drive letter, non-default profile path, non-ASCII user name).
+    os.cp(name .. ".lnk", path.join(tostring(os.getenv("USERPROFILE")), "Desktop"))
     os.mv(name .. ".lnk", shortcut_dir[os.host()])
 
     log.info("Shortcut created: " .. name .. ".lnk")
@@ -96,7 +99,7 @@ end
 function shortcut_remove(name)
     local filepath = nil
     if os.host() == "windows" then
-        os.tryrm(path.join("C:/Users", os.getenv("USERNAME"), "Desktop", name .. ".lnk"))
+        os.tryrm(path.join(tostring(os.getenv("USERPROFILE")), "Desktop", name .. ".lnk"))
         filepath = path.join(shortcut_dir[os.host()], name .. ".lnk")
     elseif os.host() == "linux" then
         local filename = name:replace(" ", "-") .. ".xvm.desktop"

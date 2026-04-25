@@ -20,6 +20,7 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/junegunn/fzf/releases/download/v{version}/fzf-{version}-linux_amd64.tar.gz",
             ["latest"] = { ref = "0.71.0" },
             ["0.71.0"] = {
                 url = "https://github.com/junegunn/fzf/releases/download/v0.71.0/fzf-0.71.0-linux_amd64.tar.gz",
@@ -27,6 +28,7 @@ package = {
             },
         },
         macosx = {
+            url_template = "https://github.com/junegunn/fzf/releases/download/v{version}/fzf-{version}-darwin_arm64.tar.gz",
             ["latest"] = { ref = "0.71.0" },
             ["0.71.0"] = {
                 url = "https://github.com/junegunn/fzf/releases/download/v0.71.0/fzf-0.71.0-darwin_arm64.tar.gz",
@@ -34,6 +36,7 @@ package = {
             },
         },
         windows = {
+            url_template = "https://github.com/junegunn/fzf/releases/download/v{version}/fzf-{version}-windows_amd64.zip",
             ["latest"] = { ref = "0.71.0" },
             ["0.71.0"] = {
                 url = "https://github.com/junegunn/fzf/releases/download/v0.71.0/fzf-0.71.0-windows_amd64.zip",

@@ -20,6 +20,7 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/BurntSushi/ripgrep/releases/download/{version}/ripgrep-{version}-x86_64-unknown-linux-musl.tar.gz",
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = {
                 url = "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-unknown-linux-musl.tar.gz",
@@ -27,6 +28,7 @@ package = {
             },
         },
         macosx = {
+            url_template = "https://github.com/BurntSushi/ripgrep/releases/download/{version}/ripgrep-{version}-aarch64-apple-darwin.tar.gz",
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = {
                 url = "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-aarch64-apple-darwin.tar.gz",
@@ -34,6 +36,7 @@ package = {
             },
         },
         windows = {
+            url_template = "https://github.com/BurntSushi/ripgrep/releases/download/{version}/ripgrep-{version}-x86_64-pc-windows-msvc.zip",
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = {
                 url = "https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-pc-windows-msvc.zip",

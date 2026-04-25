@@ -23,10 +23,12 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/face-hh/griddycode/releases/download/v{version}/Linux.zip",
             ["latest"] = { ref = "1.2.2" },
             ["1.2.2"] = { url = "https://github.com/face-hh/griddycode/releases/download/v1.2.2/Linux.zip" },
         },
         windows = {
+            url_template = "https://github.com/face-hh/griddycode/releases/download/v{version}/Windows.zip",
             ["latest"] = { ref = "1.2.2" },
             ["1.2.2"] = { url = "https://github.com/face-hh/griddycode/releases/download/v1.2.2/Windows.zip" },
         },

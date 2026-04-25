@@ -83,15 +83,42 @@ unset and continue to be maintained by hand.
 
 ## Phase 1 vs Phase 2
 
-**Phase 1 (this spec):** the workflow is `dry-run only`. It reads
-`url_template`s, queries upstream, prints a JSON report of
-"<pkg>: <current> → <available>" but does not modify any file or
-open any PR.
+Both phases now ship in the same script (`.github/scripts/version-check.py`)
+behind the `--apply` flag and as separate scheduled workflows.
 
-**Phase 2 (later):** if Phase 1 has been quiet for a while and the
-report shape is right, extend the script to download new artifacts,
-compute sha256, append a new version entry into the xpm table, bump
-`["latest"].ref`, and open a PR per package.
+**Phase 1 — `version-check.yml` (default, dry-run):** runs daily at
+01:00 UTC. Reads `url_template`s, queries upstream, prints a JSON
+report of "<pkg>: <current> → <available>", uploads it as a workflow
+artifact, and does not modify any file or open any PR.
+
+**Phase 2 — `version-bump.yml` (`--apply`):** runs weekly (Mondays
+02:00 UTC) or on manual dispatch. For every package the dry-run flags
+as `update-available`, the script:
+
+1. Downloads the new artifact for each opted-in platform and computes
+   its sha256.
+2. Bumps `["latest"].ref` to the upstream version on every opted-in
+   platform.
+3. **Appends** a new `["<upstream>"] = { url, sha256 }` block right
+   after `["latest"]` on the same platform. Existing version blocks
+   are left untouched, so consumers pinned to an older version keep
+   working unchanged.
+
+The workflow then commits the modified lua to a per-package branch
+named `auto/bump-<pkg>-<upstream>` and opens a PR via `gh`. If that
+branch already exists on origin (i.e. an open PR is already pending
+for the same target version) the package is skipped — the run is
+idempotent.
+
+Manual one-shot:
+
+```bash
+# preview only — no file changes
+python3 .github/scripts/version-check.py --workspace .
+
+# apply (modifies pkgs/**/*.lua in place)
+python3 .github/scripts/version-check.py --workspace . --apply [--only <pkg>]
+```
 
 ## Example: `pkgs/u/uv.lua`
 

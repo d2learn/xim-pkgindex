@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dry-run upstream version checker for xim-pkgindex.
+"""Upstream version checker (and optional bumper) for xim-pkgindex.
 
 Scans every `pkgs/**/*.lua` for an opt-in `url_template` field on any
 platform inside the `xpm` table. For each opted-in package, queries the
@@ -7,24 +7,35 @@ GitHub Releases API for the latest tag, compares against the version
 recorded in `xpm.<plat>.["latest"].ref`, and prints a JSON report of
 every package whose upstream has moved ahead.
 
-This script does **not** modify any package description and does **not**
-open any pull request. Phase 2 will add those steps once Phase 1 has
-proved its output shape and stability.
+In `--apply` mode the script additionally downloads each new artifact,
+computes its sha256, and rewrites the lua file in-place: a new
+`["<upstream>"] = { url = ..., sha256 = ... }` block is **appended**
+right after `["latest"]` on every opted-in platform, and `["latest"].ref`
+is bumped to point at it. Existing version blocks are left intact (so
+pinned consumers keep working). The companion workflow
+`version-bump.yml` then commits each modified file to its own branch
+and opens a PR.
 
 See docs/spec/url-template.md for the contract this script consumes.
 
 Usage
 -----
 
+    # Phase 1: dry-run (default) — JSON report on stdout, no file changes
     python3 .github/scripts/version-check.py [--workspace <path>]
-                                              [--token <github-token>]
 
-Output is JSON on stdout. Exit code is 0 on a clean run regardless of
-whether updates were found; non-zero only on operational errors (e.g.
-a malformed lua, a 5xx from GitHub).
+    # Phase 2: apply — modify lua files in place
+    python3 .github/scripts/version-check.py --apply [--only <pkg>]
+
+`--only <pkg>` restricts both the scan and the bump to a single package
+identified by its lua file basename (e.g. `zoxide`).
+
+Exit code is 0 on a clean run regardless of whether updates were found;
+non-zero only on operational errors.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -243,6 +254,132 @@ def check_package(lua_path: Path, token: str | None) -> dict[str, Any] | None:
     return record
 
 
+def find_block_range(text: str, key: str, search_from: int = 0) -> tuple[int, int] | None:
+    """Return the (body_start, body_end) offset range of `<key> = { ... }`.
+
+    body_start is just past the opening `{`; body_end is the index of the
+    matching closing `}` (exclusive of it). Returns None if not found or
+    if braces are unbalanced.
+    """
+    m = re.search(rf"\b{re.escape(key)}\s*=\s*\{{", text[search_from:])
+    if not m:
+        return None
+    body_start = search_from + m.end()
+    depth = 1
+    i = body_start
+    while i < len(text) and depth > 0:
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        i += 1
+    if depth != 0:
+        return None
+    return (body_start, i - 1)
+
+
+def compute_sha256(url: str, token: str | None) -> str:
+    """Stream the URL and return its sha256 hex digest."""
+    h = hashlib.sha256()
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "xim-pkgindex-version-bump"}
+    )
+    # Auth header is harmless for public release artifacts but lifts rate
+    # limits when GitHub returns a redirect through api.github.com.
+    if token and "github.com" in url:
+        req.add_header("Authorization", f"Bearer {token}")
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        while True:
+            chunk = resp.read(64 * 1024)
+            if not chunk:
+                break
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def apply_bump(
+    lua_path: Path,
+    current: str,
+    upstream: str,
+    proposed_urls: dict[str, str],
+    token: str | None,
+) -> dict[str, Any]:
+    """Edit lua_path in place: append `["<upstream>"] = {...}` per platform
+    and bump `["latest"].ref` from <current> to <upstream>. Existing
+    version entries are untouched.
+
+    Returns a record describing what happened (status + per-platform).
+    """
+    text = lua_path.read_text(encoding="utf-8")
+
+    # Locate xpm block once so per-platform searches stay scoped to it.
+    xpm = find_block_range(text, "xpm")
+    if not xpm:
+        return {"status": "error", "reason": "xpm block not found"}
+
+    edits: list[tuple[int, int, str]] = []
+    per_platform: dict[str, str] = {}
+    for plat, new_url in proposed_urls.items():
+        plat_range = find_block_range(text, plat, xpm[0])
+        if not plat_range or plat_range[1] > xpm[1]:
+            continue
+        plat_body = text[plat_range[0] : plat_range[1]]
+
+        # Capture the leading whitespace of the `["latest"]` line so the
+        # new version block we append matches the existing indentation.
+        latest_pat = re.compile(
+            r'(?m)^(?P<indent>[ \t]*)\["latest"\]\s*=\s*\{\s*ref\s*=\s*"'
+            + re.escape(current)
+            + r'"\s*\}\s*,?[ \t]*\n'
+        )
+        m = latest_pat.search(plat_body)
+        if not m:
+            # Either ref doesn't match expected current (already bumped?)
+            # or the block is shaped differently. Skip this platform.
+            continue
+        indent = m.group("indent")
+
+        try:
+            sha = compute_sha256(new_url, token)
+        except (urllib.error.URLError, TimeoutError) as e:
+            return {
+                "status": "error",
+                "reason": f"failed to download {new_url}: {e}",
+            }
+
+        # Build the replacement: keep the latest line (with bumped ref)
+        # and immediately follow it with the new version block.
+        replacement = (
+            f'{indent}["latest"] = {{ ref = "{upstream}" }},\n'
+            f'{indent}["{upstream}"] = {{\n'
+            f'{indent}    url = "{new_url}",\n'
+            f'{indent}    sha256 = "{sha}",\n'
+            f'{indent}}},\n'
+        )
+
+        edits.append(
+            (
+                plat_range[0] + m.start(),
+                plat_range[0] + m.end(),
+                replacement,
+            )
+        )
+        per_platform[plat] = sha
+
+    if not edits:
+        return {"status": "no-edit", "reason": "no matching latest line on any platform"}
+
+    # Apply edits from the end of the file backward so earlier offsets
+    # stay valid.
+    new_text = text
+    for start, end, repl in sorted(edits, key=lambda e: -e[0]):
+        new_text = new_text[:start] + repl + new_text[end:]
+
+    lua_path.write_text(new_text, encoding="utf-8")
+    return {"status": "applied", "platforms": per_platform}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
@@ -256,6 +393,19 @@ def main() -> int:
         help="GitHub API token (for rate-limit headroom). "
         "Falls back to $GITHUB_TOKEN.",
     )
+    ap.add_argument(
+        "--apply",
+        action="store_true",
+        help="Modify lua files in place: append a new version block and "
+        "bump ['latest'].ref for every package whose upstream is ahead. "
+        "Without this flag the script is dry-run only.",
+    )
+    ap.add_argument(
+        "--only",
+        default=None,
+        help="Restrict scanning (and bumping) to a single package by lua "
+        "basename (e.g. 'zoxide' for pkgs/z/zoxide.lua).",
+    )
     args = ap.parse_args()
 
     pkg_dir = Path(args.workspace) / "pkgs"
@@ -266,11 +416,26 @@ def main() -> int:
     records: list[dict[str, Any]] = []
     skipped = 0
     for lua in sorted(pkg_dir.glob("*/*.lua")):
+        if args.only and lua.stem != args.only:
+            continue
         rec = check_package(lua, args.token)
         if rec is None:
             skipped += 1
             continue
         records.append(rec)
+
+    if args.apply:
+        for rec in records:
+            if rec["status"] != "update-available":
+                continue
+            applied = apply_bump(
+                Path(rec["path"]),
+                rec["current"],
+                rec["upstream"],
+                rec["proposed_urls"],
+                args.token,
+            )
+            rec["apply"] = applied
 
     summary = {
         "scanned": len(records) + skipped,
@@ -279,6 +444,11 @@ def main() -> int:
         "update_available": sum(1 for r in records if r["status"] == "update-available"),
         "up_to_date": sum(1 for r in records if r["status"] == "up-to-date"),
         "errors": sum(1 for r in records if r["status"] in ("error", "skip-no-repo", "skip-bad-template")),
+        "applied": sum(
+            1
+            for r in records
+            if r.get("apply", {}).get("status") == "applied"
+        ),
     }
     out = {"summary": summary, "packages": records}
     print(json.dumps(out, indent=2))

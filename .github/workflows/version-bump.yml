@@ -1,0 +1,113 @@
+name: version-bump
+
+# Phase 2 of the url_template auto-update contract
+# (docs/spec/url-template.md). Runs the dry-run scanner; for every
+# package whose upstream is ahead, applies the bump in-place on a
+# dedicated `auto/bump-<pkg>-<upstream>` branch and opens a PR.
+# Idempotent: if the branch already exists on origin, that package is
+# skipped so an open PR is not clobbered.
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"   # Mondays 02:00 UTC (one cycle behind the daily scan)
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Restrict to a single package by lua basename (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "xim-pkgindex-bot[bot]"
+          git config user.email "xim-pkgindex-bot@users.noreply.github.com"
+
+      - name: Scan for available updates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ONLY_ARG=""
+          if [ -n "${{ inputs.only }}" ]; then
+            ONLY_ARG="--only ${{ inputs.only }}"
+          fi
+          python3 .github/scripts/version-check.py --workspace . $ONLY_ARG > scan.json
+          python3 -c "
+          import json
+          d = json.load(open('scan.json'))
+          for p in d['packages']:
+              if p['status'] == 'update-available':
+                  print(f\"{p['pkg']}\t{p['current']}\t{p['upstream']}\")
+          " > to-bump.tsv
+          echo "Packages to bump:"
+          cat to-bump.tsv || true
+
+      - name: Bump each package on its own branch and open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ ! -s to-bump.tsv ]; then
+            echo "No updates available — nothing to do."
+            exit 0
+          fi
+
+          while IFS=$'\t' read -r pkg current upstream; do
+            branch="auto/bump-${pkg}-${upstream}"
+            echo "::group::${pkg}: ${current} -> ${upstream}"
+
+            if git ls-remote --exit-code --heads origin "${branch}" >/dev/null 2>&1; then
+              echo "Branch ${branch} already exists on origin — skipping (open PR assumed)."
+              echo "::endgroup::"
+              continue
+            fi
+
+            # Start from a clean main checkout for each package so a
+            # failure on one doesn't leak into the next.
+            git checkout -B "${branch}" origin/main
+
+            python3 .github/scripts/version-check.py --workspace . --apply --only "${pkg}" > /dev/null
+
+            if git diff --quiet; then
+              echo "No file change after --apply (already at ${upstream}?) — skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
+            git add -A
+            git commit -m "auto: bump ${pkg} ${current} -> ${upstream}"
+            git push origin "${branch}"
+
+            printf '%s\n' \
+              "Automated version bump from the \`url_template\` auto-update contract (see [docs/spec/url-template.md](../blob/main/docs/spec/url-template.md)). Produced by \`.github/workflows/version-bump.yml\`." \
+              "" \
+              "- **Package:** \`${pkg}\`" \
+              "- **Current:** \`${current}\` → **Upstream:** \`${upstream}\`" \
+              "" \
+              "Existing version blocks are preserved untouched; only \`['latest'].ref\` is bumped and a new \`['${upstream}']\` block is appended on every opted-in platform. \`sha256\` values were computed from the freshly-downloaded artifacts." \
+              > /tmp/pr-body.md
+
+            gh pr create \
+              --base main \
+              --head "${branch}" \
+              --title "auto: bump ${pkg} ${current} -> ${upstream}" \
+              --body-file /tmp/pr-body.md
+            echo "::endgroup::"
+          done < to-bump.tsv

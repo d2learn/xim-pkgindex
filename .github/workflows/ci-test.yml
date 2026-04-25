@@ -107,3 +107,111 @@ jobs:
           pwsh -NoProfile -File .github/scripts/windows-test.ps1 `
             -ChangedFiles "${{ steps.changed-files.outputs.all_changed_files }}" `
             -WorkspaceRoot "${{ github.workspace }}"
+
+  linux-install-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install xlings on Ubuntu
+        run: |
+          export XLINGS_NON_INTERACTIVE=1
+          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
+          echo "$HOME/.xlings/bin"               >> "$GITHUB_PATH"
+          echo "$HOME/.xlings/subos/current/bin" >> "$GITHUB_PATH"
+
+      - name: Verify xlings
+        run: |
+          xlings --version
+          xlings config
+
+      - name: Get changed-files
+        uses: tj-actions/changed-files@v46
+        id: changed-files
+        with:
+          files: pkgs/**/*.lua
+
+      - name: Linux install/uninstall test (changed packages)
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          chmod +x .github/scripts/posix-test.sh
+          .github/scripts/posix-test.sh \
+            "${{ steps.changed-files.outputs.all_changed_files }}" \
+            "${{ github.workspace }}" \
+            linux
+
+  macos-install-test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install xlings on macOS
+        run: |
+          export XLINGS_NON_INTERACTIVE=1
+          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
+          echo "$HOME/.xlings/bin"               >> "$GITHUB_PATH"
+          echo "$HOME/.xlings/subos/current/bin" >> "$GITHUB_PATH"
+
+      - name: Verify xlings (and dump install layout)
+        run: |
+          xlings --version
+          xlings config
+          echo "--- which xlings ---"
+          which xlings || true
+          echo "--- find $HOME/.xlings (depth 4) ---"
+          find "$HOME/.xlings" -maxdepth 4 -mindepth 1 \
+              \( -type d -o -type f -o -type l \) \
+              -print 2>/dev/null | head -80 || true
+
+      - name: Get changed-files
+        uses: tj-actions/changed-files@v46
+        id: changed-files
+        with:
+          files: pkgs/**/*.lua
+
+      - name: macOS install/uninstall test (changed packages)
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          chmod +x .github/scripts/posix-test.sh
+          # Disable exit-on-error so the post-test diagnostic always runs;
+          # the captured rc is forwarded as this step's exit status.
+          set +e
+          .github/scripts/posix-test.sh \
+            "${{ steps.changed-files.outputs.all_changed_files }}" \
+            "${{ github.workspace }}" \
+            macosx
+          rc=$?
+          set -e
+          echo ""
+          echo "============================================================"
+          echo " post-test diagnostic dump (always runs)"
+          echo "============================================================"
+          echo "--- find $HOME/.xlings/subos (depth 4) ---"
+          find "$HOME/.xlings/subos" -maxdepth 4 -mindepth 1 \
+              \( -type d -o -type f -o -type l \) \
+              -print 2>/dev/null | head -80 || true
+          echo "--- find $HOME/.xlings/data/xpkgs (depth 4) ---"
+          find "$HOME/.xlings/data/xpkgs" -maxdepth 4 -mindepth 1 \
+              \( -type d -o -type f -o -type l \) \
+              -print 2>/dev/null | head -40 || true
+          exit $rc

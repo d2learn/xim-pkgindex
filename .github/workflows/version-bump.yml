@@ -116,4 +116,4 @@ jobs:
               --title "auto: bump ${pkg} ${current} -> ${upstream}" \
               --body-file /tmp/pr-body.md
             echo "::endgroup::"
-          done < to-bump.tsv
+          done < "$RUNNER_TEMP/to-bump.tsv"

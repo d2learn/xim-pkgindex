@@ -36,7 +36,21 @@ jobs:
         run: pip install git+https://github.com/d2learn/xpkgindex.git
 
       - name: Generate static site
-        run: xpkgindex generate . --output site
+        # Hand build provenance to xpkgindex via the env-var contract added
+        # in d2learn/xpkgindex (Apr 2026). When at least one is set the
+        # generator emits a "Build Info" section on the About page.
+        env:
+          XPKGINDEX_BUILD_TIME:       ${{ github.event.head_commit.timestamp }}
+          XPKGINDEX_BUILD_COMMIT:     ${{ github.sha }}
+          XPKGINDEX_BUILD_COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+        run: |
+          # workflow_dispatch leaves head_commit.timestamp empty; fall back
+          # to "now" so the About page always shows a meaningful build time.
+          if [ -z "$XPKGINDEX_BUILD_TIME" ]; then
+            XPKGINDEX_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            export XPKGINDEX_BUILD_TIME
+          fi
+          xpkgindex generate . --output site
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

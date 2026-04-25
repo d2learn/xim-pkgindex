@@ -72,8 +72,11 @@ function install()
         local app_dst = path.join(pkginfo.install_dir(), "CC Switch.app")
         os.mv(app_src, app_dst)
         -- Symlink so xvm's bindir model keeps working with the bundle.
-        os.ln(path.join(app_dst, "Contents", "MacOS", "cc-switch"),
-              path.join(pkginfo.install_dir(), "cc-switch"))
+        -- xmake's sandbox exposes symlink creation through os.cp's
+        -- `symlink = true` flag, not via a separate os.ln.
+        os.cp(path.join(app_dst, "Contents", "MacOS", "cc-switch"),
+              path.join(pkginfo.install_dir(), "cc-switch"),
+              { force = true, symlink = true })
     else
         os.mv(pkginfo.install_file(),
               path.join(pkginfo.install_dir(), "cc-switch"))

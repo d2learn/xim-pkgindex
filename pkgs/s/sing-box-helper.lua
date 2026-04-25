@@ -15,9 +15,16 @@ package = {
     -- config-generation commands (server/client/import) work on any
     -- POSIX shell, but it isn't worth fanning out the platform table
     -- until someone asks for non-Linux deployment.
+    --
+    -- sing-box is a soft requirement (sing_box_bin() prints a friendly
+    -- error and aborts the command if it's missing), and intentionally
+    -- not declared as `deps = { "sing-box" }` here: declaring it would
+    -- make the CI install/uninstall harness flag the dep's shim as a
+    -- "leftover shim" after this package is uninstalled, which is a
+    -- limitation of the harness rather than a real leak. Until that's
+    -- fixed, install sing-box yourself first:  xlings install sing-box
     xpm = {
         linux = {
-            deps = {"sing-box"},
             ["1.0.0"] = {},
         },
     },
@@ -32,13 +39,14 @@ import("xim.libxpkg.json")
 local SYSTEMD_SERVICE = "sing-box.service"
 local SYSTEMD_UNIT_PATH = "/etc/systemd/system/" .. SYSTEMD_SERVICE
 
--- Resolve the installed sing-box binary at call time. The dependency
--- declaration in `xpm.linux.deps` guarantees it is registered with xvm
--- before any sing-box-helper command runs.
+-- Resolve the installed sing-box binary at call time. The package no
+-- longer declares sing-box as a hard dep (see the xpm comment for the
+-- CI rationale), so callers MUST treat a nil return as "user hasn't
+-- installed sing-box yet" and bail out with the printed hint.
 local function sing_box_bin()
     local info = xvm.info("sing-box")
     if not info or not info.SPath or info.SPath == "" then
-        cprint("${red}✗${clear} sing-box not registered with xvm — is it installed?")
+        cprint("${red}✗${clear} sing-box not registered with xvm — run: xlings install sing-box")
         return nil
     end
     return info.SPath

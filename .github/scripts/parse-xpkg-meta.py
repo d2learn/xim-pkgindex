@@ -1,12 +1,16 @@
 """Emit a small JSON meta object for a single .lua xpkg file.
 
-Used by the Windows CI job to decide whether to install/test a changed
+Used by the per-platform install/uninstall CI jobs (linux-test,
+macos-test, windows-test) to decide whether to install/test a changed
 package and what programs to look for afterwards.
 
 Fields in the output:
   name         package name (string)
+  type         package type (e.g. package, app, lib, script, bugfix)
   programs     list of program names declared by the package
   is_ref       true if this file is a thin ref to another package
+  has_linux    true if the package declares a linux branch in xpm
+  has_macosx   true if the package declares a macosx branch in xpm
   has_windows  true if the package declares a windows branch in xpm
 """
 import json
@@ -29,6 +33,8 @@ def main() -> int:
         "type": meta.pkg_type,
         "programs": list(meta.programs),
         "is_ref": bool(meta.is_ref),
+        "has_linux": bool(meta.platforms.get("linux")),
+        "has_macosx": bool(meta.platforms.get("macosx")),
         "has_windows": bool(meta.platforms.get("windows")),
     }))
     return 0

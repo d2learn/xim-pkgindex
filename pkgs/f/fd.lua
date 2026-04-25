@@ -20,6 +20,7 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/sharkdp/fd/releases/download/v{version}/fd-v{version}-x86_64-unknown-linux-musl.tar.gz",
             ["latest"] = { ref = "10.4.2" },
             ["10.4.2"] = {
                 url = "https://github.com/sharkdp/fd/releases/download/v10.4.2/fd-v10.4.2-x86_64-unknown-linux-musl.tar.gz",
@@ -27,6 +28,7 @@ package = {
             },
         },
         macosx = {
+            url_template = "https://github.com/sharkdp/fd/releases/download/v{version}/fd-v{version}-aarch64-apple-darwin.tar.gz",
             ["latest"] = { ref = "10.4.2" },
             ["10.4.2"] = {
                 url = "https://github.com/sharkdp/fd/releases/download/v10.4.2/fd-v10.4.2-aarch64-apple-darwin.tar.gz",
@@ -34,6 +36,7 @@ package = {
             },
         },
         windows = {
+            url_template = "https://github.com/sharkdp/fd/releases/download/v{version}/fd-v{version}-x86_64-pc-windows-msvc.zip",
             ["latest"] = { ref = "10.4.2" },
             ["10.4.2"] = {
                 url = "https://github.com/sharkdp/fd/releases/download/v10.4.2/fd-v10.4.2-x86_64-pc-windows-msvc.zip",

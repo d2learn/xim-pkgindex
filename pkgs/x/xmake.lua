@@ -22,6 +22,7 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.linux.x86_64",
             ["latest"] = { ref = "3.0.7" },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.linux.x86_64",
@@ -30,6 +31,7 @@ package = {
             -- ["3.0.7"] = "XLINGS_RES",
         },
         macosx = {
+            url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.macos.arm64",
             ["latest"] = { ref = "3.0.7" },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.macos.arm64",
@@ -38,6 +40,7 @@ package = {
             -- ["3.0.7"] = "XLINGS_RES",
         },
         windows = {
+            url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.win64.exe",
             ["latest"] = { ref = "3.0.7" },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.win64.exe",

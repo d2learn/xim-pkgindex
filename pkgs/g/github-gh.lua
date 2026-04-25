@@ -22,6 +22,7 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/cli/cli/releases/download/v{version}/gh_{version}_linux_amd64.tar.gz",
             ["latest"] = { ref = "2.86.0" },
             ["2.86.0"] = {
                 url = "https://github.com/cli/cli/releases/download/v2.86.0/gh_2.86.0_linux_amd64.tar.gz",
@@ -30,6 +31,7 @@ package = {
             -- ["2.86.0"] = "XLINGS_RES",
         },
         macosx = {
+            url_template = "https://github.com/cli/cli/releases/download/v{version}/gh_{version}_macOS_amd64.zip",
             ["latest"] = { ref = "2.86.0" },
             ["2.86.0"] = {
                 url = "https://github.com/cli/cli/releases/download/v2.86.0/gh_2.86.0_macOS_amd64.zip",
@@ -38,6 +40,7 @@ package = {
             -- ["2.86.0"] = "XLINGS_RES",
         },
         windows = {
+            url_template = "https://github.com/cli/cli/releases/download/v{version}/gh_{version}_windows_amd64.zip",
             ["latest"] = { ref = "2.86.0" },
             ["2.86.0"] = {
                 url = "https://github.com/cli/cli/releases/download/v2.86.0/gh_2.86.0_windows_amd64.zip",

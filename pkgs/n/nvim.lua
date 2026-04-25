@@ -23,6 +23,7 @@ package = {
 
     xpm = {
         linux = {
+            url_template = "https://github.com/neovim/neovim/releases/download/v{version}/nvim-linux-x86_64.tar.gz",
             ["latest"] = { ref = "0.11.5" },
             ["0.11.5"] = {
                 url = "https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-linux-x86_64.tar.gz",
@@ -30,6 +31,7 @@ package = {
             }
         },
         windows = {
+            url_template = "https://github.com/neovim/neovim/releases/download/v{version}/nvim-win64.zip",
             ["latest"] = { ref = "0.11.5" },
             ["0.11.5"] = {
                 url = "https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-win64.zip",

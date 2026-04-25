@@ -1,0 +1,51 @@
+name: version-check
+
+# Phase 1 dry-run for the url_template auto-update contract
+# (docs/spec/url-template.md). Scans every package, queries upstream
+# GitHub releases, and uploads a JSON report as a workflow artifact.
+# Does NOT modify any package or open any pull request — that's Phase 2.
+
+on:
+  schedule:
+    - cron: "0 1 * * *"   # daily at 01:00 UTC
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run version-check (dry-run)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 .github/scripts/version-check.py --workspace . | tee version-report.json
+
+      - name: Print update-available packages (if any)
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          rep = json.load(open("version-report.json"))
+          updates = [p for p in rep["packages"] if p["status"] == "update-available"]
+          if not updates:
+              print("(no updates available this run)")
+              sys.exit(0)
+          print(f"{len(updates)} package(s) with available updates:")
+          for p in updates:
+              print(f"  - {p['pkg']}: {p['current']} -> {p['upstream']}")
+          PY
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-report
+          path: version-report.json
+          retention-days: 30

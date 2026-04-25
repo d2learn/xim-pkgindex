@@ -190,7 +190,25 @@ for rel_file in "${files[@]}"; do
 
     step "[$pkg] post-uninstall checks"
     shims_final=$(shim_set)
-    leftover=$(comm -12 <(printf '%s\n' "$new_shims") <(printf '%s\n' "$shims_final"))
+    survived=$(comm -12 <(printf '%s\n' "$new_shims") <(printf '%s\n' "$shims_final"))
+
+    # Only flag survivals that are owned by this package — i.e. shims
+    # whose name appears in the package's `programs` list. Shims that
+    # arrived as a side effect of installing the package's `deps` are
+    # the deps' own lifecycle (they remain installed even when this
+    # package goes away) and are not a leak.
+    leftover=""
+    if [[ -n "$survived" && -n "$programs" ]]; then
+        for shim in $survived; do
+            for prog in $programs; do
+                if [[ "$shim" == "$prog" ]]; then
+                    leftover="${leftover}${leftover:+ }${shim}"
+                    break
+                fi
+            done
+        done
+    fi
+
     if [[ -n "$leftover" ]]; then
         log_fail "shims still present after uninstall: $leftover"
         failures+=("$rel_file (leftover-shim)")

@@ -185,7 +185,20 @@ foreach ($relFile in $files) {
     # --- post-uninstall checks ---
     Log-Step "[$pkg] post-uninstall checks"
     $shimsFinal = Get-ShimSet
-    $leftover = $newShims | Where-Object { $shimsFinal.ContainsKey($_) }
+    $survived = $newShims | Where-Object { $shimsFinal.ContainsKey($_) }
+
+    # Only flag survivals that are owned by this package — i.e. shims
+    # whose name appears in the package's `programs` list. Shims that
+    # arrived as a side effect of installing the package's `deps` are
+    # the deps' own lifecycle (they remain installed even when this
+    # package goes away) and are not a leak.
+    $leftover = @()
+    if ($survived -and $meta.programs -and $meta.programs.Count -gt 0) {
+        $progSet = @{}
+        foreach ($prog in $meta.programs) { $progSet[$prog] = $true }
+        $leftover = $survived | Where-Object { $progSet.ContainsKey($_) }
+    }
+
     if ($leftover -and $leftover.Count -gt 0) {
         Log-Fail "shims still present after uninstall: $($leftover -join ',')"
         $failures += "$relFile (leftover-shim)"

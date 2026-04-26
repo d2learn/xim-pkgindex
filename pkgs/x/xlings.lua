@@ -72,13 +72,23 @@ function install()
 end
 
 function config()
-    xvm.add("xlings", {
-        bindir = path.join(pkginfo.install_dir(), "bin"),
-    })
+    -- The shipped archive carries three CLI entry points alongside
+    -- xself/xsubos under subos/default/bin/. (`bin/xlings` at the top
+    -- level is the bootstrap launcher; subos/default/bin/<name> is the
+    -- real toolchain we want PATH-visible.) Register all three declared
+    -- `programs` from the same bindir; xim and xinstall are bound to
+    -- xlings@<version> so version-switching keeps them in lockstep.
+    local subos_bin = path.join(pkginfo.install_dir(), "subos", "default", "bin")
+    local binding = "xlings@" .. pkginfo.version()
+    xvm.add("xlings",   { bindir = subos_bin })
+    xvm.add("xim",      { bindir = subos_bin, binding = binding })
+    xvm.add("xinstall", { bindir = subos_bin, binding = binding })
     return true
 end
 
 function uninstall()
     xvm.remove("xlings")
+    xvm.remove("xim")
+    xvm.remove("xinstall")
     return true
 end

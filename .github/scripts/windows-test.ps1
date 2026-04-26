@@ -152,25 +152,27 @@ foreach ($relFile in $files) {
 
     $shimsAfter = Get-ShimSet
     $newShims = $shimsAfter.Keys | Where-Object { -not $shimsBefore.ContainsKey($_) }
-    if (-not $newShims -or $newShims.Count -eq 0) {
-        if ($expectArtifacts -and $meta.programs -and $meta.programs.Count -gt 0) {
-            Log-Fail "no new shim appeared in $shimDir (expected one per program: $($meta.programs -join ','))"
-            $failures += "$relFile (no-shim)"
-        } else {
-            Log-Info "no new shim appeared (type='$pkgType', programs declared: $($meta.programs.Count))"
-        }
-    } else {
+    if ($newShims -and $newShims.Count -gt 0) {
         foreach ($s in $newShims) { Log-Pass "new shim: $s" }
+    }
 
-        if ($expectArtifacts -and $meta.programs -and $meta.programs.Count -gt 0) {
-            foreach ($prog in $meta.programs) {
-                $matched = $newShims | Where-Object { $_ -eq $prog -or $_ -eq "$prog.exe" -or $_ -eq "$prog.cmd" }
-                if (-not $matched) {
-                    Log-Fail "declared program '$prog' has no corresponding shim"
-                    $failures += "$relFile (missing-shim:$prog)"
-                }
+    # The presence check is "every declared program has a shim post-install",
+    # NOT "every declared program is in the new-shim set". Re-installs and
+    # self-installs (e.g. the CI runner already has an xlings shim because
+    # it just used xlings to drive the test) leave $newShims empty even
+    # though the install did its job — the shim names already existed and
+    # were re-pointed at the freshly installed binaries.
+    if ($expectArtifacts -and $meta.programs -and $meta.programs.Count -gt 0) {
+        foreach ($prog in $meta.programs) {
+            $matched = $shimsAfter.Keys | Where-Object { $_ -eq $prog -or $_ -eq "$prog.exe" -or $_ -eq "$prog.cmd" }
+            if (-not $matched) {
+                Log-Fail "declared program '$prog' has no shim in $shimDir"
+                $failures += "$relFile (missing-shim:$prog)"
             }
         }
+    }
+    if (-not $newShims -or $newShims.Count -eq 0) {
+        Log-Info "no new shim appeared (type='$pkgType'; declared programs may have been re-pointed)"
     }
 
     # --- uninstall ---

@@ -28,7 +28,6 @@ package = {
             },
         },
         macosx = {
-            deps = {"python"},
             ["latest"] = { ref = "6.6.1" },
             ["6.6.1"] = {
                 url = "https://github.com/sansan0/TrendRadar/archive/refs/tags/v6.6.1.tar.gz",

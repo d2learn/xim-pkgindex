@@ -164,23 +164,26 @@ for rel_file in "${files[@]}"; do
 
     shims_after=$(shim_set)
     new_shims=$(comm -13 <(printf '%s\n' "$shims_before") <(printf '%s\n' "$shims_after"))
-    if [[ -z "$new_shims" ]]; then
-        if $expect_artifacts && [[ -n "$programs" ]]; then
-            log_fail "no new shim appeared in $SHIM_DIR (expected one per program: $programs)"
-            failures+=("$rel_file (no-shim)")
-        else
-            info "no new shim appeared (type='$pkg_type', programs='$programs')"
-        fi
-    else
+    if [[ -n "$new_shims" ]]; then
         while IFS= read -r s; do log_pass "new shim: $s"; done <<< "$new_shims"
-        if $expect_artifacts && [[ -n "$programs" ]]; then
-            for prog in $programs; do
-                if ! grep -qE "^(${prog})$" <<< "$new_shims"; then
-                    log_fail "declared program '$prog' has no corresponding shim"
-                    failures+=("$rel_file (missing-shim:$prog)")
-                fi
-            done
-        fi
+    fi
+
+    # The presence check is "every declared program has a shim post-install",
+    # NOT "every declared program is in the new-shim set". Re-installs and
+    # self-installs (e.g. the CI runner already has an xlings shim because
+    # it just used xlings to drive the test) leave new_shims empty even
+    # though the install did its job — the shim names already existed and
+    # were re-pointed at the freshly installed binaries.
+    if $expect_artifacts && [[ -n "$programs" ]]; then
+        for prog in $programs; do
+            if ! grep -qE "^${prog}$" <<< "$shims_after"; then
+                log_fail "declared program '$prog' has no shim in $SHIM_DIR"
+                failures+=("$rel_file (missing-shim:$prog)")
+            fi
+        done
+    fi
+    if [[ -z "$new_shims" ]]; then
+        info "no new shim appeared (type='$pkg_type'; programs='$programs' may have been re-pointed)"
     fi
 
     step "[$pkg] uninstall"

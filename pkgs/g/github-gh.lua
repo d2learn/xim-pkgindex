@@ -23,7 +23,11 @@ package = {
     xpm = {
         linux = {
             url_template = "https://github.com/cli/cli/releases/download/v{version}/gh_{version}_linux_amd64.tar.gz",
-            ["latest"] = { ref = "2.86.0" },
+            ["latest"] = { ref = "2.91.0" },
+            ["2.91.0"] = {
+                url = "https://github.com/cli/cli/releases/download/v2.91.0/gh_2.91.0_linux_amd64.tar.gz",
+                sha256 = "304a0d2460f4a8847d2f192bad4e2a32cd9420d28716e7ae32198181b65b5f9c",
+            },
             ["2.86.0"] = {
                 url = "https://github.com/cli/cli/releases/download/v2.86.0/gh_2.86.0_linux_amd64.tar.gz",
                 sha256 = nil,
@@ -32,7 +36,11 @@ package = {
         },
         macosx = {
             url_template = "https://github.com/cli/cli/releases/download/v{version}/gh_{version}_macOS_amd64.zip",
-            ["latest"] = { ref = "2.86.0" },
+            ["latest"] = { ref = "2.91.0" },
+            ["2.91.0"] = {
+                url = "https://github.com/cli/cli/releases/download/v2.91.0/gh_2.91.0_macOS_amd64.zip",
+                sha256 = "8806784f93603fe6d3f95c3583a08df38f175df9ebc123dc8b15f919329980e2",
+            },
             ["2.86.0"] = {
                 url = "https://github.com/cli/cli/releases/download/v2.86.0/gh_2.86.0_macOS_amd64.zip",
                 sha256 = nil,
@@ -41,7 +49,11 @@ package = {
         },
         windows = {
             url_template = "https://github.com/cli/cli/releases/download/v{version}/gh_{version}_windows_amd64.zip",
-            ["latest"] = { ref = "2.86.0" },
+            ["latest"] = { ref = "2.91.0" },
+            ["2.91.0"] = {
+                url = "https://github.com/cli/cli/releases/download/v2.91.0/gh_2.91.0_windows_amd64.zip",
+                sha256 = "ced3e6f4bb5a9865056b594b7ad0cf42137dc92c494346f1ca705b5dbf14c88e",
+            },
             ["2.86.0"] = {
                 url = "https://github.com/cli/cli/releases/download/v2.86.0/gh_2.86.0_windows_amd64.zip",
                 sha256 = nil,

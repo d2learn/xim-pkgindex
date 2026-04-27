@@ -23,7 +23,11 @@ package = {
     xpm = {
         linux = {
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.linux.x86_64",
-            ["latest"] = { ref = "3.0.7" },
+            ["latest"] = { ref = "3.0.8" },
+            ["3.0.8"] = {
+                url = "https://github.com/xmake-io/xmake/releases/download/v3.0.8/xmake-bundle-v3.0.8.linux.x86_64",
+                sha256 = "5bf5d58230ed78d87b9919a0a654d0ebcdad221426bd610ad4f740029bb61c84",
+            },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.linux.x86_64",
                 sha256 = nil,
@@ -32,7 +36,11 @@ package = {
         },
         macosx = {
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.macos.arm64",
-            ["latest"] = { ref = "3.0.7" },
+            ["latest"] = { ref = "3.0.8" },
+            ["3.0.8"] = {
+                url = "https://github.com/xmake-io/xmake/releases/download/v3.0.8/xmake-bundle-v3.0.8.macos.arm64",
+                sha256 = "6266c3563ce3c890a502179a9a5976001df8da8533722c528ba2ab3fce63fc0e",
+            },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.macos.arm64",
                 sha256 = nil,
@@ -41,7 +49,11 @@ package = {
         },
         windows = {
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.win64.exe",
-            ["latest"] = { ref = "3.0.7" },
+            ["latest"] = { ref = "3.0.8" },
+            ["3.0.8"] = {
+                url = "https://github.com/xmake-io/xmake/releases/download/v3.0.8/xmake-bundle-v3.0.8.win64.exe",
+                sha256 = "e9a316bfb18fee60036174912502030ea7eb3d62c49634d5828ef5c2b2327aec",
+            },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.win64.exe",
                 sha256 = nil,

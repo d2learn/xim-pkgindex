@@ -21,7 +21,11 @@ package = {
     xpm = {
         linux = {
             url_template = "https://github.com/junegunn/fzf/releases/download/v{version}/fzf-{version}-linux_amd64.tar.gz",
-            ["latest"] = { ref = "0.71.0" },
+            ["latest"] = { ref = "0.72.0" },
+            ["0.72.0"] = {
+                url = "https://github.com/junegunn/fzf/releases/download/v0.72.0/fzf-0.72.0-linux_amd64.tar.gz",
+                sha256 = "0e58e4bd0b3c5d68c56b54c460a6863d0de79633ed18d388575a960ab447b006",
+            },
             ["0.71.0"] = {
                 url = "https://github.com/junegunn/fzf/releases/download/v0.71.0/fzf-0.71.0-linux_amd64.tar.gz",
                 sha256 = "22639bb38489dbca8acef57850cbb50231ab714d0e8e855ac52fae8b41233df4",
@@ -29,7 +33,11 @@ package = {
         },
         macosx = {
             url_template = "https://github.com/junegunn/fzf/releases/download/v{version}/fzf-{version}-darwin_arm64.tar.gz",
-            ["latest"] = { ref = "0.71.0" },
+            ["latest"] = { ref = "0.72.0" },
+            ["0.72.0"] = {
+                url = "https://github.com/junegunn/fzf/releases/download/v0.72.0/fzf-0.72.0-darwin_arm64.tar.gz",
+                sha256 = "4cbf87e8e8a342614c1e3e74670ceb18c2af998c4d4d0c379cfee9b520774e90",
+            },
             ["0.71.0"] = {
                 url = "https://github.com/junegunn/fzf/releases/download/v0.71.0/fzf-0.71.0-darwin_arm64.tar.gz",
                 sha256 = "02dfb11de8773cb79aa4fc5bfc77e75c6604ee14728bc849fc162dd91a9714c4",
@@ -37,7 +45,11 @@ package = {
         },
         windows = {
             url_template = "https://github.com/junegunn/fzf/releases/download/v{version}/fzf-{version}-windows_amd64.zip",
-            ["latest"] = { ref = "0.71.0" },
+            ["latest"] = { ref = "0.72.0" },
+            ["0.72.0"] = {
+                url = "https://github.com/junegunn/fzf/releases/download/v0.72.0/fzf-0.72.0-windows_amd64.zip",
+                sha256 = "cce66ae7e442030334927bfbfd917690713e63d215aba93027f99807828fe239",
+            },
             ["0.71.0"] = {
                 url = "https://github.com/junegunn/fzf/releases/download/v0.71.0/fzf-0.71.0-windows_amd64.zip",
                 sha256 = "15bf30fa658c596d740f0ce9a9a97b6b5d90566124903657d09fd109dd0973d2",

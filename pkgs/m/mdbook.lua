@@ -22,7 +22,11 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "0.4.43" },
+            ["latest"] = { ref = "0.5.2" },
+            ["0.5.2"] = {
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.5.2/mdbook-v0.5.2-x86_64-pc-windows-msvc.zip",
+                sha256 = nil
+            },
             ["0.4.43"] = {
                 url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-pc-windows-msvc.zip",
                 sha256 = nil
@@ -33,7 +37,11 @@ package = {
             },
         },
         linux = {
-            ["latest"] = { ref = "0.4.43" },
+            ["latest"] = { ref = "0.5.2" },
+            ["0.5.2"] = {
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.5.2/mdbook-v0.5.2-x86_64-unknown-linux-gnu.tar.gz",
+                sha256 = nil
+            },
             ["0.4.43"] = "XLINGS_RES",
             ["0.4.40"] = {
                 url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz",
@@ -41,7 +49,11 @@ package = {
             },
         },
         macosx = {
-            ["latest"] = { ref = "0.4.43" },
+            ["latest"] = { ref = "0.5.2" },
+            ["0.5.2"] = {
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.5.2/mdbook-v0.5.2-aarch64-apple-darwin.tar.gz",
+                sha256 = nil
+            },
             ["0.4.43"] = "XLINGS_RES",
         },
     },

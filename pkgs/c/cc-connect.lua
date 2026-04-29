@@ -22,6 +22,10 @@ package = {
         linux = {
             url_template = "https://github.com/chenhg5/cc-connect/releases/download/v{version}/cc-connect-v{version}-linux-amd64.tar.gz",
             ["latest"] = { ref = "1.3.2" },
+            ["1.3.3-beta.1"] = {
+                url = "https://github.com/chenhg5/cc-connect/releases/download/v1.3.3-beta.1/cc-connect-v1.3.3-beta.1-linux-amd64.tar.gz",
+                sha256 = "8e54e56e9018258fa27f6509c7744313704ad26b093f467c7a458e46f41c07bf",
+            },
             ["1.3.2"] = {
                 url = "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-linux-amd64.tar.gz",
                 sha256 = "4ed25a62166c1a3a7c41eb3320d9b90172c56749aec5b88d36380829e4c8a182",
@@ -30,6 +34,10 @@ package = {
         macosx = {
             url_template = "https://github.com/chenhg5/cc-connect/releases/download/v{version}/cc-connect-v{version}-darwin-arm64.tar.gz",
             ["latest"] = { ref = "1.3.2" },
+            ["1.3.3-beta.1"] = {
+                url = "https://github.com/chenhg5/cc-connect/releases/download/v1.3.3-beta.1/cc-connect-v1.3.3-beta.1-darwin-arm64.tar.gz",
+                sha256 = "4ae6cdabbebe487abba66899707f614f497a6a8f732a16c961228151d261c515",
+            },
             ["1.3.2"] = {
                 url = "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-darwin-arm64.tar.gz",
                 sha256 = "f03153feef8e46c606d0097a491e92448289fe3b91b70cba0b05f8740dfafe95",
@@ -38,6 +46,10 @@ package = {
         windows = {
             url_template = "https://github.com/chenhg5/cc-connect/releases/download/v{version}/cc-connect-v{version}-windows-amd64.zip",
             ["latest"] = { ref = "1.3.2" },
+            ["1.3.3-beta.1"] = {
+                url = "https://github.com/chenhg5/cc-connect/releases/download/v1.3.3-beta.1/cc-connect-v1.3.3-beta.1-windows-amd64.zip",
+                sha256 = "445c6206a2432adbdf00eb83289349c6db179f64f9626bb9a0004c619044b95f",
+            },
             ["1.3.2"] = {
                 url = "https://github.com/chenhg5/cc-connect/releases/download/v1.3.2/cc-connect-v1.3.2-windows-amd64.zip",
                 sha256 = "88cbc4cbc3cfddb826e4b2030f4a34afd60b55dfc642d27ad2932d0b53cf5623",

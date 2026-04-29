@@ -22,7 +22,7 @@ package = {
 
     xpm = {
         windows = {
-            ["latest"] = { ref = "0.4.40" },
+            ["latest"] = { ref = "0.4.43" },
             ["0.4.43"] = {
                 url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-pc-windows-msvc.zip",
                 sha256 = nil

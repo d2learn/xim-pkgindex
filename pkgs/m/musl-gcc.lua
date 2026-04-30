@@ -104,6 +104,84 @@ local function __patch_toolchain_dynamic_bins()
     log.info("musl-gcc relocate: patched dynamic tools = %d", patched)
 end
 
+-- ─────────────────────────────────────────────────────────────────────
+-- gcc-flavor cross-registration
+--
+-- A musl-gcc install also publishes itself under the standard `gcc` family
+-- of program names with version suffix `-musl` (e.g. `15.1.0-musl`). Users
+-- can then switch flavors via:
+--   xlings use gcc 15.1.0          # glibc
+--   xlings use gcc 15.1.0-musl     # musl
+--
+-- Why the suffix and not a prefix:
+--   xvm's match_version splits versions on `.` and parses each segment with
+--   from_chars; `15.1.0-musl` parses cleanly as 15/1/0(-musl) so it sorts
+--   alongside `15.1.0`, while `musl-15.1.0` sorts as 0.1.0 (`musl-15` parses
+--   as 0). Both forms are still distinct from `15.1.0` under prefix_matches
+--   so `xlings use gcc 15.1.0` will not accidentally pick up the musl row.
+--
+-- Why only the frontends (gcc/g++/c++/cpp/cc):
+--   GCC drives cc1/as/ld via toolchain-internal paths, not PATH, so the
+--   compile/link pipeline is fully covered by the frontend shim. ar/nm/
+--   ranlib/strip operate on ELF and don't depend on libc flavor; the host
+--   binutils handles musl-produced .o/.a files fine, no need to remap them.
+--
+-- Why `-Wl,--dynamic-linker=...`/`-rpath` but NOT `--sysroot`:
+--   musl-gcc's toolchain is self-contained: its `x86_64-linux-musl/{include,
+--   lib}` already serves as the sysroot, so `--sysroot=...` would mis-point
+--   to subos's glibc headers. Linking, however, defaults to musl's standard
+--   `/lib/ld-musl-x86_64.so.1` dynamic linker which doesn't exist on glibc
+--   hosts; remap to the toolchain-shipped libc.so (musl: libc.so doubles as
+--   the dynamic linker) and add rpath so dynamic binaries Just Work. Static
+--   builds ignore both flags.
+-- ─────────────────────────────────────────────────────────────────────
+
+local __gcc_flavor_progs = {
+    ["gcc"] = "x86_64-linux-musl-gcc",
+    ["g++"] = "x86_64-linux-musl-g++",
+    ["c++"] = "x86_64-linux-musl-c++",
+    ["cpp"] = "x86_64-linux-musl-cpp",
+    ["cc"]  = "x86_64-linux-musl-gcc",
+}
+
+local function __gcc_flavor_version()
+    return pkginfo.version() .. "-musl"
+end
+
+local function __gcc_flavor_alias_args()
+    local musl_lib_dir = path.join(
+        pkginfo.install_dir(), "x86_64-linux-musl", "lib"
+    )
+    local musl_loader = path.join(musl_lib_dir, "libc.so")
+    return string.format(
+        " -Wl,--dynamic-linker=%s -Wl,-rpath,%s",
+        musl_loader, musl_lib_dir
+    )
+end
+
+local function __register_as_gcc_flavor(binding_tree_root)
+    local gcc_bindir = path.join(pkginfo.install_dir(), "bin")
+    local flavor_ver = __gcc_flavor_version()
+    local alias_args = __gcc_flavor_alias_args()
+
+    log.info("registering musl-gcc as gcc flavor %s ...", flavor_ver)
+    for prog, target in pairs(__gcc_flavor_progs) do
+        xvm.add(prog, {
+            bindir  = gcc_bindir,
+            alias   = target .. alias_args,
+            version = flavor_ver,
+            binding = binding_tree_root,
+        })
+    end
+end
+
+local function __unregister_gcc_flavor()
+    local flavor_ver = __gcc_flavor_version()
+    for prog, _ in pairs(__gcc_flavor_progs) do
+        xvm.remove(prog, flavor_ver)
+    end
+end
+
 local function __remove_specs()
     local install_dir = pkginfo.install_dir()
     local specs_file = path.join(
@@ -192,10 +270,13 @@ function config()
     xvm.add("musl-gcc-static", { alias = "musl-gcc -static", binding = binding_tree_root })
     xvm.add("musl-g++-static", { alias = "musl-g++ -static", binding = binding_tree_root })
 
+    __register_as_gcc_flavor(binding_tree_root)
+
     return true
 end
 
 function uninstall()
+    __unregister_gcc_flavor()
     for _, prog in ipairs(package.programs) do
         xvm.remove(prog)
         xvm.remove("x86_64-linux-" .. prog)

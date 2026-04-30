@@ -113,6 +113,15 @@ end
 --   xlings use gcc 15.1.0          # glibc
 --   xlings use gcc 15.1.0-musl     # musl
 --
+-- The cross-registered programs form their own binding subtree rooted at
+-- `xim-musl-gnu-gcc@<flavor_ver>`, parallel to xim:gcc.lua's
+-- `xim-gnu-gcc@<ver>`. Keeping this tree separate from the primary
+-- `musl-gcc@<ver>` tree (which holds musl-gcc / musl-g++ / x86_64-linux-musl-*
+-- / musl-ldd / musl-loader / musl-gcc-static / musl-g++-static) means the
+-- gcc-flavor view in `xlings info gcc` is not entangled with musl-gcc's
+-- internal program shimming, and removal of one flavor's registrations
+-- doesn't reach into the other.
+--
 -- Why the suffix and not a prefix:
 --   xvm's match_version splits versions on `.` and parses each segment with
 --   from_chars; `15.1.0-musl` parses cleanly as 15/1/0(-musl) so it sorts
@@ -148,6 +157,10 @@ local function __gcc_flavor_version()
     return pkginfo.version() .. "-musl"
 end
 
+local function __gcc_flavor_root_name()
+    return "xim-musl-gnu-gcc"
+end
+
 local function __gcc_flavor_alias_args()
     local musl_lib_dir = path.join(
         pkginfo.install_dir(), "x86_64-linux-musl", "lib"
@@ -159,18 +172,25 @@ local function __gcc_flavor_alias_args()
     )
 end
 
-local function __register_as_gcc_flavor(binding_tree_root)
+local function __register_as_gcc_flavor()
     local gcc_bindir = path.join(pkginfo.install_dir(), "bin")
     local flavor_ver = __gcc_flavor_version()
     local alias_args = __gcc_flavor_alias_args()
+    local root_name = __gcc_flavor_root_name()
+    local flavor_root = string.format("%s@%s", root_name, flavor_ver)
 
-    log.info("registering musl-gcc as gcc flavor %s ...", flavor_ver)
+    log.info("registering musl-gcc as gcc flavor %s (root: %s) ...",
+             flavor_ver, flavor_root)
+
+    -- Anchor a virtual root node for this flavor's subtree.
+    xvm.add(root_name)
+
     for prog, target in pairs(__gcc_flavor_progs) do
         xvm.add(prog, {
             bindir  = gcc_bindir,
             alias   = target .. alias_args,
             version = flavor_ver,
-            binding = binding_tree_root,
+            binding = flavor_root,
         })
     end
 end
@@ -180,6 +200,9 @@ local function __unregister_gcc_flavor()
     for prog, _ in pairs(__gcc_flavor_progs) do
         xvm.remove(prog, flavor_ver)
     end
+    -- Drop the virtual root only if no other musl-gcc version still hangs
+    -- registrations off it (xvm.remove on an empty target is a no-op there).
+    xvm.remove(__gcc_flavor_root_name())
 end
 
 local function __remove_specs()
@@ -270,7 +293,7 @@ function config()
     xvm.add("musl-gcc-static", { alias = "musl-gcc -static", binding = binding_tree_root })
     xvm.add("musl-g++-static", { alias = "musl-g++ -static", binding = binding_tree_root })
 
-    __register_as_gcc_flavor(binding_tree_root)
+    __register_as_gcc_flavor()
 
     return true
 end

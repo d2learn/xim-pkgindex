@@ -29,7 +29,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.6" },
+            ["latest"] = { ref = "0.4.7" },
+            ["0.4.7"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.7/xlings-0.4.7-linux-x86_64.tar.gz",
+                sha256 = "e56d7fb5a0a44424ebd48ac4d5cb1f13abe6b296967b910c7ad2ac6e87c79ffd",
+            },
             ["0.4.6"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.6/xlings-0.4.6-linux-x86_64.tar.gz",
                 sha256 = "b7a61b944f784f0865b1874085f1840432b5a5b0f2b994983ab654ddabde5f9c",
@@ -46,7 +50,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.6" },
+            ["latest"] = { ref = "0.4.7" },
+            ["0.4.7"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.7/xlings-0.4.7-macosx-arm64.tar.gz",
+                sha256 = "f45df49073c9aba50f211c10954b90726fc747efd383c5cd178a8727a30e5fe1",
+            },
             ["0.4.6"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.6/xlings-0.4.6-macosx-arm64.tar.gz",
                 sha256 = "c8e653da23a2c56f508b53c4c60066db5cc13b3e45a5897a17630e3d188f76e2",
@@ -63,7 +71,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.6" },
+            ["latest"] = { ref = "0.4.7" },
+            ["0.4.7"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.7/xlings-0.4.7-windows-x86_64.zip",
+                sha256 = "13ecbdac25e5370b97812860aed058e86ac0be6c4a77ebd508a581d2a51172c5",
+            },
             ["0.4.6"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.6/xlings-0.4.6-windows-x86_64.zip",
                 sha256 = "ed20e4bf2f0b6e4a3c981e87d1c65cec60483350b17e7c5c0f57f1e497aaa8f7",

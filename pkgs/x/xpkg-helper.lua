@@ -15,6 +15,8 @@ package = {
     categories = {"tools", "xpkg", "helper" },
     keywords = {"xpackage", "helper", "xscript"},
 
+    programs = { "xpkg-helper" },
+
     xpm = {
         windows = { ["0.0.1"] = { } },
         linux = { ["0.0.1"] = { } },
@@ -26,6 +28,7 @@ import("xim.libxpkg.log")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
 import("xim.libxpkg.utils")
+import("xim.libxpkg.pkginfo")
 
 local __xscript_input = {
     ["--export-path"] = false,
@@ -118,4 +121,36 @@ function xpkg_main(xpkgname, ...)
         "${bright}%s${clear} | ${yellow}%s${clear} - ${green}ok",
         pkgname, cmds["--export-path"]
     )
+end
+
+-- ─────────────────────────────────────────────────────────────────────
+-- xpkg lifecycle: create a CLI shim that runs xpkg_main via `xlings script`
+-- (same workaround as configure-project-installer.lua — see comment there)
+-- ─────────────────────────────────────────────────────────────────────
+
+local function __script_path()
+    return path.join(pkginfo.install_dir(), "..", "..", "..",
+        "xim-pkgindex", "pkgs", "x", "xpkg-helper.lua")
+end
+
+local function __shim_path()
+    return path.join(system.bindir(), "xpkg-helper")
+end
+
+function install()
+    return true
+end
+
+function config()
+    local shim = __shim_path()
+    io.writefile(shim, string.format(
+        "#!/bin/sh\nexec xlings script %s \"$@\"\n", __script_path()
+    ))
+    os.exec(string.format("chmod +x %q", shim))
+    return true
+end
+
+function uninstall()
+    os.tryrm(__shim_path())
+    return true
 end

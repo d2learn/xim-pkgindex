@@ -16,7 +16,11 @@ package = {
 
     xpm = {
         linux = {
-            deps = { "make", "gcc", "xpkg-helper" },
+            deps = {
+                "xim:make@4.3",
+                "xim:gcc@15.1.0",
+                "xim:xpkg-helper@0.0.1",
+            },
             ["latest"] = { ref = "0.0.1" },
             ["0.0.1"] = {}
         },
@@ -27,6 +31,7 @@ package = {
 import("xim.libxpkg.log")
 import("xim.libxpkg.utils")
 import("xim.libxpkg.system")
+import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.pkgmanager")
 
 local __xscript_input = {
@@ -130,4 +135,43 @@ function xpkg_main(installdir, ...)
     end
 
     log.info("✅ installed to: ${green}%s", installdir)
+end
+
+-- ─────────────────────────────────────────────────────────────────────
+-- xpkg lifecycle: create a CLI shim that runs xpkg_main via `xlings script`
+--
+-- xlings's auto-shim for type="script" packages currently registers an xvm
+-- alias pointing to the xpkgs copy of this lua, but `xlings script` only
+-- resolves scripts via the xim-pkgindex tree. So the auto-registered path
+-- is non-functional. Write the shim ourselves with the index-relative path
+-- so `system.exec("configure-project-installer ...")` works after install.
+-- ─────────────────────────────────────────────────────────────────────
+
+local function __script_path()
+    -- pkginfo.install_dir() = <data>/xpkgs/xim-x-configure-project-installer/<ver>/
+    -- walk up three levels to <data>/, then xim-pkgindex/pkgs/c/.
+    return path.join(pkginfo.install_dir(), "..", "..", "..",
+        "xim-pkgindex", "pkgs", "c", "configure-project-installer.lua")
+end
+
+local function __shim_path()
+    return path.join(system.bindir(), "configure-project-installer")
+end
+
+function install()
+    return true
+end
+
+function config()
+    local shim = __shim_path()
+    io.writefile(shim, string.format(
+        "#!/bin/sh\nexec xlings script %s \"$@\"\n", __script_path()
+    ))
+    os.exec(string.format("chmod +x %q", shim))
+    return true
+end
+
+function uninstall()
+    os.tryrm(__shim_path())
+    return true
 end

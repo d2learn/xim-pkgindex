@@ -2,7 +2,7 @@ package = {
     spec = "1",
     -- base info
     name = "musl-gcc",
-    description = "GCC, the GNU Compiler Collection ( prebuild with musl )",
+    description = "GCC, the GNU Compiler Collection (prebuilt with musl)",
 
     authors = {"GNU"},
     licenses = {"GPL"},

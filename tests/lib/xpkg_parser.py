@@ -50,9 +50,12 @@ def parse_xpkg(lua_path: str) -> XpkgMeta:
     meta.has_xvm_enable = "xvm_enable = true" in content
 
     # programs 列表
+    # `--` 行注释要先剥掉再扫引号字符串,否则注释里被注释掉的程序名会被当作
+    # declared (e.g. musl-gcc.lua 里 `-- "musl-gcc-static", "musl-g++-static"`).
     prog_match = re.search(r'programs\s*=\s*\{([^}]+)\}', content)
     if prog_match:
-        meta.programs = re.findall(r'"([^"]+)"', prog_match.group(1))
+        prog_body = re.sub(r'--[^\n]*', '', prog_match.group(1))
+        meta.programs = re.findall(r'"([^"]+)"', prog_body)
 
     # 平台支持
     for plat in ["linux", "windows", "macosx", "ubuntu", "debian", "archlinux", "manjaro"]:

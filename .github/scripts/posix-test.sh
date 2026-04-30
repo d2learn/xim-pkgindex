@@ -175,8 +175,12 @@ for rel_file in "${files[@]}"; do
     # though the install did its job — the shim names already existed and
     # were re-pointed at the freshly installed binaries.
     if $expect_artifacts && [[ -n "$programs" ]]; then
+        # Use -F (fixed string) + -x (whole line) — program names are literal
+        # filenames, not regexes. Plain ERE `^${prog}$` mis-treats characters
+        # like `+` (e.g. `musl-c++` parses as `musl-c+` quantifier and never
+        # matches the literal `musl-c++` shim).
         for prog in $programs; do
-            if ! grep -qE "^${prog}$" <<< "$shims_after"; then
+            if ! grep -qFx "$prog" <<< "$shims_after"; then
                 log_fail "declared program '$prog' has no shim in $SHIM_DIR"
                 failures+=("$rel_file (missing-shim:$prog)")
             fi

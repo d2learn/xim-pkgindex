@@ -17,12 +17,14 @@ package = {
     categories = { "compiler", "gnu", "language" },
     keywords = { "compiler", "gnu", "gcc", "language", "c", "c++" },
 
-    programs = {
-        "gcc", "g++", "c++", "cpp",
-        "gcc-ar", "gcc-nm", "gcc-ranlib",
-        "gcov", "gcov-dump", "gcov-tool",
-        "x86_64-linux-gnu-gcc", "x86_64-linux-gnu-g++", "x86_64-linux-gnu-c++",
-    },
+    -- Cross-platform common-denominator only.
+    -- Linux installs additionally register cpp / gcc-ar / gcc-nm / gcc-ranlib /
+    -- gcov{,-dump,-tool} / x86_64-linux-gnu-{gcc,g++,c++} via xvm.add inside
+    -- the for-loop in __config_linux (see linux_programs below). They are
+    -- intentionally NOT in the top-level `programs` so that the windows
+    -- declared-program audit (which has no per-platform programs mechanism
+    -- yet) doesn't demand mingw-w64 to provide them.
+    programs = { "gcc", "g++", "c++" },
 
     -- xvm: xlings version management
     xvm_enable = true,
@@ -55,6 +57,17 @@ import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.pkgmanager")
 import("xim.libxpkg.elfpatch")
+
+-- Linux-only program list (registered as xvm shims by __config_linux).
+-- Kept separate from package.programs so that the cross-platform declared-
+-- program audit (which runs on windows where mingw-w64 only ships gcc/g++/c++)
+-- doesn't demand shims that only exist on linux.
+local linux_programs = {
+    "gcc", "g++", "c++", "cpp",
+    "gcc-ar", "gcc-nm", "gcc-ranlib",
+    "gcov", "gcov-dump", "gcov-tool",
+    "x86_64-linux-gnu-gcc", "x86_64-linux-gnu-g++", "x86_64-linux-gnu-c++",
+}
 
 local gcc_tool = {
     ["gcc-ar"] = true, ["gcc-nm"] = true, ["gcc-ranlib"] = true,
@@ -124,7 +137,7 @@ function uninstall()
     end
 
     local gcc_version = "gcc-" .. pkginfo.version()
-    for _, prog in ipairs(package.programs) do
+    for _, prog in ipairs(linux_programs) do
         if gcc_tool[prog] then
             xvm.remove(prog, gcc_version)
         else
@@ -172,10 +185,10 @@ function __config_linux()
         }
     }
 
-    for _, prog in ipairs(package.programs) do
+    for _, prog in ipairs(linux_programs) do
 
         config.alias = prog
-    
+
         if compiler_entry[prog] then config.alias = prog .. alias_args end
 
         if gcc_tool[prog] then

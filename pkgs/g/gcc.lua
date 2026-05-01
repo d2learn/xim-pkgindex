@@ -35,7 +35,8 @@ package = {
                 -- home/xlings/.xlings_data/subos/linux/usr/include/bits/errno.h:26:11: fatal error: linux/errno.h: No such file or directory
                 "linux-headers@5.11.1",
             },
-            ["latest"] = { ref = "15.1.0" },
+            ["latest"] = { ref = "16.1.0" },
+            ["16.1.0"] = "XLINGS_RES",
             ["15.1.0"] = "XLINGS_RES",
             ["13.3.0"] = "XLINGS_RES",
             ["11.5.0"] = "XLINGS_RES",

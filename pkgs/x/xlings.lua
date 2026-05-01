@@ -18,7 +18,14 @@ package = {
     categories = {"tools", "package-manager", "version-manager"},
     keywords = {"xlings", "package-manager", "version-manager", "dev-tools"},
 
-    programs = { "xlings", "xim", "xinstall" },
+    -- Only `xlings` is registered via xvm.add in config() below.
+    -- The other CLI entry points the xlings binary recognizes — `xim`,
+    -- `xinstall`, `xsubos`, `xself` — are multicall aliases that
+    -- `xlings self init` (xself::ensure_subos_shims) wires up on xlings's
+    -- own install side, NOT here. Listing them under `programs` would
+    -- make CI's declared-program audit demand a shim from this xpkg's
+    -- config(), which it never produces, so they don't belong here.
+    programs = { "xlings" },
 
     xvm_enable = true,
 
@@ -29,7 +36,15 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.7" },
+            ["latest"] = { ref = "0.4.10" },
+            ["0.4.10"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-linux-x86_64.tar.gz",
+                sha256 = "7308f5d65fb71773f1e3546be86c720e77ee21509b6a66dcee86ebf0239e8faf",
+            },
+            ["0.4.8"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.8/xlings-0.4.8-linux-x86_64.tar.gz",
+                sha256 = "983b1ce4aa5b0fc4707907a314b5c1944362f141c085e2129a0c0c54cd030451",
+            },
             ["0.4.7"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.7/xlings-0.4.7-linux-x86_64.tar.gz",
                 sha256 = "e56d7fb5a0a44424ebd48ac4d5cb1f13abe6b296967b910c7ad2ac6e87c79ffd",
@@ -50,7 +65,15 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.7" },
+            ["latest"] = { ref = "0.4.10" },
+            ["0.4.10"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-macosx-arm64.tar.gz",
+                sha256 = "3b45256592eddf9e47bcaea9e4856183e5d3714fd5684016c04fa7529f889b0f",
+            },
+            ["0.4.8"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.8/xlings-0.4.8-macosx-arm64.tar.gz",
+                sha256 = "a3159b72315bd8f71294b3554c4bde991da857fa87a9aa047ef8abf516a5a94d",
+            },
             ["0.4.7"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.7/xlings-0.4.7-macosx-arm64.tar.gz",
                 sha256 = "f45df49073c9aba50f211c10954b90726fc747efd383c5cd178a8727a30e5fe1",
@@ -71,7 +94,15 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.7" },
+            ["latest"] = { ref = "0.4.10" },
+            ["0.4.10"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-windows-x86_64.zip",
+                sha256 = "fec7d922d96903b29bfaa59befb241ad87adc059d3f4f3a8dd64fbb46cc532a3",
+            },
+            ["0.4.8"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.8/xlings-0.4.8-windows-x86_64.zip",
+                sha256 = "a1f28b904f79106156de43b5790f7b0338cab1371d2e0ff3eabf7a1636159b2b",
+            },
             ["0.4.7"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.7/xlings-0.4.7-windows-x86_64.zip",
                 sha256 = "13ecbdac25e5370b97812860aed058e86ac0be6c4a77ebd508a581d2a51172c5",

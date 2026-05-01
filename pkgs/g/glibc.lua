@@ -147,11 +147,23 @@ function __config_header()
     -- TODO: add include support for xlings (use sysroot)
     local subos_sysrootdir = system.subos_sysrootdir()
     local sysroot_usrdir = path.join(subos_sysrootdir, "usr")
+    if not os.isdir(sysroot_usrdir) then os.mkdir(sysroot_usrdir) end
+
+    -- Skip the recursive header copy if a previous install of the same
+    -- version already placed it. config() runs on every dependent xpkg
+    -- install (any package that lists glibc@<ver> in deps), so without
+    -- this gate, every install of xim:gcc / fromsource:* re-cp's the
+    -- entire glibc include tree (~thousand files) — wasted I/O + log
+    -- spam. Same fix shape as linux-headers (commit 3718532).
+    local stamp = path.join(sysroot_usrdir, ".glibc-" .. pkginfo.version() .. ".stamp")
+    if os.isfile(stamp) then
+        log.info("glibc headers already in subos rootfs (stamp present), skipping copy.")
+        return
+    end
 
     log.info("Copying glibc header files to subos rootfs ...")
-    os.mkdir(sysroot_usrdir)
     os.execute('cp -r "' .. include_dir .. '" "' .. sysroot_usrdir .. '/"')
-    
+    io.writefile(stamp, pkginfo.version())
 end
 
 function __relocate()

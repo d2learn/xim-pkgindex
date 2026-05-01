@@ -36,10 +36,10 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.9" },
-            ["0.4.9"] = {
-                url = "https://github.com/d2learn/xlings/releases/download/v0.4.9/xlings-0.4.9-linux-x86_64.tar.gz",
-                sha256 = "fb6065d95879a051d8a82db4d48d3f9ac86e6d36059e5e4f18954a24ef7878ba",
+            ["latest"] = { ref = "0.4.10" },
+            ["0.4.10"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-linux-x86_64.tar.gz",
+                sha256 = "7308f5d65fb71773f1e3546be86c720e77ee21509b6a66dcee86ebf0239e8faf",
             },
             ["0.4.8"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.8/xlings-0.4.8-linux-x86_64.tar.gz",
@@ -65,10 +65,10 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.9" },
-            ["0.4.9"] = {
-                url = "https://github.com/d2learn/xlings/releases/download/v0.4.9/xlings-0.4.9-macosx-arm64.tar.gz",
-                sha256 = "8549058cbda49e061cda7f8f76f0eea424b51ff6664fa694e9d45cd73a5a2e78",
+            ["latest"] = { ref = "0.4.10" },
+            ["0.4.10"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-macosx-arm64.tar.gz",
+                sha256 = "3b45256592eddf9e47bcaea9e4856183e5d3714fd5684016c04fa7529f889b0f",
             },
             ["0.4.8"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.8/xlings-0.4.8-macosx-arm64.tar.gz",
@@ -94,10 +94,10 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.9" },
-            ["0.4.9"] = {
-                url = "https://github.com/d2learn/xlings/releases/download/v0.4.9/xlings-0.4.9-windows-x86_64.zip",
-                sha256 = "b7748e70abb087eb01e90f2ed444f8d659d7c51bb5dde26b5cf3b9df03ca0984",
+            ["latest"] = { ref = "0.4.10" },
+            ["0.4.10"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-windows-x86_64.zip",
+                sha256 = "fec7d922d96903b29bfaa59befb241ad87adc059d3f4f3a8dd64fbb46cc532a3",
             },
             ["0.4.8"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.8/xlings-0.4.8-windows-x86_64.zip",

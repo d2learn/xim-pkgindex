@@ -37,6 +37,14 @@ package = {
             },
         },
         linux = {
+            -- Runtime deps. mdbook prebuilt is dynamically linked
+            -- (INTERP=/lib64/ld-linux-x86-64.so.2) and pulls libc/libdl/
+            -- libpthread/libm from glibc plus libgcc_s.so.1 from gcc's
+            -- runtime libs (Rust statically links libstdc++ but still
+            -- needs libgcc_s for unwind tables).
+            deps = {
+                runtime = { "glibc@2.39", "gcc@15.1.0" },
+            },
             ["latest"] = { ref = "0.5.2" },
             ["0.5.2"] = {
                 url = "https://github.com/rust-lang/mdBook/releases/download/v0.5.2/mdbook-v0.5.2-x86_64-unknown-linux-gnu.tar.gz",

@@ -22,6 +22,13 @@ package = {
 
     xpm = {
         linux = {
+            -- Runtime deps. cmake prebuilt is dynamically linked
+            -- (INTERP=/lib64/ld-linux-x86-64.so.2) and needs
+            -- libc/libdl/librt/libpthread/libm from glibc. No libstdc++
+            -- (statically linked into the binary).
+            deps = {
+                runtime = { "glibc@2.39" },
+            },
             ["latest"] = { ref = "4.0.2" },
             ["4.0.2"] = "XLINGS_RES",
         },

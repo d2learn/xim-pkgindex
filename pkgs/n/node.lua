@@ -51,7 +51,7 @@ package = {
             -- No build deps — install hook is just `os.mv` of the extracted
             -- prebuilt; nothing is compiled at install time.
             deps = {
-                runtime = { "glibc@2.39", "gcc@15.1.0" },
+                runtime = { "xim:glibc@2.39", "xim:gcc@15.1.0" },
             },
             ["latest"] = { ref = "24.15.0" },
             ["25.9.0"] = _linux_url("25.9.0"),

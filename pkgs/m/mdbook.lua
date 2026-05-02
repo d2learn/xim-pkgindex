@@ -43,7 +43,7 @@ package = {
             -- runtime libs (Rust statically links libstdc++ but still
             -- needs libgcc_s for unwind tables).
             deps = {
-                runtime = { "glibc@2.39", "gcc@15.1.0" },
+                runtime = { "xim:glibc@2.39", "xim:gcc@15.1.0" },
             },
             ["latest"] = { ref = "0.5.2" },
             ["0.5.2"] = {

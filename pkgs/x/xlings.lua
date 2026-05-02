@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.12" },
+            ["latest"] = { ref = "0.4.13" },
+            ["0.4.13"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.13/xlings-0.4.13-linux-x86_64.tar.gz",
+                sha256 = "74be30e988c82b9f2f3c44a48df2ae736aec6ad9ee05558351c3e37ee73088ec",
+            },
             ["0.4.12"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.12/xlings-0.4.12-linux-x86_64.tar.gz",
                 sha256 = "efccd525bfc5259a6387c40b523a23c2803678a48ecd4285efa6badac15d6338",
@@ -69,7 +73,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.12" },
+            ["latest"] = { ref = "0.4.13" },
+            ["0.4.13"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.13/xlings-0.4.13-macosx-arm64.tar.gz",
+                sha256 = "d64625801bba3a6895b3f61b9dd3e4fecac67d2fecfac7379693bf1f2298864d",
+            },
             ["0.4.12"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.12/xlings-0.4.12-macosx-arm64.tar.gz",
                 sha256 = "2350db515e3c326320a3404a36bf2a7b30705d89028e89130b9456d45c6ddf79",
@@ -102,7 +110,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.12" },
+            ["latest"] = { ref = "0.4.13" },
+            ["0.4.13"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.13/xlings-0.4.13-windows-x86_64.zip",
+                sha256 = "6953fc974d241e72de0625d80b15b7250cb071a906a500da5b3c6b410c9df878",
+            },
             ["0.4.12"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.12/xlings-0.4.12-windows-x86_64.zip",
                 sha256 = "9d600b38a8897e772d6c787df95f9e6e0a13bff3f9c3729bf91ed2f6f66f9e62",

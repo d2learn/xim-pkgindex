@@ -32,7 +32,7 @@ package = {
             -- preinstalled. Track the gap separately; declaring
             -- glibc@2.39 alone is the minimum-viable correct fix.
             deps = {
-                runtime = { "glibc@2.39" },
+                runtime = { "xim:glibc@2.39" },
             },
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.linux.x86_64",
             ["latest"] = { ref = "3.0.8" },

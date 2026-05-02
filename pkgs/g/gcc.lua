@@ -36,6 +36,14 @@ package = {
                 -- fix xmake project --project=.  -k compile_commands
                 -- home/xlings/.xlings_data/subos/linux/usr/include/bits/errno.h:26:11: fatal error: linux/errno.h: No such file or directory
                 "linux-headers@5.11.1",
+                -- gcc-specs-config rewrites gcc's specs at install-time so
+                -- the install-machine's xim:glibc loader path / lib64 are
+                -- baked in. Without this, direct-invocation of
+                -- <install_dir>/bin/gcc (bypassing the xvm shim's flag
+                -- injection) emits binaries with INTERP=/lib64/... and
+                -- RPATH empty, leaning on system glibc and breaking on
+                -- distroless / Alpine / different glibc version.
+                "gcc-specs-config@0.0.1",
             },
             ["latest"] = { ref = "16.1.0" },
             ["16.1.0"] = "XLINGS_RES",
@@ -163,6 +171,25 @@ function __config_linux()
             ' --sysroot=%s -Wl,--dynamic-linker=%s -Wl,--enable-new-dtags,-rpath,%s -Wl,-rpath-link,%s',
             sysroot_dir, dynamic_linker, sysroot_lib, sysroot_lib
         )
+
+        -- Rewrite gcc's specs file in-place so direct invocation of
+        -- <install_dir>/bin/gcc (without the xvm shim's flag injection
+        -- via alias_args above) emits binaries with the correct
+        -- install-machine INTERP / RPATH. Specs is rewritten on every
+        -- install on every machine — this is the install-time-realign
+        -- pattern that handles all the cases the prebuilt-tarball-baked
+        -- specs don't (different XLINGS_HOME, container, fresh box,
+        -- moved subos).
+        --
+        -- Invoke via absolute shim path because the config phase doesn't
+        -- prepend subos/default/bin to PATH (unlike the install phase).
+        local gcc_bin = path.join(pkginfo.install_dir(), "bin/gcc")
+        local specs_config_bin = path.join(system.bindir(), "gcc-specs-config")
+        log.info("Rewriting gcc specs to install-machine paths via gcc-specs-config...")
+        system.exec(string.format(
+            "%s %s --dynamic-linker %s --rpath %s --linker-type gnu",
+            specs_config_bin, gcc_bin, dynamic_linker, sysroot_lib
+        ))
     else
         log.warn("subos dir is empty, skip alias linker/sysroot injection")
     end

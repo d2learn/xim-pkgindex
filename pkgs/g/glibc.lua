@@ -31,6 +31,19 @@ package = {
 
     xpm = {
         linux = {
+            -- Declare the dynamic linker we ship so consumers don't have
+            -- to hardcode `path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2")`
+            -- in their own install hooks. xlings predicate-driven elfpatch
+            -- (regenerated post 2026-05-02 design) reads this and patches
+            -- consumer ELFs automatically. `abi` is the disambiguation tag
+            -- when a subos hosts both glibc and musl xpkgs.
+            exports = {
+                runtime = {
+                    loader = "lib64/ld-linux-x86-64.so.2",
+                    abi    = "linux-x86_64-glibc",
+                    -- libdirs not declared → falls back to {lib64, lib} convention
+                },
+            },
             ["latest"] = { ref = "2.39" },
             ["2.39"] = "XLINGS_RES",
         },

@@ -29,6 +29,19 @@ package = {
 
     xpm = {
         linux = {
+            -- patchelf is required by __patch_toolchain_dynamic_bins() in
+            -- install() — the prebuilt tarball ships every binutils binary
+            -- (~16 entries under bin/x86_64-linux-musl-* AND under
+            -- x86_64-linux-musl/bin/) with PT_INTERP hardcoded to the
+            -- canonical /home/xlings/.xlings_data/lib/ld-musl-x86_64.so.1
+            -- path. Without patchelf at install time the relocation step
+            -- silently no-ops (os.exec falls back), and the toolchain only
+            -- runs on machines where that exact canonical path resolves —
+            -- breaking any non-default XLINGS_HOME, container, fresh
+            -- machine, or "first ever musl-gcc install" scenario. Declaring
+            -- the dep guarantees patchelf is on the install-hook PATH.
+            deps = { "xim:patchelf@0.18.0" },
+
             -- toolchain build based on musl-gcc-static
             ["latest"] = { ref = "15.1.0" },
             ["15.1.0"] = "XLINGS_RES", -- deps musl-gcc

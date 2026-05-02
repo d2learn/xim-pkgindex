@@ -49,7 +49,9 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
-import("xim.libxpkg.elfpatch")
+-- elfpatch import removed: predicate-driven auto-patch (post 2026-05-02
+-- design) reads glibc.lua's exports.runtime.loader and rewrites our
+-- INTERP / RPATH automatically. No install-hook elfpatch call needed.
 
 function install()
     local d2xdir = pkginfo.install_file()
@@ -58,15 +60,6 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mv(d2xdir, pkginfo.install_dir())
 
-    if os.host() ~= "windows" then
-        local glibc_dir = pkginfo.dep_install_dir("glibc", "2.39")
-        local loader = glibc_dir and path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2") or nil
-        elfpatch.auto({
-            enable = true,
-            shrink = true,
-            interpreter = loader,
-        })
-    end
     return true
 end
 

@@ -56,7 +56,11 @@ import("xim.libxpkg.log")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.pkgmanager")
-import("xim.libxpkg.elfpatch")
+-- elfpatch import removed: predicate-driven auto-patch (post 2026-05-02
+-- design) reads glibc.lua's exports.runtime.loader and rewrites our
+-- INTERP / RPATH automatically. Default scan = "convention" already
+-- covers libexec/ (where cc1 / cc1plus / collect2 live), so the gcc-
+-- specific bins = { "bin", "libexec" } is no longer needed.
 
 -- Linux-only program list (registered as xvm shims by __config_linux).
 -- Kept separate from package.programs so that the cross-platform declared-
@@ -105,17 +109,6 @@ function install()
         os.cp(srcdir, pkginfo.install_dir(), {
             symlink = true,
             verbose = true,
-        })
-
-        -- Point interpreter directly to glibc xpkgs (not subos symlink)
-        local glibc_dir = pkginfo.dep_install_dir("glibc", "2.39")
-        local loader = glibc_dir and path.join(glibc_dir, "lib64", "ld-linux-x86-64.so.2") or nil
-        elfpatch.auto({
-            enable = true,
-            shrink = true,
-            bins = { "bin", "libexec" },
-            libs = { "lib64" },
-            interpreter = loader,
         })
     end
     return true

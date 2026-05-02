@@ -31,7 +31,7 @@ package = {
             ["0.1.1"] = "XLINGS_RES",
         },
         linux = {
-            deps = { "glibc@2.39", "openssl@3.1.5" },
+            deps = { "xim:glibc@2.39", "xim:openssl@3.1.5" },
             ["latest"] = { ref = "0.1.4" },
             ["0.1.4"] = "XLINGS_RES",
             ["0.1.3"] = "XLINGS_RES",

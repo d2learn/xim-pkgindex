@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.10" },
+            ["latest"] = { ref = "0.4.12" },
+            ["0.4.12"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.12/xlings-0.4.12-linux-x86_64.tar.gz",
+                sha256 = "efccd525bfc5259a6387c40b523a23c2803678a48ecd4285efa6badac15d6338",
+            },
             ["0.4.10"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-linux-x86_64.tar.gz",
                 sha256 = "7308f5d65fb71773f1e3546be86c720e77ee21509b6a66dcee86ebf0239e8faf",
@@ -65,7 +69,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.10" },
+            ["latest"] = { ref = "0.4.12" },
+            ["0.4.12"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.12/xlings-0.4.12-macosx-arm64.tar.gz",
+                sha256 = "2350db515e3c326320a3404a36bf2a7b30705d89028e89130b9456d45c6ddf79",
+            },
             ["0.4.10"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-macosx-arm64.tar.gz",
                 sha256 = "3b45256592eddf9e47bcaea9e4856183e5d3714fd5684016c04fa7529f889b0f",
@@ -94,7 +102,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.10" },
+            ["latest"] = { ref = "0.4.12" },
+            ["0.4.12"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.12/xlings-0.4.12-windows-x86_64.zip",
+                sha256 = "9d600b38a8897e772d6c787df95f9e6e0a13bff3f9c3729bf91ed2f6f66f9e62",
+            },
             ["0.4.10"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.10/xlings-0.4.10-windows-x86_64.zip",
                 sha256 = "fec7d922d96903b29bfaa59befb241ad87adc059d3f4f3a8dd64fbb46cc532a3",

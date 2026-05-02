@@ -22,6 +22,18 @@ package = {
 
     xpm = {
         linux = {
+            -- Runtime deps. xmake bundle is dynamically linked
+            -- (INTERP=/lib64/ld-linux-x86-64.so.2) and needs libc/libm
+            -- from glibc plus libncurses.so.6 + libtinfo.so.6 from
+            -- ncurses for its TUI.
+            -- TODO: there is no xim:ncurses prebuilt yet (only
+            -- fromsource:ncurses). Until one is published, falling back
+            -- to the system ncurses works on most distros that have it
+            -- preinstalled. Track the gap separately; declaring
+            -- glibc@2.39 alone is the minimum-viable correct fix.
+            deps = {
+                runtime = { "glibc@2.39" },
+            },
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.linux.x86_64",
             ["latest"] = { ref = "3.0.8" },
             ["3.0.8"] = {

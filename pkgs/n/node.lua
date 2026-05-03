@@ -43,15 +43,16 @@ package = {
             -- Runtime deps. The upstream node prebuilt is dynamically linked
             -- (INTERP=/lib64/ld-linux-x86-64.so.2, RPATH empty) and pulls
             -- libc/libdl/libpthread/libm from glibc plus libstdc++.so.6 +
-            -- libgcc_s.so.1 from gcc's runtime libs. Without these declared,
-            -- xlings's predicate-driven elfpatch can't rewrite INTERP/RPATH
-            -- to the xpkg-provided libc + libstdc++, and the binary only
+            -- libgcc_s.so.1 from xim:gcc-runtime (the runtime libs split
+            -- out of xim:gcc). Without these declared, xlings's
+            -- predicate-driven elfpatch can't rewrite INTERP/RPATH to
+            -- the xpkg-provided libc + libstdc++, and the binary only
             -- runs on hosts that already have system glibc + a compatible
             -- libstdc++ (i.e. fails on distroless / Alpine / very old glibc).
             -- No build deps — install hook is just `os.mv` of the extracted
             -- prebuilt; nothing is compiled at install time.
             deps = {
-                runtime = { "xim:glibc@2.39", "xim:gcc@15.1.0" },
+                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
             },
             ["latest"] = { ref = "24.15.0" },
             ["25.9.0"] = _linux_url("25.9.0"),

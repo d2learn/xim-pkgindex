@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.13" },
+            ["latest"] = { ref = "0.4.14" },
+            ["0.4.14"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.14/xlings-0.4.14-linux-x86_64.tar.gz",
+                sha256 = "4d5ba18fb5f8b32ec899c43c64719302445fe13eec952629f28cce9d8c400b71",
+            },
             ["0.4.13"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.13/xlings-0.4.13-linux-x86_64.tar.gz",
                 sha256 = "74be30e988c82b9f2f3c44a48df2ae736aec6ad9ee05558351c3e37ee73088ec",
@@ -73,7 +77,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.13" },
+            ["latest"] = { ref = "0.4.14" },
+            ["0.4.14"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.14/xlings-0.4.14-macosx-arm64.tar.gz",
+                sha256 = "fc8747e6fbd32bacb513b467e71fcd4eb5f3457be2eb77d0c18f6b26e2c160b3",
+            },
             ["0.4.13"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.13/xlings-0.4.13-macosx-arm64.tar.gz",
                 sha256 = "d64625801bba3a6895b3f61b9dd3e4fecac67d2fecfac7379693bf1f2298864d",
@@ -110,7 +118,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.13" },
+            ["latest"] = { ref = "0.4.14" },
+            ["0.4.14"] = {
+                url = "https://github.com/d2learn/xlings/releases/download/v0.4.14/xlings-0.4.14-windows-x86_64.zip",
+                sha256 = "92ee06165f7b469ec78a34f5b5b9590d4500cf212e31b24c61f35c653695724a",
+            },
             ["0.4.13"] = {
                 url = "https://github.com/d2learn/xlings/releases/download/v0.4.13/xlings-0.4.13-windows-x86_64.zip",
                 sha256 = "6953fc974d241e72de0625d80b15b7250cb071a906a500da5b3c6b410c9df878",

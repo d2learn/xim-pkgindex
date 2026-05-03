@@ -19,17 +19,30 @@ package = {
 
     xpm = {
         linux = {
-            deps = {"node", "npm"},
+            -- node/npm are needed at install time only (the install
+            -- hook calls `npm install bun@<ver>`); after install the
+            -- bun native binary is self-contained. glibc is the actual
+            -- runtime dep — bun's prebuilt is dynamically linked
+            -- (NEEDED libc.so.6 / libdl.so.2 / libm.so.6 /
+            -- libpthread.so.0; no libgcc_s/libstdc++).
+            deps = {
+                runtime = { "xim:glibc@2.39" },
+                build   = { "xim:node", "xim:npm" },
+            },
             ["latest"] = { ref = "1.3.11" },
             ["1.3.11"] = { ref = "1.3.11" },
         },
         macosx = {
-            deps = {"node", "npm"},
+            deps = {
+                build = { "xim:node", "xim:npm" },
+            },
             ["latest"] = { ref = "1.3.11" },
             ["1.3.11"] = { ref = "1.3.11" },
         },
         windows = {
-            deps = {"node", "npm"},
+            deps = {
+                build = { "xim:node", "xim:npm" },
+            },
             ["latest"] = { ref = "1.3.11" },
             ["1.3.11"] = { ref = "1.3.11" },
         },

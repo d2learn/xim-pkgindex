@@ -23,6 +23,19 @@ package = {
 
     xpm = {
         linux = {
+            -- Runtime deps. Godot-built executable is dynamically
+            -- linked: NEEDED libc.so.6 / libdl.so.2 / libm.so.6 /
+            -- libpthread.so.0 (glibc). Godot statically links its C++
+            -- runtime, so libstdc++/libgcc_s are NOT in NEEDED.
+            -- (The bundled lib*.so files in Linux/ are dlopen'd at
+            -- runtime by Godot itself, not via DT_NEEDED.)
+            -- Note: GUI runtime (libGL/libX11/libGLFW/libXi) is NOT
+            -- declared here — those are system libs xim doesn't
+            -- ship; users on hermetic distros won't be able to run
+            -- griddycode anyway without an X11/Wayland session.
+            deps = {
+                runtime = { "xim:glibc@2.39" },
+            },
             url_template = "https://github.com/face-hh/griddycode/releases/download/v{version}/Linux.zip",
             ["latest"] = { ref = "1.2.2" },
             ["1.2.2"] = { url = "https://github.com/face-hh/griddycode/releases/download/v1.2.2/Linux.zip" },

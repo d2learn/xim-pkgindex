@@ -20,6 +20,14 @@ package = {
 
     xpm = {
         linux = {
+            -- Runtime deps. uv-x86_64-unknown-linux-gnu prebuilt is
+            -- dynamically linked: NEEDED libc.so.6 / libpthread.so.0
+            -- (glibc) plus libgcc_s.so.1 (xim:gcc-runtime, for Rust
+            -- panic-unwind tables). Rust statically links libstdc++
+            -- so libstdc++ is not needed.
+            deps = {
+                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
+            },
             -- url_template: opt-in marker for the in-repo version checker
             -- (.github/scripts/version-check.py). The placeholder
             -- {version} is substituted with the upstream GitHub release

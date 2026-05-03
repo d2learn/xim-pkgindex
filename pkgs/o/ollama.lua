@@ -26,6 +26,16 @@ package = {
     --   bump this package to track the latest upstream release.
     xpm = {
         linux = {
+            -- Runtime deps. ollama prebuilt is dynamically linked
+            -- against glibc + GCC C++ runtime: NEEDED libc.so.6 /
+            -- libm.so.6 / libdl.so.2 / libpthread.so.0 / librt.so.1 /
+            -- libresolv.so.2 (glibc) plus libstdc++.so.6 / libgcc_s.so.1
+            -- (xim:gcc-runtime). Don't elide gcc-runtime here — ollama
+            -- uses C++ heavily (llama.cpp inference path), so libstdc++
+            -- is mandatory.
+            deps = {
+                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
+            },
             ["latest"] = { ref = "0.13.3" },
             ["0.13.3"] = {
                 url = "https://github.com/ollama/ollama/releases/download/v0.13.3/ollama-linux-amd64.tgz",

@@ -23,6 +23,14 @@ package = {
 
     xpm = {
         linux = {
+            -- Runtime deps. nvim prebuilt (nvim-linux-x86_64.tar.gz)
+            -- is dynamically linked: INTERP=/lib64/ld-linux-x86-64.so.2,
+            -- NEEDED libc.so.6 / libm.so.6 (glibc) and libgcc_s.so.1
+            -- (GCC unwind runtime, ships in xim:gcc-runtime). No
+            -- libstdc++ — neovim itself is C, not C++.
+            deps = {
+                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
+            },
             url_template = "https://github.com/neovim/neovim/releases/download/v{version}/nvim-linux-x86_64.tar.gz",
             ["latest"] = { ref = "0.12.2" },
             ["0.12.2"] = {

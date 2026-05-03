@@ -23,10 +23,10 @@ package = {
         linux = {
             -- Runtime deps. ninja prebuilt is dynamically linked
             -- (INTERP=/lib64/ld-linux-x86-64.so.2) and pulls libc/libm
-            -- from glibc plus libstdc++.so.6 + libgcc_s.so.1 from gcc's
-            -- runtime libs.
+            -- from glibc plus libstdc++.so.6 + libgcc_s.so.1 from
+            -- xim:gcc-runtime (the runtime libs split out of xim:gcc).
             deps = {
-                runtime = { "xim:glibc@2.39", "xim:gcc@15.1.0" },
+                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
             },
             ["latest"] = { ref = "1.12.1" },
             ["1.12.1"] = "XLINGS_RES",

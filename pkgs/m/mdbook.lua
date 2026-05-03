@@ -39,11 +39,11 @@ package = {
         linux = {
             -- Runtime deps. mdbook prebuilt is dynamically linked
             -- (INTERP=/lib64/ld-linux-x86-64.so.2) and pulls libc/libdl/
-            -- libpthread/libm from glibc plus libgcc_s.so.1 from gcc's
-            -- runtime libs (Rust statically links libstdc++ but still
-            -- needs libgcc_s for unwind tables).
+            -- libpthread/libm from glibc plus libgcc_s.so.1 from
+            -- xim:gcc-runtime (Rust statically links libstdc++ but
+            -- still needs libgcc_s for unwind tables).
             deps = {
-                runtime = { "xim:glibc@2.39", "xim:gcc@15.1.0" },
+                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
             },
             ["latest"] = { ref = "0.5.2" },
             ["0.5.2"] = {

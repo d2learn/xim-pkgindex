@@ -19,7 +19,7 @@ package = {
     -- Pure runtime library bundle: no executables to shim, so no
     -- `programs` and no `xvm_enable`. Consumers (ninja, cmake, node, ...)
     -- pick up the lib64 dir via xlings predicate-driven elfpatch — see
-    -- `exports.runtime.abi` below.
+    -- `exports.runtime.libdirs` below.
     --
     -- Why a separate package instead of leaving callers depending on
     -- xim:gcc:
@@ -46,8 +46,14 @@ package = {
                     -- xlings install-time elfpatch reads this and
                     -- appends `<install_dir>/lib64` to consumers' RPATH
                     -- so libstdc++.so.6 / libgcc_s.so.1 / ... resolve
-                    -- without the consumer hardcoding paths.
-                    abi = { "lib64" },
+                    -- without the consumer hardcoding paths. Per the
+                    -- libxpkg ExportsRuntime schema (xpkg.cppm), the
+                    -- field for lib search dirs is `libdirs` (string
+                    -- list). `abi` is reserved for a single-string ABI
+                    -- disambiguation tag (e.g. "linux-x86_64-glibc"),
+                    -- only meaningful when multiple libc providers
+                    -- coexist — gcc-runtime doesn't need it.
+                    libdirs = { "lib64" },
                 },
             },
         },
@@ -60,7 +66,7 @@ function install()
     -- Tarball extracts to gcc-runtime-<ver>-linux-x86_64/lib64/. Move
     -- the whole tree to install_dir as-is; the .so RPATHs were stripped
     -- at build time, so the consumer's RPATH (set by elfpatch via
-    -- exports.runtime.abi) is what ld.so uses to resolve transitive
+    -- exports.runtime.libdirs) is what ld.so uses to resolve transitive
     -- deps (libc/libm via xim:glibc).
     local srcdir = pkginfo.install_file():replace(".tar.gz", "")
     os.tryrm(pkginfo.install_dir())

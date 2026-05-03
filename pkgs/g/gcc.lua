@@ -171,25 +171,7 @@ function __config_linux()
             ' --sysroot=%s -Wl,--dynamic-linker=%s -Wl,--enable-new-dtags,-rpath,%s -Wl,-rpath-link,%s',
             sysroot_dir, dynamic_linker, sysroot_lib, sysroot_lib
         )
-
-        -- Rewrite gcc's specs file in-place so direct invocation of
-        -- <install_dir>/bin/gcc (without the xvm shim's flag injection
-        -- via alias_args above) emits binaries with the correct
-        -- install-machine INTERP / RPATH. Specs is rewritten on every
-        -- install on every machine — this is the install-time-realign
-        -- pattern that handles all the cases the prebuilt-tarball-baked
-        -- specs don't (different XLINGS_HOME, container, fresh box,
-        -- moved subos).
-        --
-        -- Invoke via absolute shim path because the config phase doesn't
-        -- prepend subos/default/bin to PATH (unlike the install phase).
-        local gcc_bin = path.join(pkginfo.install_dir(), "bin/gcc")
-        local specs_config_bin = path.join(system.bindir(), "gcc-specs-config")
-        log.info("Rewriting gcc specs to install-machine paths via gcc-specs-config...")
-        system.exec(string.format(
-            "%s %s --dynamic-linker %s --rpath %s --linker-type gnu",
-            specs_config_bin, gcc_bin, dynamic_linker, sysroot_lib
-        ))
+        __rewrite_specs_linux(sysroot_dir, sysroot_lib, dynamic_linker)
     else
         log.warn("subos dir is empty, skip alias linker/sysroot injection")
     end
@@ -245,3 +227,41 @@ function __config_linux()
     return true
 end
 
+-- Rewrite gcc's specs file in-place so direct invocation of
+-- <install_dir>/bin/gcc (without the xvm shim's flag injection)
+-- emits binaries with the correct install-machine INTERP / RPATH.
+-- The prebuilt-tarball-baked specs has the build-machine's path,
+-- which doesn't exist on the install machine, so this is mandatory.
+--
+-- Has to live in config() rather than install() because the
+-- gcc-specs-config shim only exists in subos/default/bin AFTER its
+-- own config() has run — install() of gcc fires before any
+-- dependent's config(), so the shim is not yet on disk.
+--
+-- Gated by a stamp file so that downstream xpkg installs (which
+-- re-fire gcc.config()) don't rewrite the specs every time. Same
+-- pattern as glibc.lua's __config_header() header-copy gate. The
+-- stamp lives inside install_dir and is wiped on `xim reinstall
+-- gcc` along with the rest of the payload, so version bumps and
+-- forced reinstalls naturally re-rewrite.
+function __rewrite_specs_linux(sysroot_dir, sysroot_lib, dynamic_linker)
+    local stamp = path.join(
+        pkginfo.install_dir(),
+        ".specs-rewritten-" .. pkginfo.version() .. ".stamp"
+    )
+    if os.isfile(stamp) then
+        log.info("gcc specs already rewritten (stamp present), skipping.")
+        return
+    end
+
+    local gcc_bin = path.join(pkginfo.install_dir(), "bin/gcc")
+    local specs_config_bin = path.join(system.bindir(), "gcc-specs-config")
+
+    log.info("Rewriting gcc specs to install-machine paths via gcc-specs-config...")
+    system.exec(string.format(
+        "%s %s --dynamic-linker %s --rpath %s --linker-type gnu",
+        specs_config_bin, gcc_bin, dynamic_linker, sysroot_lib
+    ))
+
+    io.writefile(stamp, pkginfo.version())
+end

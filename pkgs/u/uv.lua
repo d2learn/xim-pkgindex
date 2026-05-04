@@ -20,29 +20,31 @@ package = {
 
     xpm = {
         linux = {
-            -- Runtime deps. uv-x86_64-unknown-linux-gnu prebuilt is
-            -- dynamically linked: NEEDED libc.so.6 / libpthread.so.0
-            -- (glibc) plus libgcc_s.so.1 (xim:gcc-runtime, for Rust
-            -- panic-unwind tables). Rust statically links libstdc++
-            -- so libstdc++ is not needed.
-            deps = {
-                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
-            },
+            -- No runtime deps. Astral publishes both
+            -- `-linux-gnu.tar.gz` and `-linux-musl.tar.gz`; we use
+            -- the musl variant which is `static-pie linked` with
+            -- empty DT_NEEDED and no `.interp` section (verified
+            -- locally via readelf). Rust musl builds bundle the
+            -- whole runtime into the binary, so neither glibc nor
+            -- libgcc_s is needed.
+            -- Earlier (PR #121) declared deps on xim:glibc + xim:gcc-runtime
+            -- against the gnu artifact; switching the source eliminates
+            -- both deps.
             -- url_template: opt-in marker for the in-repo version checker
             -- (.github/scripts/version-check.py). The placeholder
             -- {version} is substituted with the upstream GitHub release
             -- version when proposing a bump. xlings install does not read
             -- this field; it stays on the explicit per-version `url`.
             -- See docs/spec/url-template.md.
-            url_template = "https://github.com/astral-sh/uv/releases/download/{version}/uv-x86_64-unknown-linux-gnu.tar.gz",
+            url_template = "https://github.com/astral-sh/uv/releases/download/{version}/uv-x86_64-unknown-linux-musl.tar.gz",
             ["latest"] = { ref = "0.11.8" },
             ["0.11.8"] = {
-                url = "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-x86_64-unknown-linux-gnu.tar.gz",
-                sha256 = "56dd1b66701ecb62fe896abb919444e4b83c5e8645cca953e6ddd496ff8a0feb",
+                url = "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-x86_64-unknown-linux-musl.tar.gz",
+                sha256 = "de82507d12e31cfc86c1c776238f7c248e48e40d996dedc812d64fdd31c6ed12",
             },
             ["0.11.7"] = {
-                url = "https://github.com/astral-sh/uv/releases/download/0.11.7/uv-x86_64-unknown-linux-gnu.tar.gz",
-                sha256 = "6681d691eb7f9c00ac6a3af54252f7ab29ae72f0c8f95bdc7f9d1401c23ea868",
+                url = "https://github.com/astral-sh/uv/releases/download/0.11.7/uv-x86_64-unknown-linux-musl.tar.gz",
+                sha256 = "64ddb5f1087649e3f75aa50d139aa4f36ddde728a5295a141e0fa9697bfb7b0f",
             },
         },
         -- macosx: the upstream ships separate x86_64 and aarch64 builds.

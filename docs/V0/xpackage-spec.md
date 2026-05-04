@@ -92,7 +92,7 @@ end
 
 ## Examples
 
-> mdbook's xpakcage file - [latest](https://github.com/d2learn/xim-pkgindex/blob/main/pkgs/m/mdbook.lua)
+> mdbook's xpakcage file - [latest](https://github.com/openxlings/xim-pkgindex/blob/main/pkgs/m/mdbook.lua)
 
 ```lua
 package = {

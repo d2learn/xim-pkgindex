@@ -6,7 +6,7 @@ package = {
 
     authors = {"sunrisepeak"},
     licenses = {"Apache-2.0"},
-    repo = "https://github.com/d2learn/xim-pkgindex",
+    repo = "https://github.com/openxlings/xim-pkgindex",
 
     -- xim pkg info
     type = "config",

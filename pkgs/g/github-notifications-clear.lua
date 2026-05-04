@@ -9,7 +9,7 @@ package = {
 
     maintainers = {"d2learn"},
     licenses = {"Apache-2.0"},
-    repo = "https://github.com/d2learn/xim-pkgindex",
+    repo = "https://github.com/openxlings/xim-pkgindex",
     docs = "https://github.com/orgs/community/discussions/174283",
 
     -- xim pkg info

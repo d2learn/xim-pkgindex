@@ -29,6 +29,14 @@ XLINGS_HOME_DIR="${XLINGS_HOME:-$HOME/.xlings}"
 SHIM_DIR="$XLINGS_HOME_DIR/subos/default/bin"
 XPKGS_DIR="$XLINGS_HOME_DIR/data/xpkgs"
 HAS_KEY="has_$HOST_OS"
+XLINGS_CMD="$XLINGS_HOME_DIR/bin/xlings"
+if [[ ! -x "$XLINGS_CMD" ]]; then
+    XLINGS_CMD="$(command -v xlings 2>/dev/null || true)"
+fi
+if [[ -z "$XLINGS_CMD" || ! -x "$XLINGS_CMD" ]]; then
+    echo "xlings command not found" >&2
+    exit 1
+fi
 
 cyan() { printf '\033[1;36m%s\033[0m\n' "$*"; }
 gray() { printf '\033[0;37m%s\033[0m\n' "$*"; }
@@ -71,6 +79,29 @@ pkg_install_dirs() {
     done
 }
 
+metadata_only_owner_migration() {
+    local rel_file="$1"
+    local diff changed line content
+
+    diff=$(git -C "$WORKSPACE_ROOT" diff --unified=0 HEAD^ -- "$rel_file" 2>/dev/null || true)
+    [[ -n "$diff" ]] || return 1
+
+    changed=$(printf '%s\n' "$diff" | awk '/^[-+]/ && $0 !~ /^(---|\+\+\+)/ { print }')
+    [[ -n "$changed" ]] || return 1
+
+    while IFS= read -r line; do
+        [[ -n "$line" ]] || continue
+        content="${line:1}"
+        [[ "$content" =~ ^[[:space:]]*$ ]] && continue
+        if [[ "$content" =~ ^[[:space:]]*(repo|homepage|contributors)[[:space:]]*= ]]; then
+            continue
+        fi
+        return 1
+    done <<< "$changed"
+
+    return 0
+}
+
 read -r -a files <<< "$CHANGED_FILES"
 if [[ "${#files[@]}" -eq 0 ]]; then
     echo "No changed .lua files. Nothing to test."
@@ -90,6 +121,11 @@ for rel_file in "${files[@]}"; do
     fi
     if [[ "$lua_file" != *.lua ]]; then
         info "skip (not a .lua file): $rel_file"
+        continue
+    fi
+    if metadata_only_owner_migration "$rel_file"; then
+        info "skip (metadata-only owner/link migration): $rel_file"
+        skipped=$((skipped+1))
         continue
     fi
 
@@ -125,7 +161,7 @@ for rel_file in "${files[@]}"; do
     tested=$((tested+1))
 
     step "[$pkg] register (type=$pkg_type)"
-    if ! xlings config --add-xpkg "$lua_file"; then
+    if ! "$XLINGS_CMD" config --add-xpkg "$lua_file"; then
         log_fail "config --add-xpkg failed"; failures+=("$rel_file (register)"); continue
     fi
 
@@ -133,7 +169,7 @@ for rel_file in "${files[@]}"; do
     info "shims before install: $(printf '%s\n' "$shims_before" | grep -c . || true)"
 
     step "[$pkg] install"
-    if ! xlings install "local:$pkg" -y; then
+    if ! "$XLINGS_CMD" install "local:$pkg" -y; then
         log_fail "install failed"; failures+=("$rel_file (install)"); continue
     fi
 
@@ -191,7 +227,7 @@ for rel_file in "${files[@]}"; do
     fi
 
     step "[$pkg] uninstall"
-    if ! xlings remove "local:$pkg" -y; then
+    if ! "$XLINGS_CMD" remove "local:$pkg" -y; then
         log_fail "uninstall failed"; failures+=("$rel_file (uninstall)"); continue
     fi
 

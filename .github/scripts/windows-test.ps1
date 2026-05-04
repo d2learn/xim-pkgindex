@@ -28,6 +28,14 @@ $xlingsHome = $env:XLINGS_HOME
 if (-not $xlingsHome) { throw "XLINGS_HOME not set" }
 $shimDir  = Join-Path $xlingsHome "subos\default\bin"
 $xpkgsDir = Join-Path $xlingsHome "data\xpkgs"
+$xlingsCmd = Join-Path $xlingsHome "bin\xlings.exe"
+if (-not (Test-Path $xlingsCmd)) {
+    $resolved = Get-Command xlings -ErrorAction SilentlyContinue
+    if ($resolved) { $xlingsCmd = $resolved.Source }
+}
+if (-not (Test-Path $xlingsCmd)) {
+    throw "xlings command not found"
+}
 
 function Get-ShimSet {
     if (-not (Test-Path $shimDir)) { return @{} }
@@ -43,6 +51,24 @@ function Get-PkgInstallDirs([string]$pkgName) {
     # xlings stores installs under <xpkgs>/<ns>-x-<name>/<version>/
     return Get-ChildItem $xpkgsDir -Directory -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -match "^[a-z]+-x-$([regex]::Escape($pkgName))$" }
+}
+
+function Test-MetadataOnlyOwnerMigration([string]$relFile) {
+    $diff = git -C $WorkspaceRoot diff --unified=0 HEAD^ -- $relFile 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $diff) { return $false }
+
+    $changed = @($diff | Where-Object {
+        ($_ -match '^[+-]') -and ($_ -notmatch '^(---|\+\+\+)')
+    })
+    if ($changed.Count -eq 0) { return $false }
+
+    foreach ($line in $changed) {
+        $content = $line.Substring(1)
+        if ($content -match '^\s*$') { continue }
+        if ($content -match '^\s*(repo|homepage|contributors)\s*=') { continue }
+        return $false
+    }
+    return $true
 }
 
 $files = $ChangedFiles -split '\s+' | Where-Object { $_ -and $_.Trim() -ne "" }
@@ -63,6 +89,11 @@ foreach ($relFile in $files) {
     }
     if ($luaFile -notlike "*.lua") {
         Log-Info "skip (not a .lua file): $relFile"
+        continue
+    }
+    if (Test-MetadataOnlyOwnerMigration -relFile $relFile) {
+        Log-Info "skip (metadata-only owner/link migration): $relFile"
+        $skipped++
         continue
     }
 
@@ -104,7 +135,7 @@ foreach ($relFile in $files) {
 
     # --- register ---
     Log-Step "[$pkg] register (type=$pkgType)"
-    & xlings config --add-xpkg $luaFile 2>&1 | Write-Host
+    & $xlingsCmd config --add-xpkg $luaFile 2>&1 | Write-Host
     if ($LASTEXITCODE -ne 0) {
         Log-Fail "config --add-xpkg failed"
         $failures += "$relFile (register)"
@@ -117,7 +148,7 @@ foreach ($relFile in $files) {
 
     # --- install ---
     Log-Step "[$pkg] install"
-    & xlings install "local:$pkg" -y 2>&1 | Write-Host
+    & $xlingsCmd install "local:$pkg" -y 2>&1 | Write-Host
     if ($LASTEXITCODE -ne 0) {
         Log-Fail "install failed"
         $failures += "$relFile (install)"
@@ -177,7 +208,7 @@ foreach ($relFile in $files) {
 
     # --- uninstall ---
     Log-Step "[$pkg] uninstall"
-    & xlings remove "local:$pkg" -y 2>&1 | Write-Host
+    & $xlingsCmd remove "local:$pkg" -y 2>&1 | Write-Host
     if ($LASTEXITCODE -ne 0) {
         Log-Fail "uninstall failed"
         $failures += "$relFile (uninstall)"

@@ -6,9 +6,9 @@ package = {
 
     authors = {"sunrisepeak"},
     maintainers = {"d2learn"},
-    contributors = "https://github.com/d2learn/xlings/graphs/contributors",
+    contributors = "https://github.com/openxlings/xlings/graphs/contributors",
     licenses = {"Apache-2.0"},
-    repo = "https://github.com/d2learn/xlings",
+    repo = "https://github.com/openxlings/xlings",
 
     -- xim pkg info
     type = "package",

@@ -23,7 +23,7 @@ jobs:
         run: |
           export XLINGS_NON_INTERACTIVE=1
           export XLINGS_VERSION=v0.4.13
-          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          curl -fsSL https://raw.githubusercontent.com/openxlings/xlings/main/tools/other/quick_install.sh | bash
           echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
           echo "PATH=$HOME/.xlings/subos/current/bin:$HOME/.xlings/bin:$PATH" >> "$GITHUB_ENV"
 
@@ -78,7 +78,7 @@ jobs:
           $env:XLINGS_NON_INTERACTIVE = "1"
           $env:XLINGS_VERSION = "v0.4.13"
           iex (Invoke-WebRequest `
-            -Uri "https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.ps1" `
+            -Uri "https://raw.githubusercontent.com/openxlings/xlings/main/tools/other/quick_install.ps1" `
             -UseBasicParsing).Content
 
           $xlingsHome = "$env:USERPROFILE\.xlings"
@@ -128,7 +128,7 @@ jobs:
         run: |
           export XLINGS_NON_INTERACTIVE=1
           export XLINGS_VERSION=v0.4.13
-          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          curl -fsSL https://raw.githubusercontent.com/openxlings/xlings/main/tools/other/quick_install.sh | bash
           echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
           echo "$HOME/.xlings/bin"               >> "$GITHUB_PATH"
           echo "$HOME/.xlings/subos/current/bin" >> "$GITHUB_PATH"
@@ -171,7 +171,7 @@ jobs:
         run: |
           export XLINGS_NON_INTERACTIVE=1
           export XLINGS_VERSION=v0.4.13
-          curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+          curl -fsSL https://raw.githubusercontent.com/openxlings/xlings/main/tools/other/quick_install.sh | bash
           echo "XLINGS_HOME=$HOME/.xlings" >> "$GITHUB_ENV"
           echo "$HOME/.xlings/bin"               >> "$GITHUB_PATH"
           echo "$HOME/.xlings/subos/current/bin" >> "$GITHUB_PATH"

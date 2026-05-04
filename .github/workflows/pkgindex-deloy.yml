@@ -33,11 +33,11 @@ jobs:
           python-version: '3.12'
 
       - name: Install xpkgindex
-        run: pip install git+https://github.com/d2learn/xpkgindex.git
+        run: pip install git+https://github.com/openxlings/xpkgindex.git
 
       - name: Generate static site
         # Hand build provenance to xpkgindex via the env-var contract added
-        # in d2learn/xpkgindex (Apr 2026). When at least one is set the
+        # in openxlings/xpkgindex (Apr 2026). When at least one is set the
         # generator emits a "Build Info" section on the About page.
         env:
           XPKGINDEX_BUILD_TIME:       ${{ github.event.head_commit.timestamp }}

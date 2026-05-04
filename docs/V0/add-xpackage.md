@@ -1,6 +1,6 @@
 # 如何添加一个XPackage到包索引仓库(xim-pkgindex)?
 
-## 第一步 - 创建一个[Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose)
+## 第一步 - 创建一个[Add XPackage](https://github.com/openxlings/xim-pkgindex/issues/new/choose)
 
 在`xim-pkgindex`的issues创建选择界面选择`Add XPackage`模板并先填写包的基础信息
 
@@ -205,7 +205,7 @@ function uninstall()
 end
 ```
 
-> **注:** 更多复杂的包文件实现, 可以参考[索引仓库](https://github.com/d2learn/xim-pkgindex)中的其他包文件
+> **注:** 更多复杂的包文件实现, 可以参考[索引仓库](https://github.com/openxlings/xim-pkgindex)中的其他包文件
 
 ## 第四步: 对包内容进行测试
 
@@ -337,7 +337,7 @@ xxx
 	(if encounter any problem, please report it)
 
 	https://forum.d2learn.org/category/9/xlings
-	https://github.com/d2learn/xlings/issues
+	https://github.com/openxlings/xlings/issues
 
 [xlings:xim]: update index database
 ```
@@ -351,7 +351,7 @@ xxx
 
 ## 第六步: 索引仓库和包文件位置
 
-fork包索引仓库[xim-pkgindex](https://github.com/d2learn/xim-pkgindex), 并把包文件放到`pkgs`目录下的对应字母目录
+fork包索引仓库[xim-pkgindex](https://github.com/openxlings/xim-pkgindex), 并把包文件放到`pkgs`目录下的对应字母目录
 
 索引仓库是按文件名的首字母进行分类的
 

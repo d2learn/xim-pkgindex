@@ -3,7 +3,7 @@ package = {
     -- base info
     name = "wsl-ubuntu",
     description = "Windows Subsystem for Linux (WSL) Ubuntu",
-    repo = "https://github.com/d2learn/xim-pkgindex",
+    repo = "https://github.com/openxlings/xim-pkgindex",
 
     -- xim pkg info
     type = "config",

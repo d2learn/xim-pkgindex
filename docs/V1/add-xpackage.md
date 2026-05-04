@@ -4,7 +4,7 @@
 
 ## 第一步 - 创建 Issue
 
-在 [xim-pkgindex](https://github.com/d2learn/xim-pkgindex) 仓库创建一个 [Add XPackage](https://github.com/d2learn/xim-pkgindex/issues/new/choose) Issue, 填写包的基础信息:
+在 [xim-pkgindex](https://github.com/openxlings/xim-pkgindex) 仓库创建一个 [Add XPackage](https://github.com/openxlings/xim-pkgindex/issues/new/choose) Issue, 填写包的基础信息:
 
 - 包名
 - 包的简短描述
@@ -134,7 +134,7 @@ function install()
 end
 ```
 
-> **预构建二进制（ELF）可重定位**：若包为 Linux 预构建且解释器/RPATH 写死构建机路径，需在 install 中做 patchelf 等修正，使任意用户/路径下可用。详见 xlings 文档 [ELF 可重定位与多 subos 设计](https://github.com/d2learn/xlings/blob/main/docs/mcpp-version/elf-relocation-and-subos-design.md)。
+> **预构建二进制（ELF）可重定位**：若包为 Linux 预构建且解释器/RPATH 写死构建机路径，需在 install 中做 patchelf 等修正，使任意用户/路径下可用。详见 xlings 文档 [ELF 可重定位与多 subos 设计](https://github.com/openxlings/xlings/blob/main/docs/mcpp-version/elf-relocation-and-subos-design.md)。
 
 ### config 函数
 
@@ -323,7 +323,7 @@ xim -r mdbook
 
 ## 第七步: Fork 仓库并放置包文件
 
-Fork [xim-pkgindex](https://github.com/d2learn/xim-pkgindex) 仓库, 把包文件放到 `pkgs` 目录下对应首字母目录中。
+Fork [xim-pkgindex](https://github.com/openxlings/xim-pkgindex) 仓库, 把包文件放到 `pkgs` 目录下对应首字母目录中。
 
 索引仓库按文件名首字母分类。
 

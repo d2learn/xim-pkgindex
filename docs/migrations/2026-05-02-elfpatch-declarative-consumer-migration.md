@@ -1,7 +1,7 @@
 # 任务：迁移剩余 3 个 consumer 到声明式 elfpatch
 
 **Created**: 2026-05-02
-**Predecessor**: [#104](https://github.com/d2learn/xim-pkgindex/pull/104) — binutils pilot, merged
+**Predecessor**: [#104](https://github.com/openxlings/xim-pkgindex/pull/104) — binutils pilot, merged
 **Estimated effort**: 30-60 分钟
 **Skill level**: 熟悉 lua + xpkg schema 的人；不需要懂 xlings/libxpkg C++
 
@@ -16,7 +16,7 @@ xlings 0.4.11 引入了**声明式 elfpatch**：
 - **Consumer**（依赖 glibc 的包，如 binutils）的 install hook **不再需要**手算 loader 路径或调 `elfpatch.auto({...})`
 - xlings 在 install 后自动扫 consumer 的 runtime deps，找到声明了 loader 的 provider，自动调用 patchelf 修补 INTERP / RPATH
 
-完整设计参见 [openxlings/xlings docs/plans/2026-05-02-elfpatch-exports-design.md](https://github.com/d2learn/xlings/blob/main/docs/plans/2026-05-02-elfpatch-exports-design.md)。
+完整设计参见 [openxlings/xlings docs/plans/2026-05-02-elfpatch-exports-design.md](https://github.com/openxlings/xlings/blob/main/docs/plans/2026-05-02-elfpatch-exports-design.md)。
 
 ### 现状
 
@@ -65,7 +65,7 @@ deprecation alias 让旧代码继续能跑（行为和 0.4.10 一致），但是
 
 ### Pilot 参考（binutils 已经做完）
 
-模板对比看 [#104 的 binutils.lua diff](https://github.com/d2learn/xim-pkgindex/pull/104/files)：
+模板对比看 [#104 的 binutils.lua diff](https://github.com/openxlings/xim-pkgindex/pull/104/files)：
 
 ```diff
  import("xim.libxpkg.log")
@@ -145,7 +145,7 @@ git push -u origin feat/elfpatch-migrate-rest
 gh pr create --title "feat(pkg): migrate openssl/gcc/d2x to declarative elfpatch" --body "..."
 ```
 
-PR body 推荐写成参考 [#104](https://github.com/d2learn/xim-pkgindex/pull/104) 的格式即可。
+PR body 推荐写成参考 [#104](https://github.com/openxlings/xim-pkgindex/pull/104) 的格式即可。
 
 ### 2. CI 验证（自动跑）
 
@@ -171,7 +171,7 @@ export XLINGS_HOME=/tmp/elfpatch-test
 mkdir -p $XLINGS_HOME
 
 # 装 xlings 0.4.11+ 的 bootstrap（如果没装过）
-curl -fsSL https://raw.githubusercontent.com/d2learn/xlings/main/tools/other/quick_install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/openxlings/xlings/main/tools/other/quick_install.sh | bash
 $XLINGS_HOME/bin/xlings --version    # 期望 0.4.11 或更高
 
 # 在你的本地 xim-pkgindex 改动分支上指定 index
@@ -239,9 +239,9 @@ end
 ## 联系人
 
 - 设计 + 这次实施：会 review 这个 PR 的人
-- 全套 spec：[openxlings/xlings docs/plans/2026-05-02-elfpatch-exports-design.md](https://github.com/d2learn/xlings/blob/main/docs/plans/2026-05-02-elfpatch-exports-design.md)
-- pilot 模板：[#104](https://github.com/d2learn/xim-pkgindex/pull/104)
-- xlings 0.4.11 release notes（讲 elfpatch 重写的部分）：[v0.4.11](https://github.com/d2learn/xlings/releases/tag/v0.4.11)
+- 全套 spec：[openxlings/xlings docs/plans/2026-05-02-elfpatch-exports-design.md](https://github.com/openxlings/xlings/blob/main/docs/plans/2026-05-02-elfpatch-exports-design.md)
+- pilot 模板：[#104](https://github.com/openxlings/xim-pkgindex/pull/104)
+- xlings 0.4.11 release notes（讲 elfpatch 重写的部分）：[v0.4.11](https://github.com/openxlings/xlings/releases/tag/v0.4.11)
 
 ---
 

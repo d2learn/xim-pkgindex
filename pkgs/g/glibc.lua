@@ -21,13 +21,11 @@ package = {
     -- xvm: xlings version management
     xvm_enable = true,
 
-    programs = {
-        "ldd",
-        "libc.so", "libc.so.6",
-        "ld-linux-x86-64.so.2", "libdl.so.2",
-        "libm.so", "libm.so.6", "libmvec.so.1",
-        "libpthread.so.0", "libpthread.a",
-    },
+    -- Only `ldd` is a CLI shim. The .so / .a files are libs registered
+    -- via `xvm.add(name, { type = "lib", ... })` in config() below — they
+    -- live in glibc's xvm version DB, not in subos/default/bin, so they
+    -- don't belong in `programs` (which is the CLI-shim audit list).
+    programs = { "ldd" },
 
     xpm = {
         linux = {

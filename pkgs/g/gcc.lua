@@ -250,7 +250,7 @@ function __rewrite_specs_linux(sysroot_dir, sysroot_lib, dynamic_linker)
         ".specs-rewritten-" .. pkginfo.version() .. ".stamp"
     )
     if os.isfile(stamp) then
-        log.info("gcc specs already rewritten (stamp present), skipping.")
+        log.debug("gcc specs already rewritten (stamp present), skipping.")
         return
     end
 

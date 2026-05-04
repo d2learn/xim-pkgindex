@@ -20,57 +20,39 @@ package = {
     programs = {"xmake"},
     xvm_enable = true,
 
+    -- v3.0.8 deliberately skipped: although the v3.0.8 release.yml says
+    -- the Linux bundle is built with `xrepo env -b zig xmake f --embed=y
+    -- --toolchain=zig --cross=x86_64-linux-musl`, the artifact actually
+    -- uploaded to the v3.0.8 release page is *not* a musl-static binary —
+    -- it's glibc-dynamic with INTERP=/lib64/ld-linux-x86-64.so.2 and
+    -- DT_NEEDED libncurses.so.6 + libtinfo.so.6, breaking on Alpine /
+    -- distroless / any host without those libs. v3.0.7 (and prior) are
+    -- correctly musl-static, so we pin `latest = 3.0.7` until upstream
+    -- re-uploads a corrected v3.0.8 bundle. Tracking issue: TBD.
     xpm = {
         linux = {
-            -- Runtime deps. xmake bundle is dynamically linked
-            -- (INTERP=/lib64/ld-linux-x86-64.so.2) and needs libc/libm
-            -- from glibc plus libncurses.so.6 + libtinfo.so.6 from
-            -- ncurses for its TUI.
-            -- TODO: there is no xim:ncurses prebuilt yet (only
-            -- fromsource:ncurses). Until one is published, falling back
-            -- to the system ncurses works on most distros that have it
-            -- preinstalled. Track the gap separately; declaring
-            -- glibc@2.39 alone is the minimum-viable correct fix.
-            deps = {
-                runtime = { "xim:glibc@2.39" },
-            },
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.linux.x86_64",
-            ["latest"] = { ref = "3.0.8" },
-            ["3.0.8"] = {
-                url = "https://github.com/xmake-io/xmake/releases/download/v3.0.8/xmake-bundle-v3.0.8.linux.x86_64",
-                sha256 = "5bf5d58230ed78d87b9919a0a654d0ebcdad221426bd610ad4f740029bb61c84",
-            },
+            ["latest"] = { ref = "3.0.7" },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.linux.x86_64",
                 sha256 = nil,
             },
-            -- ["3.0.7"] = "XLINGS_RES",
         },
         macosx = {
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.macos.arm64",
-            ["latest"] = { ref = "3.0.8" },
-            ["3.0.8"] = {
-                url = "https://github.com/xmake-io/xmake/releases/download/v3.0.8/xmake-bundle-v3.0.8.macos.arm64",
-                sha256 = "6266c3563ce3c890a502179a9a5976001df8da8533722c528ba2ab3fce63fc0e",
-            },
+            ["latest"] = { ref = "3.0.7" },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.macos.arm64",
                 sha256 = nil,
             },
-            -- ["3.0.7"] = "XLINGS_RES",
         },
         windows = {
             url_template = "https://github.com/xmake-io/xmake/releases/download/v{version}/xmake-bundle-v{version}.win64.exe",
-            ["latest"] = { ref = "3.0.8" },
-            ["3.0.8"] = {
-                url = "https://github.com/xmake-io/xmake/releases/download/v3.0.8/xmake-bundle-v3.0.8.win64.exe",
-                sha256 = "e9a316bfb18fee60036174912502030ea7eb3d62c49634d5828ef5c2b2327aec",
-            },
+            ["latest"] = { ref = "3.0.7" },
             ["3.0.7"] = {
                 url = "https://github.com/xmake-io/xmake/releases/download/v3.0.7/xmake-bundle-v3.0.7.win64.exe",
                 sha256 = nil,
             },
-            -- ["3.0.7"] = "XLINGS_RES",
         },
     },
 }

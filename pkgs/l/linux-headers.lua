@@ -61,7 +61,7 @@ function config()
     -- correctly invalidates it.
     local stamp = path.join(sysroot_usrdir, ".linux-headers-" .. pkginfo.version() .. ".stamp")
     if os.isfile(stamp) then
-        log.info("Linux headers already in subos rootfs (stamp present), skipping copy.")
+        log.debug("Linux headers already in subos rootfs (stamp present), skipping copy.")
     else
         local scodedir = pkginfo.install_dir("scode:linux-headers", pkginfo.version())
         log.info("Copying linux header files to subos rootfs ...")

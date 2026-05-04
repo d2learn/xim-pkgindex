@@ -21,13 +21,11 @@ package = {
     -- xvm: xlings version management
     xvm_enable = true,
 
-    programs = {
-        "ldd",
-        "libc.so", "libc.so.6",
-        "ld-linux-x86-64.so.2", "libdl.so.2",
-        "libm.so", "libm.so.6", "libmvec.so.1",
-        "libpthread.so.0", "libpthread.a",
-    },
+    -- Only `ldd` is a CLI shim. The .so / .a files are libs registered
+    -- via `xvm.add(name, { type = "lib", ... })` in config() below — they
+    -- live in glibc's xvm version DB, not in subos/default/bin, so they
+    -- don't belong in `programs` (which is the CLI-shim audit list).
+    programs = { "ldd" },
 
     xpm = {
         linux = {
@@ -106,7 +104,7 @@ function config()
     local glibc_bindir = path.join(pkginfo.install_dir(), "bin")
     local glibc_libdir = path.join(pkginfo.install_dir(), "lib64")
 
-    log.info("1 - config glibc tool...")
+    log.debug("1 - config glibc tool...")
     local bin_config = {
         version = glibc_version,
         bindir = glibc_bindir,
@@ -120,7 +118,7 @@ function config()
     xvm.add("ldd", bin_config)
 
 -- lib
-    log.info("2 - config glibc libs...")
+    log.debug("2 - config glibc libs...")
     local lib_config = {
         version = glibc_version,
         type = "lib",
@@ -134,7 +132,7 @@ function config()
         xvm.add(lib, lib_config)
     end
 
-    log.info("3 - glibc config header files...")
+    log.debug("3 - glibc config header files...")
 
     __config_header()
 
@@ -170,7 +168,7 @@ function __config_header()
     -- spam. Same fix shape as linux-headers (commit 3718532).
     local stamp = path.join(sysroot_usrdir, ".glibc-" .. pkginfo.version() .. ".stamp")
     if os.isfile(stamp) then
-        log.info("glibc headers already in subos rootfs (stamp present), skipping copy.")
+        log.debug("glibc headers already in subos rootfs (stamp present), skipping copy.")
         return
     end
 

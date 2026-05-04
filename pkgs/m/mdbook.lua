@@ -37,23 +37,28 @@ package = {
             },
         },
         linux = {
-            -- Runtime deps. mdbook prebuilt is dynamically linked
-            -- (INTERP=/lib64/ld-linux-x86-64.so.2) and pulls libc/libdl/
-            -- libpthread/libm from glibc plus libgcc_s.so.1 from
-            -- xim:gcc-runtime (Rust statically links libstdc++ but
-            -- still needs libgcc_s for unwind tables).
-            deps = {
-                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
-            },
+            -- No runtime deps. Upstream rust-lang/mdBook publishes
+            -- both `-linux-gnu` and `-linux-musl` Linux x86_64 builds;
+            -- we use the musl variant which is `static-pie linked`
+            -- with empty DT_NEEDED and no .interp section (verified
+            -- locally via readelf). Hermetic — runs on Alpine /
+            -- distroless without glibc or gcc-runtime.
+            -- Earlier versions of this package pinned the gnu build
+            -- and declared deps on xim:glibc + xim:gcc-runtime
+            -- (PR #117). Switching the artifact source eliminates
+            -- both deps.
             ["latest"] = { ref = "0.5.2" },
             ["0.5.2"] = {
-                url = "https://github.com/rust-lang/mdBook/releases/download/v0.5.2/mdbook-v0.5.2-x86_64-unknown-linux-gnu.tar.gz",
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.5.2/mdbook-v0.5.2-x86_64-unknown-linux-musl.tar.gz",
                 sha256 = nil
             },
-            ["0.4.43"] = "XLINGS_RES",
+            ["0.4.43"] = {
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-unknown-linux-musl.tar.gz",
+                sha256 = nil
+            },
             ["0.4.40"] = {
-                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz",
-                sha256 = "9ef07fd288ba58ff3b99d1c94e6d414d431c9a61fdb20348e5beb74b823d546b"
+                url = "https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-musl.tar.gz",
+                sha256 = nil
             },
         },
         macosx = {

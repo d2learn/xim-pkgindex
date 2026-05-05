@@ -26,15 +26,28 @@ package = {
     --   bump this package to track the latest upstream release.
     xpm = {
         linux = {
-            -- Runtime deps. ollama prebuilt is dynamically linked
-            -- against glibc + GCC C++ runtime: NEEDED libc.so.6 /
-            -- libm.so.6 / libdl.so.2 / libpthread.so.0 / librt.so.1 /
-            -- libresolv.so.2 (glibc) plus libstdc++.so.6 / libgcc_s.so.1
-            -- (xim:gcc-runtime). Don't elide gcc-runtime here — ollama
-            -- uses C++ heavily (llama.cpp inference path), so libstdc++
-            -- is mandatory.
+            -- Runtime deps:
+            --   * xim:glibc / xim:gcc-runtime — ollama prebuilt is
+            --     dynamically linked: NEEDED libc.so.6 / libm.so.6 /
+            --     libdl.so.2 / libpthread.so.0 / librt.so.1 /
+            --     libresolv.so.2 (glibc) plus libstdc++.so.6 /
+            --     libgcc_s.so.1 (xim:gcc-runtime). ollama uses C++
+            --     heavily (llama.cpp inference path), so libstdc++
+            --     is mandatory.
+            --   * xim:libcuda-host-link — sentinel package that
+            --     provides a stable symlink to the host's libcuda.so.1
+            --     (NVIDIA driver userspace lib, NOT redistributable).
+            --     Without this, ollama's bundled CUDA backends in
+            --     lib/ollama/cuda_v*/ silently fail to dlopen
+            --     libcuda.so.1 and ollama runs at 100% CPU even on
+            --     GPU hosts. install() projects the sentinel link
+            --     into each cuda_v* dir below.
             deps = {
-                runtime = { "xim:glibc@2.39", "xim:gcc-runtime@15.1.0" },
+                runtime = {
+                    "xim:glibc@2.39",
+                    "xim:gcc-runtime@15.1.0",
+                    "xim:libcuda-host-link@0.0.1",
+                },
             },
             ["latest"] = { ref = "0.13.3" },
             ["0.13.3"] = {
@@ -74,6 +87,7 @@ package = {
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.system")
+import("xim.libxpkg.log")
 
 -- Archive layouts (per-platform, top-level entries):
 --   linux .tgz   → bin/ollama          + lib/ollama/...
@@ -101,6 +115,8 @@ function install()
             [[tar -xzf "%s" -C "%s"]],
             archive, pkginfo.install_dir()
         ))
+        __link_cuda_backends()
+        __install_systemd_user_service()
     end
 
     return true
@@ -118,6 +134,200 @@ function config()
 end
 
 function uninstall()
+    if is_host("linux") then
+        __remove_systemd_user_service()
+    end
     xvm.remove("ollama")
     return true
+end
+
+-- Project the libcuda-host-link sentinel symlink into each of ollama's
+-- bundled CUDA backend directories. Glob `cuda_v*` is forward-compat
+-- with future ollama upstream layouts (cuda_v14, cuda_v15, ...) and
+-- intentionally excludes ROCm (`rocm_v*`) which uses libamdhip64, not
+-- libcuda. If the user has no NVIDIA driver, the sentinel link is
+-- itself dangling — projecting it here is still correct: ln itself
+-- doesn't resolve the target, and the dlopen failure will surface at
+-- ollama runtime rather than corrupting install state.
+--
+-- Uses a shell `ls -d <unquoted-glob>` rather than libxpkg's
+-- prelude `os.dirs(...)` because the shim wraps the pattern in
+-- double quotes (`ls -d "<glob>"`), defeating bash's pathname
+-- expansion — the call would always return empty even when the
+-- dirs are present. Separate libxpkg bug; can drop the workaround
+-- once that's fixed.
+function __link_cuda_backends()
+    local sentinel = path.join(
+        pkginfo.install_dir("xim:libcuda-host-link", "0.0.1"),
+        "lib", "libcuda.so.1"
+    )
+
+    local lib_ollama = path.join(pkginfo.install_dir(), "lib", "ollama")
+    local cuda_dirs = {}
+    local out = try {
+        function() return os.iorun(string.format(
+            [[ls -d %s/cuda_v* 2>/dev/null]], lib_ollama
+        )) end
+    }
+    if out then
+        for line in out:gmatch("[^\n]+") do
+            local d = line:gsub("%s+$", "")
+            if d ~= "" and os.isdir(d) then
+                table.insert(cuda_dirs, d)
+            end
+        end
+    end
+
+    if #cuda_dirs == 0 then
+        log.info("ollama: no cuda_v*/ backend dirs found, GPU link skipped")
+        return
+    end
+
+    for _, cuda_dir in ipairs(cuda_dirs) do
+        local link = path.join(cuda_dir, "libcuda.so.1")
+        system.exec(string.format([[ln -sf "%s" "%s"]], sentinel, link))
+        log.info("ollama: linked %s/libcuda.so.1 → %s",
+                 path.filename(cuda_dir), sentinel)
+    end
+end
+
+-- Path of the systemd user unit file we manage.
+function __ollama_user_unit_path()
+    local home = os.getenv("HOME") or ""
+    if home == "" then return nil end
+    return path.join(home, ".config", "systemd", "user", "ollama.service")
+end
+
+-- Bundled service unit body. Hard-pins ExecStart at the install_dir
+-- binary (rather than the xvm shim) so the unit doesn't change shape
+-- on `xlings use ollama X.Y.Z` switches; uninstall removes the file
+-- so a switch + reinstall regenerates it cleanly. Keeps the default
+-- Environment minimal — power-user tunables like
+--   OLLAMA_FLASH_ATTENTION=true / OLLAMA_KEEP_ALIVE=30m / OLLAMA_HOST=...
+-- can be layered on by `systemctl --user edit ollama.service`
+-- without conflicting with this base unit.
+-- Marker comment used by uninstall to detect units we wrote vs ones
+-- the user installed by hand (don't trample those on `xim remove`).
+local OLLAMA_UNIT_OWNER_MARK = "# x-managed-by: xim:ollama"
+
+-- Default Environment block: a conservative, conventional baseline
+-- that matches ollama's own runtime defaults made explicit, so users
+-- can see at-a-glance what to override.
+--   OLLAMA_HOST       127.0.0.1:11434  ← localhost-only by default;
+--                                        flip to 0.0.0.0:<port> for LAN
+--   OLLAMA_KEEP_ALIVE 5m               ← ollama's own default; common
+--                                        override is 30m or "-1" (forever)
+-- Power-user tunings deliberately NOT in the default unit (vary per
+-- hardware/workload — users add via `systemctl --user edit`):
+--   OLLAMA_FLASH_ATTENTION=true        (perf, GPU-dependent)
+--   OLLAMA_KV_CACHE_TYPE=q8_0          (memory/quality tradeoff)
+--   OLLAMA_NUM_PARALLEL=4              (concurrent request handling)
+--   OLLAMA_MAX_LOADED_MODELS=2         (multi-model deploys)
+--   OLLAMA_MODELS=/path/to/cache       (custom storage location)
+local OLLAMA_USER_UNIT = [[
+]] .. OLLAMA_UNIT_OWNER_MARK .. [[
+
+[Unit]
+Description=Ollama Service (managed by xim)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=%s serve
+Restart=on-failure
+RestartSec=3
+Environment="OLLAMA_HOST=127.0.0.1:11434"
+Environment="OLLAMA_KEEP_ALIVE=5m"
+
+[Install]
+WantedBy=default.target
+]]
+
+-- Install a systemd user service so `xlings install ollama` results
+-- in a running daemon, fixing the "I installed ollama but `ollama
+-- list` says connection refused" UX gap.
+--
+-- User service (no sudo) chosen over system service intentionally:
+--   * xim's install hooks run as the user, not root
+--   * power users running ollama as a system daemon will likely
+--     have their own service file already and benefit nothing from
+--     us competing with it
+--
+-- Best-effort install: if systemctl is missing (containers without
+-- systemd), or there's no user session bus available (SSH login
+-- without lingering enabled), `daemon-reload` and `enable --now`
+-- silently fall through. The unit file still gets dropped so the
+-- next graphical/SSH session will pick it up.
+function __install_systemd_user_service()
+    local unit_path = __ollama_user_unit_path()
+    if not unit_path then
+        log.info("ollama: HOME unset, skip systemd user service install")
+        return
+    end
+
+    -- Don't trample a pre-existing user-customized unit.
+    if os.isfile(unit_path) then
+        log.info("ollama: %s exists, skip overwrite", unit_path)
+        return
+    end
+
+    -- Skip silently on hosts without systemd at all.
+    local systemctl_ok = (try {
+        function() return os.iorun("which systemctl 2>/dev/null") end
+    } or ""):gsub("%s+", "")
+    if systemctl_ok == "" then
+        log.info("ollama: systemctl not found, skip service install")
+        return
+    end
+
+    local exec_start = path.join(pkginfo.install_dir(), "bin", "ollama")
+    os.mkdir(path.directory(unit_path))
+    io.writefile(unit_path, string.format(OLLAMA_USER_UNIT, exec_start))
+    log.info("ollama: wrote systemd user unit at %s", unit_path)
+
+    -- Try to start the service. Failures here (no DBUS_SESSION_BUS_ADDRESS,
+    -- container without systemd-as-PID-1, etc.) are non-fatal — the unit
+    -- file is in place, will be honored at next user session.
+    try {
+        function()
+            os.iorun("systemctl --user daemon-reload 2>&1")
+            os.iorun("systemctl --user enable --now ollama.service 2>&1")
+            log.info("ollama: systemd user service enabled and started")
+        end,
+        catch = function(err)
+            log.warn("ollama: could not auto-start service (no user bus?)")
+            log.warn("ollama: run manually after login: ")
+            log.warn("        systemctl --user enable --now ollama.service")
+        end
+    }
+end
+
+function __remove_systemd_user_service()
+    local unit_path = __ollama_user_unit_path()
+    if not unit_path or not os.isfile(unit_path) then return end
+
+    -- Only remove the unit if we own it (ownership marker present).
+    -- A user who hand-rolled their own ollama.service should not have
+    -- it deleted by `xim remove ollama`; their custom file lives on,
+    -- and the still-installed binary path the service references is
+    -- gone — they'll see a clear systemctl failure pointing at the
+    -- missing binary, which is preferable to silently destroying
+    -- their config.
+    local content = io.readfile(unit_path) or ""
+    if not content:find(OLLAMA_UNIT_OWNER_MARK, 1, true) then
+        log.info("ollama: %s lacks xim ownership marker, skip removal",
+                 unit_path)
+        return
+    end
+
+    -- Stop + disable, swallowing failures (service may already be down,
+    -- or no user bus). We don't care — the goal is removing the file.
+    try {
+        function() os.iorun("systemctl --user disable --now ollama.service 2>&1") end
+    }
+    os.tryrm(unit_path)
+    try {
+        function() os.iorun("systemctl --user daemon-reload 2>&1") end
+    }
+    log.info("ollama: removed systemd user service at %s", unit_path)
 end

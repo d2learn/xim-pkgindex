@@ -25,7 +25,31 @@ package = {
             deps = { "shortcut-tool" },
             ["latest"] = { ref = "2.51.1" },
             ["2.51.1"] = "XLINGS_RES",
-        }
+        },
+        linux = {
+            -- TODO(self-build): migrate to xlings-res official mirror.
+            -- Currently sourced from the community project
+            -- supriyo-biswas/static-builds, which ships a fully
+            -- statically-linked git tarball (verified via readelf:
+            -- empty DT_NEEDED, no .interp section). Pros: zero deps,
+            -- single download, currently tracks upstream within days
+            -- (git-2.53.0 published 2026-03-19). Cons: single
+            -- maintainer, no SLA, build environment opaque.
+            --
+            -- Plan: once the xim-pkgindex-build self-build pipeline
+            -- (alpine + musl, similar to scode:gcc → xlings-res/gcc
+            -- chain) is in place, switch this to:
+            --   url = ...xlings-res/git/<ver>/git-<ver>-linux-x86_64.tar.gz
+            -- so xim owns the build chain end-to-end and removes the
+            -- community-source dependency. Same migration applies to
+            -- xim:vim (currently dtschan/vim-static, 2019 stale) and
+            -- any future T2 pkgs.
+            ["latest"] = { ref = "2.53.0" },
+            ["2.53.0"] = {
+                url = "https://github.com/supriyo-biswas/static-builds/releases/download/git-2.53.0/git-2.53.0-linux-x86_64.tar.gz",
+                sha256 = "948a9bb92e74e9a5e5bdd6d8a19e49712f46d9709ddcda924bf17828a794d297",
+            },
+        },
     },
 }
 
@@ -35,33 +59,58 @@ import("xim.libxpkg.system")
 import("xim.libxpkg.log")
 
 function install()
-    os.tryrm(pkginfo.install_dir())
-    local git_dir = pkginfo.install_file()
-        :replace(".zip", "")
-    os.mv(git_dir, pkginfo.install_dir())
+    if is_host("windows") then
+        -- Windows: PortableGit zip extracts to a `PortableGit/` sibling
+        -- dir; old recipe relied on the file-name prefix matching.
+        os.tryrm(pkginfo.install_dir())
+        local git_dir = pkginfo.install_file():replace(".zip", "")
+        os.mv(git_dir, pkginfo.install_dir())
+    else
+        -- Linux: static-builds tarball has `bin/`, `libexec/`, `share/`
+        -- at its top level (no enclosing version-named subdir, despite
+        -- the tarball filename). Extract directly into install_dir so
+        -- git can find libexec/git-core helpers via its argv[0]-relative
+        -- resolution. Use explicit `tar -xzf -C` (same shape as
+        -- ollama.lua) rather than relying on xlings's implicit
+        -- pre-extract behavior, which can leak runtimedir state into
+        -- this package's install_dir on shared-cache hosts.
+        os.tryrm(pkginfo.install_dir())
+        os.mkdir(pkginfo.install_dir())
+        system.exec(string.format(
+            [[tar -xzf "%s" -C "%s"]],
+            pkginfo.install_file(), pkginfo.install_dir()
+        ))
+    end
     return true
 end
 
 function config()
+    if is_host("windows") then
+        xvm.add("git", {
+            bindir = path.join(pkginfo.install_dir(), "cmd")
+        })
 
-    xvm.add("git", {
-        bindir = path.join(pkginfo.install_dir(), "cmd")
-    })
-
-    system.exec(string.format(
-        [[shortcut-tool create --name "Git Bash" --target "%s" --icon "%s" --args "%s"]],
-        path.join(pkginfo.install_dir(), "git-bash.exe"),
-        path.join(pkginfo.install_dir(), "git-bash.exe"),
-        "--cd-to-home"
-    ))
+        system.exec(string.format(
+            [[shortcut-tool create --name "Git Bash" --target "%s" --icon "%s" --args "%s"]],
+            path.join(pkginfo.install_dir(), "git-bash.exe"),
+            path.join(pkginfo.install_dir(), "git-bash.exe"),
+            "--cd-to-home"
+        ))
+    else
+        xvm.add("git", {
+            bindir = path.join(pkginfo.install_dir(), "bin")
+        })
+    end
 
     return true
 end
 
 function uninstall()
     xvm.remove("git")
-    system.exec(string.format(
-        [[shortcut-tool remove --name "Git Bash"]]
-    ))
+    if is_host("windows") then
+        system.exec(string.format(
+            [[shortcut-tool remove --name "Git Bash"]]
+        ))
+    end
     return true
 end

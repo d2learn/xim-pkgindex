@@ -59,3 +59,22 @@ class TestIsolation:
     @pytest.mark.isolation
     def test_new_api(self):
         assert_uses_new_api(PKG_FILE)
+
+
+class TestLifecycle:
+    @pytest.mark.lifecycle
+    @skip_if_not('linux')
+    def test_install(self):
+        assert_install_succeeds(PKG)
+
+
+class TestVerify:
+    @pytest.mark.verify
+    @skip_if_not('linux')
+    def test_git(self):
+        assert_command_output("git --version", contains="git version")
+
+    @pytest.mark.verify
+    @skip_if_not('linux')
+    def test_xvm_git(self):
+        assert_xvm_registered("git")

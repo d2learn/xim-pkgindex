@@ -21,6 +21,22 @@ package = {
     -- xvm: xlings version management
     xvm_enable = true,
 
+    -- Latest version is mirrored at xlings-res/nvim (byte-identical
+    -- to upstream `neovim/neovim` release artifacts, just renamed to
+    -- xlings-res convention `nvim-<ver>-<platform>-<arch>.<ext>`).
+    --
+    -- XLINGS_RES sentinel resolves to:
+    --   GLOBAL → github.com/xlings-res/nvim/releases/download/<ver>/...
+    --   CN     → gitcode.com/xlings-res/nvim/releases/download/<ver>/...
+    --
+    -- The install hook (below) relies on the *internal* tarball dir
+    -- name (`nvim-linux-x86_64/` for linux, `nvim-win64/` for windows)
+    -- which is unchanged by our rename — only the outer filename is
+    -- different.
+    --
+    -- Older versions still pointed at upstream URLs; they're kept for
+    -- users pinning historical builds. New versions go through
+    -- XLINGS_RES.
     xpm = {
         linux = {
             -- Runtime deps. nvim prebuilt (nvim-linux-x86_64.tar.gz)
@@ -33,10 +49,7 @@ package = {
             },
             url_template = "https://github.com/neovim/neovim/releases/download/v{version}/nvim-linux-x86_64.tar.gz",
             ["latest"] = { ref = "0.12.2" },
-            ["0.12.2"] = {
-                url = "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.tar.gz",
-                sha256 = "31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260",
-            },
+            ["0.12.2"] = "XLINGS_RES",
             ["0.11.5"] = {
                 url = "https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-linux-x86_64.tar.gz",
                 sha256 = "b2f91117be5b5ea39edd7297156dc2a4a8df4add6c95a90809a8df19e7ab6f52",
@@ -45,10 +58,7 @@ package = {
         windows = {
             url_template = "https://github.com/neovim/neovim/releases/download/v{version}/nvim-win64.zip",
             ["latest"] = { ref = "0.12.2" },
-            ["0.12.2"] = {
-                url = "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-win64.zip",
-                sha256 = "23fe150edbcc976eabe55092e1e9d2e5e237afde69553d170e936f776b405d53",
-            },
+            ["0.12.2"] = "XLINGS_RES",
             ["0.11.5"] = {
                 url = "https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-win64.zip",
                 sha256 = "718e731326e7759cf17bbbb33f38975707a2ac85642614686b818ef5fde38f48",

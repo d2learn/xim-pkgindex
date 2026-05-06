@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.15" },
+            ["latest"] = { ref = "0.4.16" },
+            ["0.4.16"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.16/xlings-0.4.16-linux-x86_64.tar.gz",
+                sha256 = "2c3f898ba12cb1311bd57c614fd001b52c6f582818723a24d7999960a09c61d9",
+            },
             ["0.4.15"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.15/xlings-0.4.15-linux-x86_64.tar.gz",
                 sha256 = "ee3cddb490e345f02551a9ae16adf47bf0424c13eadb9bea453d8e4dea4d4967",
@@ -81,7 +85,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.15" },
+            ["latest"] = { ref = "0.4.16" },
+            ["0.4.16"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.16/xlings-0.4.16-macosx-arm64.tar.gz",
+                sha256 = "4548743163b8cf7f43ff14f6f4583b516e0b4c62dc824812754799af9836d0c8",
+            },
             ["0.4.15"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.15/xlings-0.4.15-macosx-arm64.tar.gz",
                 sha256 = "307b5c72d035ffdc87a77efcc0bdb349f68082a7148e7f3d0fb65a7ed03dd640",
@@ -126,7 +134,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.15" },
+            ["latest"] = { ref = "0.4.16" },
+            ["0.4.16"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.16/xlings-0.4.16-windows-x86_64.zip",
+                sha256 = "c57ca9a1ed45f80013f86e4db510a1b565bc146250e02b3a34d6813a93f723b6",
+            },
             ["0.4.15"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.15/xlings-0.4.15-windows-x86_64.zip",
                 sha256 = "894f2f462fa1d32fb2ca6df5acce460393dfd13b3803d78260cd48886d69dd9a",

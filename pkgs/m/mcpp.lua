@@ -30,11 +30,15 @@ package = {
     --   GLOBAL → github.com/xlings-res/mcpp/releases/download/<ver>/...
     --   CN     → gitcode.com/xlings-res/mcpp/releases/download/<ver>/...
     --
-    -- The Linux tarball is a fully-static ELF (no .interp, no
-    -- DT_NEEDED) plus a thin shell launcher at the bundle root —
-    -- zero runtime deps. xvm registers `bindir = <install>/bin`
-    -- so the real ELF is invoked directly (the top-level shell
-    -- launcher is only used when running from the bundle root).
+    -- The Linux tarball ships under `mcpp-<ver>-linux_x86_64/`
+    -- (note: upstream uses underscore in the inner dir name).
+    -- It contains:
+    --   bin/mcpp        — fully-static ELF (no .interp, empty
+    --                      DT_NEEDED — zero runtime deps)
+    --   mcpp            — POSIX shell launcher → exec bin/mcpp
+    --   LICENSE, README.md
+    -- xvm registers `bindir = <install>/bin` so the ELF is invoked
+    -- directly; the shell launcher is only useful from the bundle root.
     xpm = {
         linux = {
             url_template = "https://github.com/mcpp-community/mcpp/releases/download/v{version}/mcpp-{version}-linux-x86_64.tar.gz",
@@ -48,17 +52,12 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
 function install()
-    -- xlings auto-extracts the tarball into the runtime workdir.
-    -- Top-level layout (no enclosing version-named dir):
-    --   ./bin/mcpp      (static ELF — the only artifact xvm needs)
-    --   ./mcpp          (POSIX shell launcher, only useful from the
-    --                    bundle root; xvm shim invokes bin/mcpp directly)
-    --   ./LICENSE, ./README.md
-    -- Move just bin/ into install_dir so xvm's bindir=<install>/bin
-    -- resolves the real binary.
+    -- xlings auto-extracts the tarball into the runtime workdir;
+    -- the bundle is wrapped in `mcpp-<ver>-linux_x86_64/` so just
+    -- rename that dir into install_dir (same shape as nvim/node).
+    local mcpp_dir = "mcpp-" .. pkginfo.version() .. "-linux_x86_64"
     os.tryrm(pkginfo.install_dir())
-    os.mkdir(pkginfo.install_dir())
-    os.mv("bin", pkginfo.install_dir())
+    os.mv(mcpp_dir, pkginfo.install_dir())
     return true
 end
 

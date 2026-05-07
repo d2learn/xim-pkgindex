@@ -46,22 +46,19 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
-import("xim.libxpkg.system")
 
 function install()
-    -- Tarball top-level layout (no enclosing version-named dir):
-    --   ./mcpp          (POSIX shell launcher → exec bin/mcpp)
-    --   ./bin/mcpp      (static ELF)
-    --   ./LICENSE
-    --   ./README.md
-    -- Extract directly into install_dir so xvm's bindir=<install>/bin
-    -- finds the real binary.
+    -- xlings auto-extracts the tarball into the runtime workdir.
+    -- Top-level layout (no enclosing version-named dir):
+    --   ./bin/mcpp      (static ELF — the only artifact xvm needs)
+    --   ./mcpp          (POSIX shell launcher, only useful from the
+    --                    bundle root; xvm shim invokes bin/mcpp directly)
+    --   ./LICENSE, ./README.md
+    -- Move just bin/ into install_dir so xvm's bindir=<install>/bin
+    -- resolves the real binary.
     os.tryrm(pkginfo.install_dir())
     os.mkdir(pkginfo.install_dir())
-    system.exec(string.format(
-        [[tar -xzf "%s" -C "%s"]],
-        pkginfo.install_file(), pkginfo.install_dir()
-    ))
+    os.mv("bin", pkginfo.install_dir())
     return true
 end
 

@@ -52,10 +52,7 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
 function install()
-    -- xlings auto-extracts the tarball into the runtime workdir;
-    -- the bundle is wrapped in `mcpp-<ver>-linux_x86_64/` so just
-    -- rename that dir into install_dir (same shape as nvim/node).
-    local mcpp_dir = "mcpp-" .. pkginfo.version() .. "-linux_x86_64"
+    local mcpp_dir = "mcpp-" .. pkginfo.version() .. "-linux-x86_64"
     os.tryrm(pkginfo.install_dir())
     os.mv(mcpp_dir, pkginfo.install_dir())
     return true

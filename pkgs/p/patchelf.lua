@@ -20,15 +20,25 @@ package = {
     aliases = {"elfpatch"},
     xvm_enable = true,
 
+    -- The upstream NixOS/patchelf release tarball
+    -- (`patchelf-<ver>-x86_64.tar.gz`) extracts *flat* — `./bin/`, `./share/`,
+    -- with no top-level directory — so xlings's stock install hook
+    -- (`os.mv(<file-basename>, install_dir)`) cannot find the expected
+    -- `patchelf-<ver>-…/` directory and the install fails.
+    --
+    -- We mirror at xlings-res/patchelf, repackaged with a single
+    -- top-level directory `patchelf-<ver>-linux-x86_64/` matching the
+    -- xlings-res tarball convention `<pkg>-<ver>-<platform>-<arch>/`.
+    -- Binaries inside are byte-identical to upstream.
+    --
+    -- XLINGS_RES sentinel resolves to:
+    --   GLOBAL → github.com/xlings-res/patchelf/releases/download/<ver>/...
+    --   CN     → gitcode.com/xlings-res/patchelf/releases/download/<ver>/...
     xpm = {
         linux = {
+            url_template = "https://github.com/NixOS/patchelf/releases/download/{version}/patchelf-{version}-x86_64.tar.gz",
             ["latest"] = { ref = "0.18.0" },
-            ["0.18.0"] = {
-                url = {
-                    ["GLOBAL"] = "https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz",
-                    ["CN"] = "https://gitcode.com/xlings-res/mirror-cn/releases/download/patchelf/patchelf-0.18.0-x86_64.tar.gz",
-                },
-            },
+            ["0.18.0"] = "XLINGS_RES",
         },
     },
 }

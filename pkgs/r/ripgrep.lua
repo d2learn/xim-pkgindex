@@ -72,10 +72,15 @@ end
 
 function config()
     xvm.add("rg", { bindir = pkginfo.install_dir() })
+    -- Marker: the binary is `rg` but the package name is `ripgrep`.
+    -- Empty placeholder so install detection (`xvm info ripgrep`)
+    -- finds an entry instead of treating the package as missing.
+    xvm.add("ripgrep", { type = "marker" })
     return true
 end
 
 function uninstall()
     xvm.remove("rg")
+    xvm.remove("ripgrep")
     return true
 end

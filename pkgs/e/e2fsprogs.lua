@@ -83,6 +83,12 @@ function config()
         xvm.add(sbin_programs[i], { bindir = bindir, binding = root })
     end
 
+    -- Binding root: `e2fsprogs` is an umbrella package whose programs
+    -- are e2fsck/mke2fs/etc. The package name itself never appears in
+    -- `sbin_programs`, so without this empty placeholder
+    -- `xvm info e2fsprogs` returns nothing on install detection.
+    xvm.add("e2fsprogs", { type = "binding" })
+
     -- mke2fs reads mke2fs.conf at runtime; the static binary has no
     -- compiled-in path that points inside install_dir, so help users
     -- who want non-default fs profiles by exporting MKE2FS_CONFIG.
@@ -96,5 +102,6 @@ function uninstall()
     for _, p in ipairs(sbin_programs) do
         xvm.remove(p)
     end
+    xvm.remove("e2fsprogs")
     return true
 end

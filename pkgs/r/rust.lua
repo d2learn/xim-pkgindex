@@ -83,6 +83,12 @@ end
 
 function uninstall()
     os.exec("rustup self uninstall")
+    xvm.remove("rustc")
+    xvm.remove("cargo")
+    xvm.remove("rustup")
+    xvm.remove("rustfmt")
+    xvm.remove("clippy-driver")
+    xvm.remove("rust-analyzer")
     xvm.remove("rust")
 end
 

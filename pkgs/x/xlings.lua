@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.25" },
+            ["latest"] = { ref = "0.4.26" },
+            ["0.4.26"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.26/xlings-0.4.26-linux-x86_64.tar.gz",
+                sha256 = "3de72252154104db605577ae1a8b5c2be2beb07158379c212188105f2fafe0c4",
+            },
             ["0.4.25"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.25/xlings-0.4.25-linux-x86_64.tar.gz",
                 sha256 = "2471326289be9ccca5a66d80ca827f9aa1d27f108c8b94b6952c859fa3e6b366",
@@ -117,7 +121,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.25" },
+            ["latest"] = { ref = "0.4.26" },
+            ["0.4.26"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.26/xlings-0.4.26-macosx-arm64.tar.gz",
+                sha256 = "7cacbee2689c5581c24242f9b5b5e6bc75bf3e272eeb5189da5f14e815fe905f",
+            },
             ["0.4.25"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.25/xlings-0.4.25-macosx-arm64.tar.gz",
                 sha256 = "6040964f394a63f01a0f7a79301e85770643289c03dab334792ef2613882e24b",
@@ -198,7 +206,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.25" },
+            ["latest"] = { ref = "0.4.26" },
+            ["0.4.26"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.26/xlings-0.4.26-windows-x86_64.zip",
+                sha256 = "11dd26f10817e347658ef449a66e311328db2a97d214caf31f390a9a5c2d209b",
+            },
             ["0.4.25"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.25/xlings-0.4.25-windows-x86_64.zip",
                 sha256 = "85c21d087113cd91bc78d07f84a7b70f3e0c67038955879d809c66787cbf94d1",

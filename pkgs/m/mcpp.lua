@@ -42,7 +42,8 @@ package = {
     xpm = {
         linux = {
             url_template = "https://github.com/mcpp-community/mcpp/releases/download/v{version}/mcpp-{version}-linux-x86_64.tar.gz",
-            ["latest"] = { ref = "0.0.2" },
+            ["latest"] = { ref = "0.0.3" },
+            ["0.0.3"] = "XLINGS_RES",
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.1"] = "XLINGS_RES",
         },

@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.23" },
+            ["latest"] = { ref = "0.4.24" },
+            ["0.4.24"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.24/xlings-0.4.24-linux-x86_64.tar.gz",
+                sha256 = "a68fa8b874c712b9a7f469329cea6574a0d7857f42bdac701f7dbe8fad56f669",
+            },
             ["0.4.23"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.23/xlings-0.4.23-linux-x86_64.tar.gz",
                 sha256 = "c123afe8d2576d14bace1400c2403f0d1c9f2d25ff5fc14a2fa98dbe7efee59b",
@@ -109,7 +113,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.23" },
+            ["latest"] = { ref = "0.4.24" },
+            ["0.4.24"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.24/xlings-0.4.24-macosx-arm64.tar.gz",
+                sha256 = "07ca20caff3fe343b9f0d46785c25e9ce0f959f0ad16afe1b782cbb29dd7350b",
+            },
             ["0.4.23"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.23/xlings-0.4.23-macosx-arm64.tar.gz",
                 sha256 = "afd444f348806818eb75df3ae15687d8f6a221abb84a7907eadc0027c4b139b7",
@@ -182,7 +190,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.23" },
+            ["latest"] = { ref = "0.4.24" },
+            ["0.4.24"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.24/xlings-0.4.24-windows-x86_64.zip",
+                sha256 = "9b96bbfb122806b3cef4e1f320f26feae0719dd5463ebaa92af3254e86f96929",
+            },
             ["0.4.23"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.23/xlings-0.4.23-windows-x86_64.zip",
                 sha256 = "57998a651466d8730bdbe018824a24ea3cdb3bae007c92c2b31ebf10c9a29354",

@@ -79,6 +79,12 @@ function config()
     xvm.add("c++", config)
     xvm.add("g++", config)
 
+    -- Binding root: `mingw-w64` is an umbrella toolchain package whose
+    -- registered programs are the gcc/g++/c++ multilib triples.
+    -- Empty placeholder under the package name so install detection
+    -- (`xvm info mingw-w64`) finds an entry.
+    xvm.add("mingw-w64", { type = "binding" })
+
     __config_mingw_bin(mingw_bindir)
 
     return true
@@ -95,6 +101,8 @@ function uninstall()
     xvm.remove("gcc", version)
     xvm.remove("g++", version)
     xvm.remove("c++", version)
+
+    xvm.remove("mingw-w64")
 
     -- TODO: support multi-version (auto switch bin path)
     __config_mingw_bin("")

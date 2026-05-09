@@ -96,10 +96,15 @@ end
 
 function config()
     xvm.add("vcs", { bindir = __venv_bindir() })
+    -- Marker: the binary is `vcs` (upstream's CLI command) but the
+    -- package name is `vcstool`. Empty placeholder so install
+    -- detection (`xvm info vcstool`) finds an entry.
+    xvm.add("vcstool", { type = "marker" })
     return true
 end
 
 function uninstall()
     xvm.remove("vcs")
+    xvm.remove("vcstool")
     return true
 end

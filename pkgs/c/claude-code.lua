@@ -77,10 +77,17 @@ function config()
             --CLAUDE_CONFIG_DIR = path.join(pkginfo.install_dir(), "config"),
         }
     })
+    -- Marker: package name `claude-code` differs from the actual binary
+    -- `claude`. Without this empty placeholder, install detection
+    -- (`xvm info claude-code`) returns nothing, so xlings re-installs
+    -- on every invocation. The marker is metadata-only — no bindir,
+    -- no alias, no shim — and is uninstalled symmetrically below.
+    xvm.add("claude-code", { type = "marker" })
     return true
 end
 
 function uninstall()
     xvm.remove("claude")
+    xvm.remove("claude-code")
     return true
 end

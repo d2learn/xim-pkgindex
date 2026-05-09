@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.21" },
+            ["latest"] = { ref = "0.4.22" },
+            ["0.4.22"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.22/xlings-0.4.22-linux-x86_64.tar.gz",
+                sha256 = "0f14275d57c15b042919d260a28d0c39eac66e593fd39858e8ff7450df3d1b20",
+            },
             ["0.4.21"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.21/xlings-0.4.21-linux-x86_64.tar.gz",
                 sha256 = "f9ddd2b60c998dacdb1ddc6f7af09aa1675854971944dd26f25e307e3853f78f",
@@ -101,7 +105,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.21" },
+            ["latest"] = { ref = "0.4.22" },
+            ["0.4.22"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.22/xlings-0.4.22-macosx-arm64.tar.gz",
+                sha256 = "e10f0c5b208104c5813956eebddc5f91e6b17a49232d85c2da914e9b9d2ef02c",
+            },
             ["0.4.21"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.21/xlings-0.4.21-macosx-arm64.tar.gz",
                 sha256 = "741116c67f8fc7c461a9d4b0b679218a0d0a652b7d774e29dd103c08599dac5e",
@@ -166,7 +174,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.21" },
+            ["latest"] = { ref = "0.4.22" },
+            ["0.4.22"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.22/xlings-0.4.22-windows-x86_64.zip",
+                sha256 = "14937c221c8daa51b2f7889531874cd2df3233bef379aabfc25ec2ca7bdd7289",
+            },
             ["0.4.21"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.21/xlings-0.4.21-windows-x86_64.zip",
                 sha256 = "06b6c6a4126111527a422cb73b5b7995d829150fa63d8d37adcd763f093df9a8",

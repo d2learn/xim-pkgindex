@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.26" },
+            ["latest"] = { ref = "0.4.28" },
+            ["0.4.28"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.28/xlings-0.4.28-linux-x86_64.tar.gz",
+                sha256 = "5b5447d33c483e586f445c56e73288d300f58074a3505be955760d3bf717a985",
+            },
             ["0.4.26"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.26/xlings-0.4.26-linux-x86_64.tar.gz",
                 sha256 = "3de72252154104db605577ae1a8b5c2be2beb07158379c212188105f2fafe0c4",
@@ -121,7 +125,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.26" },
+            ["latest"] = { ref = "0.4.28" },
+            ["0.4.28"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.28/xlings-0.4.28-macosx-arm64.tar.gz",
+                sha256 = "6938d2df1f60c778f54f269136c8fb62364bd06937ec5c09c46a2cdf0b8c0c58",
+            },
             ["0.4.26"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.26/xlings-0.4.26-macosx-arm64.tar.gz",
                 sha256 = "7cacbee2689c5581c24242f9b5b5e6bc75bf3e272eeb5189da5f14e815fe905f",
@@ -206,7 +214,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.26" },
+            ["latest"] = { ref = "0.4.28" },
+            ["0.4.28"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.28/xlings-0.4.28-windows-x86_64.zip",
+                sha256 = "1b6f85f48e0528a3965abb12dda71efd9becd07a49ca0ee73b863857e2e46864",
+            },
             ["0.4.26"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.26/xlings-0.4.26-windows-x86_64.zip",
                 sha256 = "11dd26f10817e347658ef449a66e311328db2a97d214caf31f390a9a5c2d209b",

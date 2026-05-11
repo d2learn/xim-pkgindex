@@ -53,8 +53,16 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mkdir(pkginfo.install_dir())
 
+    -- Warm up proot's internal path-resolution state before the heavy
+    -- npm install. Without this, the first large fork+exec burst
+    -- (npm unpacking 559 packages) in a fresh proot sandbox triggers
+    -- `double free or corruption` in proot's talloc pool. A single
+    -- PATH-traversing command (`node --version`) initializes proot's
+    -- path cache and prevents the crash. This is a no-op outside proot.
+    os.execute("node --version > /dev/null 2>&1")
+
     local npm_install = string.format(
-        [[npm install --prefix "%s" --no-fund --no-audit "openclaw@%s"]],
+        [[npm install --prefix "%s" --no-fund --no-audit --ignore-scripts "openclaw@%s"]],
         pkginfo.install_dir(),
         pkginfo.version()
     )

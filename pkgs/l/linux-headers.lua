@@ -65,15 +65,41 @@ function config()
     else
         local scodedir = pkginfo.install_dir("scode:linux-headers", pkginfo.version())
         log.info("Copying linux header files to subos rootfs ...")
-        os.cp(path.join(scodedir, "include"), sysroot_usrdir, {
-            force = true, symlink = true
-        })
+        __cp_tree_proot_safe(
+            path.join(scodedir, "include"),
+            path.join(sysroot_usrdir, "include")
+        )
         io.writefile(stamp, pkginfo.version())
     end
 
     xvm.add("linux-headers")
 
     return true
+end
+
+-- Per-entry walk that replaces xmake's recursive `os.cp` (and `cp -r`).
+-- Each iteration issues a single absolute-path syscall — proot's path
+-- translator handles those correctly. The previous recursive copy tripped
+-- a proot bug where dir-fd-relative openat() issued mid-recursion was
+-- mistranslated when the destination subtree already existed in the
+-- subos sysroot.
+--
+-- Symlinks are preserved (readlink + os.ln), matching `symlink = true`
+-- in the prior os.cp call.
+function __cp_tree_proot_safe(src_dir, dst_dir)
+    if not os.isdir(src_dir) then return end
+    os.mkdir(dst_dir)
+    for _, src in ipairs(os.filedirs(path.join(src_dir, "**"))) do
+        local rel = path.relative(src, src_dir)
+        local dst = path.join(dst_dir, rel)
+        os.mkdir(path.directory(dst))
+        if os.islink(src) then
+            os.tryrm(dst)
+            os.ln(os.readlink(src), dst)
+        elseif not os.isdir(src) then
+            os.cp(src, dst)
+        end
+    end
 end
 
 function uninstall()

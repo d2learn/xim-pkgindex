@@ -173,8 +173,34 @@ function __config_header()
     end
 
     log.info("Copying glibc header files to subos rootfs ...")
-    os.execute('cp -r "' .. include_dir .. '" "' .. sysroot_usrdir .. '/"')
+    __cp_tree_proot_safe(include_dir, path.join(sysroot_usrdir, "include"))
     io.writefile(stamp, pkginfo.version())
+end
+
+-- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/` (and xmake's
+-- recursive os.cp on a directory). Each iteration of the loop issues a
+-- single absolute-path syscall (mkdir / cp single file / ln) — which
+-- proot's path translator handles correctly. The previous `cp -r` tripped
+-- a proot bug where `openat(parent_fd, "<child>", ...)` issued by
+-- coreutils mid-recursion was mistranslated, failing the copy when the
+-- destination subtree already existed in the subos sysroot.
+--
+-- Symlinks are preserved (readlink + os.ln), matching the prior
+-- behavior of `cp -r` (GNU cp preserves symlinks when -L is not given).
+function __cp_tree_proot_safe(src_dir, dst_dir)
+    if not os.isdir(src_dir) then return end
+    os.mkdir(dst_dir)
+    for _, src in ipairs(os.filedirs(path.join(src_dir, "**"))) do
+        local rel = path.relative(src, src_dir)
+        local dst = path.join(dst_dir, rel)
+        os.mkdir(path.directory(dst))
+        if os.islink(src) then
+            os.tryrm(dst)
+            os.ln(os.readlink(src), dst)
+        elseif not os.isdir(src) then
+            os.cp(src, dst)
+        end
+    end
 end
 
 function __relocate()

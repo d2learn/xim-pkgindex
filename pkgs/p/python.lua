@@ -77,9 +77,7 @@ function config()
             local sysroot_usrdir = path.join(sysrootdir, "usr")
             if not os.isdir(sysroot_usrdir) then os.mkdir(sysroot_usrdir) end
             log.info("Installing Python dev headers into subos sysroot...")
-            os.cp(includedir, sysroot_usrdir, {
-                force = true, symlink = true
-            })
+            __cp_tree_proot_safe(includedir, path.join(sysroot_usrdir, "include"))
         end
     end
     return true
@@ -98,4 +96,29 @@ function uninstall()
     end
 
     return true
+end
+
+-- Per-entry walk that replaces xmake's recursive `os.cp` on a directory.
+-- Each iteration issues a single absolute-path syscall — proot's path
+-- translator handles those correctly. The previous recursive copy tripped
+-- a proot bug where dir-fd-relative openat() issued mid-recursion was
+-- mistranslated when the destination subtree already existed in the
+-- subos sysroot.
+--
+-- Symlinks are preserved (readlink + os.ln), matching `symlink = true`
+-- in the prior os.cp call.
+function __cp_tree_proot_safe(src_dir, dst_dir)
+    if not os.isdir(src_dir) then return end
+    os.mkdir(dst_dir)
+    for _, src in ipairs(os.filedirs(path.join(src_dir, "**"))) do
+        local rel = path.relative(src, src_dir)
+        local dst = path.join(dst_dir, rel)
+        os.mkdir(path.directory(dst))
+        if os.islink(src) then
+            os.tryrm(dst)
+            os.ln(os.readlink(src), dst)
+        elseif not os.isdir(src) then
+            os.cp(src, dst)
+        end
+    end
 end

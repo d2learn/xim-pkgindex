@@ -111,7 +111,7 @@ function config()
             local name = path.filename(subdir)
             local dst = path.join(sys_includedir, name)
             os.tryrm(dst)
-            os.execute('cp -r "' .. subdir .. '" "' .. dst .. '"')
+            __cp_tree_proot_safe(subdir, dst)
         end
 
         for _, file in ipairs(list_files(path.join(includedir, "*.h"))) do
@@ -149,4 +149,29 @@ function uninstall()
 
     xvm.remove(xpkg_binding_tree)
     return true
+end
+
+-- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/`. Each
+-- iteration issues a single absolute-path syscall (mkdir / cp single
+-- file / ln) — proot's path translator handles those correctly. The
+-- prior `cp -r` per subdir tripped a proot bug where dir-fd-relative
+-- openat() issued mid-recursion was mistranslated when the destination
+-- subtree already existed in the subos sysroot.
+--
+-- Symlinks are preserved (readlink + os.ln), matching the behavior of
+-- GNU `cp -r` (which preserves symlinks when -L is not given).
+function __cp_tree_proot_safe(src_dir, dst_dir)
+    if not os.isdir(src_dir) then return end
+    os.mkdir(dst_dir)
+    for _, src in ipairs(os.filedirs(path.join(src_dir, "**"))) do
+        local rel = path.relative(src, src_dir)
+        local dst = path.join(dst_dir, rel)
+        os.mkdir(path.directory(dst))
+        if os.islink(src) then
+            os.tryrm(dst)
+            os.ln(os.readlink(src), dst)
+        elseif not os.isdir(src) then
+            os.cp(src, dst)
+        end
+    end
 end

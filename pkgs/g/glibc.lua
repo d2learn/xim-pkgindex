@@ -177,53 +177,45 @@ function __config_header()
     io.writefile(stamp, pkginfo.version())
 end
 
--- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/` (and xmake's
--- recursive os.cp on a directory). Enumerates the source tree via
--- `find` (the xim libxpkg lua sandbox doesn't expose xmake's
--- os.files / os.filedirs / os.islink — even openssl.lua here resorts to
--- io.popen('ls -d')), then issues a single absolute-path syscall per
--- entry (mkdir / cp single file / ln symlink) — which proot's path
--- translator handles correctly. The previous `cp -r` tripped a proot
--- bug where `openat(parent_fd, "<child>", ...)` issued by coreutils
--- mid-recursion was mistranslated, failing the copy when the
--- destination subtree already existed in the subos sysroot.
+-- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/`.
+-- Uses libxpkg's runtime APIs (os.dirs / os.files / os.mkdir / os.cp /
+-- os.ln) to enumerate the source tree and issue single absolute-path
+-- syscalls per entry — which proot's path translator handles correctly.
+-- The previous `cp -r` tripped a proot bug where dir-fd-relative
+-- `openat(parent_fd, "<child>", ...)` issued by coreutils mid-recursion
+-- was mistranslated, failing the copy when the destination subtree
+-- already existed in the subos sysroot.
 --
--- Symlinks are preserved (readlink + ln -s), matching `symlink = true`
--- on xmake's recursive os.cp and `cp -d`/`cp -a`.
+-- Symlinks are preserved: the runtime doesn't expose
+-- os.islink/os.readlink, so symlinks are discovered via a single
+-- `find -type l` (read-only on source, no recursion-into-existing-dest
+-- pattern, hence proot-safe) and recreated via os.ln. Header trees
+-- normally contain zero symlinks; this branch is a no-op for them.
 function __cp_tree_proot_safe(src_dir, dst_dir)
     if not os.isdir(src_dir) then return end
     os.mkdir(dst_dir)
+    for _, d in ipairs(os.dirs(path.join(src_dir, "**"))) do
+        os.mkdir(path.join(dst_dir, path.relative(d, src_dir)))
+    end
+    for _, fpath in ipairs(os.files(path.join(src_dir, "**"))) do
+        local dst = path.join(dst_dir, path.relative(fpath, src_dir))
+        os.mkdir(path.directory(dst))
+        os.cp(fpath, dst)
+    end
     local f = io.popen(string.format(
-        [[find "%s" -mindepth 1 \( -type d -o -type l -o -type f \) -printf '%%y\t%%P\n' 2>/dev/null]],
-        src_dir
+        [[find "%s" -type l -printf '%%P\t%%l\n' 2>/dev/null]], src_dir
     ))
     if not f then return end
-    local entries = {}
     for line in f:lines() do
-        local kind, rel = line:match("^(%a)\t(.+)$")
-        if kind and rel then table.insert(entries, {kind=kind, rel=rel}) end
-    end
-    f:close()
-    for _, e in ipairs(entries) do
-        local src = path.join(src_dir, e.rel)
-        local dst = path.join(dst_dir, e.rel)
-        if e.kind == "d" then
-            os.mkdir(dst)
-        elseif e.kind == "l" then
+        local rel, target = line:match("^(.-)\t(.+)$")
+        if rel and target then
+            local dst = path.join(dst_dir, rel)
             os.mkdir(path.directory(dst))
             os.tryrm(dst)
-            local t = io.popen(string.format([[readlink "%s" 2>/dev/null]], src))
-            local target = ""
-            if t then target = (t:read("*l") or ""); t:close() end
-            target = target:gsub("[\r\n]+$", "")
-            if target ~= "" then
-                os.execute(string.format([[ln -s "%s" "%s"]], target, dst))
-            end
-        else
-            os.mkdir(path.directory(dst))
-            os.cp(src, dst)
+            os.ln(target, dst, { force = true })
         end
     end
+    f:close()
 end
 
 function __relocate()

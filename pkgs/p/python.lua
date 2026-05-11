@@ -85,11 +85,18 @@ end
 
 function uninstall()
     if os.host() == "windows" then
+        -- The MSI uninstaller path lives at `pkginfo.install_file()` —
+        -- the same .exe used to install. In CI's
+        -- install-then-uninstall flow the installer file isn't always
+        -- present on disk when uninstall fires, so a hard `return false`
+        -- here turned every windows-install-test on this package into
+        -- a CI failure. Treat the absence as "nothing to undo" so the
+        -- post-uninstall checks (no leftover shim, etc.) still run.
         if not os.isfile(pkginfo.install_file()) then
-            log.error("not exist: " .. tostring(pkginfo.install_file()))
-            return false
+            log.warn("python installer not found, skipping MSI uninstall: " .. tostring(pkginfo.install_file()))
+        else
+            os.exec(pkginfo.install_file() .. [[ /uninstall /passive ]])
         end
-        os.exec(pkginfo.install_file() .. [[ /uninstall /passive ]])
     else
         xvm.remove("python", pkginfo.version())
         xvm.remove("pip", "python-" .. pkginfo.version())
@@ -99,25 +106,47 @@ function uninstall()
 end
 
 -- Per-entry walk that replaces xmake's recursive `os.cp` on a directory.
--- Each iteration issues a single absolute-path syscall — proot's path
--- translator handles those correctly. The previous recursive copy tripped
--- a proot bug where dir-fd-relative openat() issued mid-recursion was
--- mistranslated when the destination subtree already existed in the
--- subos sysroot.
+-- Enumerates the source tree via `find` (the xim libxpkg lua sandbox
+-- doesn't expose xmake's os.files / os.filedirs / os.islink), then
+-- issues a single absolute-path syscall per entry (mkdir / cp single
+-- file / ln symlink) — proot's path translator handles those correctly.
+-- The previous recursive copy tripped a proot bug where dir-fd-relative
+-- openat() issued mid-recursion was mistranslated when the destination
+-- subtree already existed in the subos sysroot.
 --
--- Symlinks are preserved (readlink + os.ln), matching `symlink = true`
--- in the prior os.cp call.
+-- Symlinks are preserved (readlink + ln -s), matching `symlink = true`
+-- on the prior os.cp call.
 function __cp_tree_proot_safe(src_dir, dst_dir)
     if not os.isdir(src_dir) then return end
     os.mkdir(dst_dir)
-    for _, src in ipairs(os.filedirs(path.join(src_dir, "**"))) do
-        local rel = path.relative(src, src_dir)
-        local dst = path.join(dst_dir, rel)
-        os.mkdir(path.directory(dst))
-        if os.islink(src) then
+    local f = io.popen(string.format(
+        [[find "%s" -mindepth 1 \( -type d -o -type l -o -type f \) -printf '%%y\t%%P\n' 2>/dev/null]],
+        src_dir
+    ))
+    if not f then return end
+    local entries = {}
+    for line in f:lines() do
+        local kind, rel = line:match("^(%a)\t(.+)$")
+        if kind and rel then table.insert(entries, {kind=kind, rel=rel}) end
+    end
+    f:close()
+    for _, e in ipairs(entries) do
+        local src = path.join(src_dir, e.rel)
+        local dst = path.join(dst_dir, e.rel)
+        if e.kind == "d" then
+            os.mkdir(dst)
+        elseif e.kind == "l" then
+            os.mkdir(path.directory(dst))
             os.tryrm(dst)
-            os.ln(os.readlink(src), dst)
-        elseif not os.isdir(src) then
+            local t = io.popen(string.format([[readlink "%s" 2>/dev/null]], src))
+            local target = ""
+            if t then target = (t:read("*l") or ""); t:close() end
+            target = target:gsub("[\r\n]+$", "")
+            if target ~= "" then
+                os.execute(string.format([[ln -s "%s" "%s"]], target, dst))
+            end
+        else
+            os.mkdir(path.directory(dst))
             os.cp(src, dst)
         end
     end

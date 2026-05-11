@@ -65,15 +65,63 @@ function config()
     else
         local scodedir = pkginfo.install_dir("scode:linux-headers", pkginfo.version())
         log.info("Copying linux header files to subos rootfs ...")
-        os.cp(path.join(scodedir, "include"), sysroot_usrdir, {
-            force = true, symlink = true
-        })
+        __cp_tree_proot_safe(
+            path.join(scodedir, "include"),
+            path.join(sysroot_usrdir, "include")
+        )
         io.writefile(stamp, pkginfo.version())
     end
 
     xvm.add("linux-headers")
 
     return true
+end
+
+-- Per-entry walk that replaces xmake's recursive `os.cp` (and `cp -r`).
+-- Enumerates the source tree via `find` (the xim libxpkg lua sandbox
+-- doesn't expose xmake's os.files / os.filedirs / os.islink), then
+-- issues a single absolute-path syscall per entry (mkdir / cp single
+-- file / ln symlink) — which proot's path translator handles correctly.
+-- The previous recursive copy tripped a proot bug where dir-fd-relative
+-- openat() issued mid-recursion was mistranslated when the destination
+-- subtree already existed in the subos sysroot.
+--
+-- Symlinks are preserved (readlink + ln -s), matching `symlink = true`
+-- on the prior os.cp call.
+function __cp_tree_proot_safe(src_dir, dst_dir)
+    if not os.isdir(src_dir) then return end
+    os.mkdir(dst_dir)
+    local f = io.popen(string.format(
+        [[find "%s" -mindepth 1 \( -type d -o -type l -o -type f \) -printf '%%y\t%%P\n' 2>/dev/null]],
+        src_dir
+    ))
+    if not f then return end
+    local entries = {}
+    for line in f:lines() do
+        local kind, rel = line:match("^(%a)\t(.+)$")
+        if kind and rel then table.insert(entries, {kind=kind, rel=rel}) end
+    end
+    f:close()
+    for _, e in ipairs(entries) do
+        local src = path.join(src_dir, e.rel)
+        local dst = path.join(dst_dir, e.rel)
+        if e.kind == "d" then
+            os.mkdir(dst)
+        elseif e.kind == "l" then
+            os.mkdir(path.directory(dst))
+            os.tryrm(dst)
+            local t = io.popen(string.format([[readlink "%s" 2>/dev/null]], src))
+            local target = ""
+            if t then target = (t:read("*l") or ""); t:close() end
+            target = target:gsub("[\r\n]+$", "")
+            if target ~= "" then
+                os.execute(string.format([[ln -s "%s" "%s"]], target, dst))
+            end
+        else
+            os.mkdir(path.directory(dst))
+            os.cp(src, dst)
+        end
+    end
 end
 
 function uninstall()

@@ -106,39 +106,37 @@ function uninstall()
 end
 
 -- Per-entry walk that replaces xmake's recursive `os.cp` on a directory.
--- Uses libxpkg's runtime APIs (os.dirs / os.files / os.mkdir / os.cp /
--- os.ln) to issue single absolute-path syscalls per entry — proot's
--- path translator handles those correctly, unlike recursive copies
--- which trip on dir-fd-relative openat into an existing destination
--- subtree.
---
--- Symlinks are preserved: the runtime doesn't expose
--- os.islink/os.readlink, so they're discovered via one
--- `find -type l` (read-only on source, proot-safe) and recreated via
--- os.ln. Header trees normally contain zero symlinks; this branch is
--- a no-op for them.
+-- See pkgs/g/glibc.lua for the full rationale. Short form:
+--   - Dirs:     os.dirs("**") + os.mkdir         (runtime API)
+--   - Files:    `find -type f` + os.cp file→file (runtime API for copy)
+--   - Symlinks: `find -type l` + `ln -s`         (shell for both, runtime
+--                                                 doesn't expose os.ln
+--                                                 in package sandbox)
+-- Each op is a single absolute-path syscall → proot-safe.
 function __cp_tree_proot_safe(src_dir, dst_dir)
     if not os.isdir(src_dir) then return end
     os.mkdir(dst_dir)
     for _, d in ipairs(os.dirs(path.join(src_dir, "**"))) do
         os.mkdir(path.join(dst_dir, path.relative(d, src_dir)))
     end
-    for _, fpath in ipairs(os.files(path.join(src_dir, "**"))) do
-        local dst = path.join(dst_dir, path.relative(fpath, src_dir))
-        os.mkdir(path.directory(dst))
-        os.cp(fpath, dst)
-    end
     local f = io.popen(string.format(
-        [[find "%s" -type l -printf '%%P\t%%l\n' 2>/dev/null]], src_dir
+        [[find "%s" \( -type f -o -type l \) -printf '%%y\t%%P\t%%l\n' 2>/dev/null]],
+        src_dir
     ))
     if not f then return end
     for line in f:lines() do
-        local rel, target = line:match("^(.-)\t(.+)$")
-        if rel and target then
+        local kind, rel, link_target = line:match("^(%a)\t([^\t]*)\t(.*)$")
+        if kind and rel and rel ~= "" then
             local dst = path.join(dst_dir, rel)
             os.mkdir(path.directory(dst))
-            os.tryrm(dst)
-            os.ln(target, dst, { force = true })
+            if kind == "l" then
+                os.tryrm(dst)
+                if link_target ~= "" then
+                    os.execute(string.format([[ln -s "%s" "%s"]], link_target, dst))
+                end
+            else
+                os.cp(path.join(src_dir, rel), dst)
+            end
         end
     end
     f:close()

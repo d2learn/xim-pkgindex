@@ -178,41 +178,52 @@ function __config_header()
 end
 
 -- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/`.
--- Uses libxpkg's runtime APIs (os.dirs / os.files / os.mkdir / os.cp /
--- os.ln) to enumerate the source tree and issue single absolute-path
--- syscalls per entry — which proot's path translator handles correctly.
+--
+-- The package config() sandbox exposes a smaller subset of the
+-- xmake/libxpkg runtime than core scripts: `os.dirs(... "**" ...)`,
+-- `os.mkdir`, `os.cp(file, file)`, `os.tryrm`, `os.isdir`, `os.isfile`,
+-- `os.execute` all work; but `os.files`, `os.filedirs`, `os.islink`,
+-- `os.readlink`, `os.ln` are NOT exposed (verified empirically: CI
+-- raised `attempt to call a nil value (field 'files')` etc.).
+--
+-- Strategy:
+--   1. Materialize the dir skeleton via `os.dirs("**")` (runtime API).
+--   2. Enumerate files + symlinks via one shell `find` pass — read-only
+--      on source, no recursion-into-existing-dest, hence proot-safe.
+--   3. Per file: `os.cp` single file (runtime API, single absolute-path
+--      openat → translates correctly under proot).
+--   4. Per symlink: `ln -s` via os.execute (shell, single symlinkat
+--      → also proot-safe).
+--
 -- The previous `cp -r` tripped a proot bug where dir-fd-relative
 -- `openat(parent_fd, "<child>", ...)` issued by coreutils mid-recursion
--- was mistranslated, failing the copy when the destination subtree
--- already existed in the subos sysroot.
---
--- Symlinks are preserved: the runtime doesn't expose
--- os.islink/os.readlink, so symlinks are discovered via a single
--- `find -type l` (read-only on source, no recursion-into-existing-dest
--- pattern, hence proot-safe) and recreated via os.ln. Header trees
--- normally contain zero symlinks; this branch is a no-op for them.
+-- was mistranslated when the destination subtree already existed in
+-- the subos sysroot. Each op in this helper is a single absolute-path
+-- syscall — proot's translator handles them correctly.
 function __cp_tree_proot_safe(src_dir, dst_dir)
     if not os.isdir(src_dir) then return end
     os.mkdir(dst_dir)
     for _, d in ipairs(os.dirs(path.join(src_dir, "**"))) do
         os.mkdir(path.join(dst_dir, path.relative(d, src_dir)))
     end
-    for _, fpath in ipairs(os.files(path.join(src_dir, "**"))) do
-        local dst = path.join(dst_dir, path.relative(fpath, src_dir))
-        os.mkdir(path.directory(dst))
-        os.cp(fpath, dst)
-    end
     local f = io.popen(string.format(
-        [[find "%s" -type l -printf '%%P\t%%l\n' 2>/dev/null]], src_dir
+        [[find "%s" \( -type f -o -type l \) -printf '%%y\t%%P\t%%l\n' 2>/dev/null]],
+        src_dir
     ))
     if not f then return end
     for line in f:lines() do
-        local rel, target = line:match("^(.-)\t(.+)$")
-        if rel and target then
+        local kind, rel, link_target = line:match("^(%a)\t([^\t]*)\t(.*)$")
+        if kind and rel and rel ~= "" then
             local dst = path.join(dst_dir, rel)
             os.mkdir(path.directory(dst))
-            os.tryrm(dst)
-            os.ln(target, dst, { force = true })
+            if kind == "l" then
+                os.tryrm(dst)
+                if link_target ~= "" then
+                    os.execute(string.format([[ln -s "%s" "%s"]], link_target, dst))
+                end
+            else
+                os.cp(path.join(src_dir, rel), dst)
+            end
         end
     end
     f:close()

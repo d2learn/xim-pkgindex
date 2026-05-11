@@ -13,36 +13,89 @@ import("xim.libxpkg.fs")
 
 local sysroot = {}
 
--- Symlink each top-level entry in SRC_DIR into DST_DIR.
+-- Install headers from SRC_DIR into DST_DIR with lazy directory promotion.
 --
--- Only the immediate children of SRC_DIR are processed — directories
--- are linked as a whole (not recursively descended). This keeps the
--- number of proot-visible syscalls minimal (e.g. glibc: ~130 ops
--- instead of ~477; linux-headers: 11 instead of 937) and avoids a
--- proot heap-corruption bug triggered when hundreds of
--- fs.symlink+fs.remove+fs.mkdir_p calls poison proot's talloc pool
--- before a subsequent heavy operation (npm install 559 packages)
--- in the same proot session.
+-- Default behavior: symlink each top-level entry as a whole (one symlink
+-- per dir or file). This keeps proot syscall count minimal (~143 total
+-- across all 4 header packages vs ~1813 with per-file recursion) and
+-- avoids proot's talloc heap-corruption on large syscall runs.
 --
--- Behavior:
---   * Top-level directories in SRC → symlink to the source dir itself
---     (not a copy, not recursive descent). e.g. SRC/bits → DST/bits → SRC/bits
---   * Top-level regular files in SRC → symlink to the source file.
---   * Existing symlinks in SRC are re-linked with their original target.
---   * Existing entries at DST are removed first (force-overwrite).
---   * Missing SRC is a silent no-op.
+-- Multi-package merge (the "scsi/ problem"):
+-- When two packages both ship a directory with the same name (e.g.
+-- glibc has `scsi/{scsi.h, sg.h, ...}` and linux-headers has
+-- `scsi/{scsi_bsg_fc.h, ...}`), the second package's install would
+-- normally overwrite the first's symlink, losing the first's files.
+--
+-- Solution — "lazy promotion":
+--   1. First package: DST/scsi doesn't exist → symlink to pkg-A/scsi  (1 op)
+--   2. Second package: DST/scsi IS a symlink to a dir → PROMOTE:
+--      - Read old target (pkg-A/scsi)
+--      - Replace symlink with a real directory
+--      - Symlink each entry from old target into the new real dir
+--      - Symlink each entry from pkg-B/scsi into the new real dir
+--   3. Third+ package: DST/scsi IS a real dir → just add our entries
+--
+-- This handles N packages with arbitrary overlapping directory names,
+-- zero special-casing per directory. Non-conflicting entries stay as
+-- whole-dir symlinks (zero overhead); only actual conflicts trigger
+-- the promote-and-merge path.
 function sysroot.install_headers(src_dir, dst_dir)
     if not os.isdir(src_dir) then return end
     fs.mkdir_p(dst_dir)
     for _, e in ipairs(fs.entries(src_dir) or {}) do
         local dst = path.join(dst_dir, e.name)
-        fs.remove(dst)
-        if e.type == "symlink" then
-            local target = fs.readlink(e.path)
-            if target then fs.symlink(target, dst) end
+
+        if e.type == "directory" then
+            if fs.is_symlink(dst) then
+                -- PROMOTE: dst is a symlink to another package's dir.
+                -- Replace with a real dir and merge both packages' entries.
+                local old_target = fs.readlink(dst)
+                fs.remove(dst)
+                fs.mkdir_p(dst)
+                -- Re-link old package's entries
+                if old_target then
+                    for _, oe in ipairs(fs.entries(old_target) or {}) do
+                        local odst = path.join(dst, oe.name)
+                        if not fs.is_symlink(odst) and not fs.is_file(odst) then
+                            if oe.type == "symlink" then
+                                local t = fs.readlink(oe.path)
+                                if t then fs.symlink(t, odst) end
+                            else
+                                fs.symlink(oe.path, odst)
+                            end
+                        end
+                    end
+                end
+                -- Link our entries
+                for _, ne in ipairs(fs.entries(e.path) or {}) do
+                    local ndst = path.join(dst, ne.name)
+                    if not fs.is_symlink(ndst) and not fs.is_file(ndst) then
+                        if ne.type == "symlink" then
+                            local t = fs.readlink(ne.path)
+                            if t then fs.symlink(t, ndst) end
+                        else
+                            fs.symlink(ne.path, ndst)
+                        end
+                    end
+                end
+            elseif fs.is_directory(dst) then
+                -- dst is already a real dir (promoted by a prior merge).
+                -- Recursively add our entries.
+                sysroot.install_headers(e.path, dst)
+            else
+                -- dst exists but is a file — overwrite with our dir symlink
+                fs.remove(dst)
+                fs.symlink(e.path, dst)
+            end
         else
-            -- Both files and directories: symlink the entire entry
-            fs.symlink(e.path, dst)
+            -- File or symlink entry — simple overwrite
+            fs.remove(dst)
+            if e.type == "symlink" then
+                local target = fs.readlink(e.path)
+                if target then fs.symlink(target, dst) end
+            else
+                fs.symlink(e.path, dst)
+            end
         end
     end
 end

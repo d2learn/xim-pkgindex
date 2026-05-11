@@ -58,8 +58,11 @@ function install()
     -- (npm unpacking 559 packages) in a fresh proot sandbox triggers
     -- `double free or corruption` in proot's talloc pool. A single
     -- PATH-traversing command (`node --version`) initializes proot's
-    -- path cache and prevents the crash. This is a no-op outside proot.
-    os.execute("node --version > /dev/null 2>&1")
+    -- path cache and prevents the crash. Only needed on Linux (proot
+    -- is Linux-only); harmless no-op on native (non-proot) Linux.
+    if os.host() == "linux" then
+        os.execute("node --version > /dev/null 2>&1")
+    end
 
     local npm_install = string.format(
         [[npm install --prefix "%s" --no-fund --no-audit --ignore-scripts "openclaw@%s"]],

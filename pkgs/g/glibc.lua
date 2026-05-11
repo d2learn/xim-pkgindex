@@ -52,6 +52,7 @@ import("xim.libxpkg.log")
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
+import("xim.pkgindex.sysroot")
 
 -- libnss modules
 local glibc_libs = {
@@ -172,61 +173,9 @@ function __config_header()
         return
     end
 
-    log.info("Copying glibc header files to subos rootfs ...")
-    __cp_tree_proot_safe(include_dir, path.join(sysroot_usrdir, "include"))
+    log.info("Linking glibc headers into subos sysroot ...")
+    sysroot.install_headers(include_dir, path.join(sysroot_usrdir, "include"))
     io.writefile(stamp, pkginfo.version())
-end
-
--- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/`.
---
--- The package config() sandbox exposes a smaller subset of the
--- xmake/libxpkg runtime than core scripts: `os.dirs(... "**" ...)`,
--- `os.mkdir`, `os.cp(file, file)`, `os.tryrm`, `os.isdir`, `os.isfile`,
--- `os.execute` all work; but `os.files`, `os.filedirs`, `os.islink`,
--- `os.readlink`, `os.ln` are NOT exposed (verified empirically: CI
--- raised `attempt to call a nil value (field 'files')` etc.).
---
--- Strategy:
---   1. Materialize the dir skeleton via `os.dirs("**")` (runtime API).
---   2. Enumerate files + symlinks via one shell `find` pass — read-only
---      on source, no recursion-into-existing-dest, hence proot-safe.
---   3. Per file: `os.cp` single file (runtime API, single absolute-path
---      openat → translates correctly under proot).
---   4. Per symlink: `ln -s` via os.execute (shell, single symlinkat
---      → also proot-safe).
---
--- The previous `cp -r` tripped a proot bug where dir-fd-relative
--- `openat(parent_fd, "<child>", ...)` issued by coreutils mid-recursion
--- was mistranslated when the destination subtree already existed in
--- the subos sysroot. Each op in this helper is a single absolute-path
--- syscall — proot's translator handles them correctly.
-function __cp_tree_proot_safe(src_dir, dst_dir)
-    if not os.isdir(src_dir) then return end
-    os.mkdir(dst_dir)
-    for _, d in ipairs(os.dirs(path.join(src_dir, "**"))) do
-        os.mkdir(path.join(dst_dir, path.relative(d, src_dir)))
-    end
-    local f = io.popen(string.format(
-        [[find "%s" \( -type f -o -type l \) -printf '%%y\t%%P\t%%l\n' 2>/dev/null]],
-        src_dir
-    ))
-    if not f then return end
-    for line in f:lines() do
-        local kind, rel, link_target = line:match("^(%a)\t([^\t]*)\t(.*)$")
-        if kind and rel and rel ~= "" then
-            local dst = path.join(dst_dir, rel)
-            os.mkdir(path.directory(dst))
-            if kind == "l" then
-                os.tryrm(dst)
-                if link_target ~= "" then
-                    os.execute(string.format([[ln -s "%s" "%s"]], link_target, dst))
-                end
-            else
-                os.cp(path.join(src_dir, rel), dst)
-            end
-        end
-    end
-    f:close()
 end
 
 function __relocate()

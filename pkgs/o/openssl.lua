@@ -32,6 +32,7 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
+import("xim.pkgindex.sysroot")
 -- elfpatch import removed: predicate-driven auto-patch (post 2026-05-02
 -- design) reads glibc.lua's exports.runtime.loader and rewrites our
 -- INTERP / RPATH automatically. No install-hook elfpatch call needed.
@@ -103,20 +104,9 @@ function config()
         xvm.add(lib, config)
     end
 
-    log.debug("Installing headers to sysroot...")
+    log.debug("Linking headers into subos sysroot ...")
     if os.isdir(includedir) then
-        local sys_includedir = get_sys_usr_includedir()
-        local subdirs = os.dirs(path.join(includedir, "*"))
-        for _, subdir in ipairs(subdirs) do
-            local name = path.filename(subdir)
-            local dst = path.join(sys_includedir, name)
-            os.tryrm(dst)
-            __cp_tree_proot_safe(subdir, dst)
-        end
-
-        for _, file in ipairs(list_files(path.join(includedir, "*.h"))) do
-            os.execute('cp "' .. file .. '" "' .. sys_includedir .. '/"')
-        end
+        sysroot.install_headers(includedir, get_sys_usr_includedir())
     end
 
     xvm.add(package.name, { binding = binding_tree_version_tag })
@@ -149,41 +139,4 @@ function uninstall()
 
     xvm.remove(xpkg_binding_tree)
     return true
-end
-
--- Per-entry walk that replaces `cp -r SRC_DIR DST_PARENT/`.
--- See pkgs/g/glibc.lua for the full rationale. Short form:
---   - Dirs:     os.dirs("**") + os.mkdir         (runtime API)
---   - Files:    `find -type f` + os.cp file→file (runtime API for copy)
---   - Symlinks: `find -type l` + `ln -s`         (shell for both, runtime
---                                                 doesn't expose os.ln
---                                                 in package sandbox)
--- Each op is a single absolute-path syscall → proot-safe.
-function __cp_tree_proot_safe(src_dir, dst_dir)
-    if not os.isdir(src_dir) then return end
-    os.mkdir(dst_dir)
-    for _, d in ipairs(os.dirs(path.join(src_dir, "**"))) do
-        os.mkdir(path.join(dst_dir, path.relative(d, src_dir)))
-    end
-    local f = io.popen(string.format(
-        [[find "%s" \( -type f -o -type l \) -printf '%%y\t%%P\t%%l\n' 2>/dev/null]],
-        src_dir
-    ))
-    if not f then return end
-    for line in f:lines() do
-        local kind, rel, link_target = line:match("^(%a)\t([^\t]*)\t(.*)$")
-        if kind and rel and rel ~= "" then
-            local dst = path.join(dst_dir, rel)
-            os.mkdir(path.directory(dst))
-            if kind == "l" then
-                os.tryrm(dst)
-                if link_target ~= "" then
-                    os.execute(string.format([[ln -s "%s" "%s"]], link_target, dst))
-                end
-            else
-                os.cp(path.join(src_dir, rel), dst)
-            end
-        end
-    end
-    f:close()
 end

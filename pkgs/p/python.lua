@@ -43,6 +43,7 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.system")
 import("xim.libxpkg.xvm")
 import("xim.libxpkg.log")
+import("xim.pkgindex.sysroot")
 
 function install()
     if os.host() == "windows" then
@@ -76,8 +77,8 @@ function config()
         if sysrootdir and os.isdir(includedir) then
             local sysroot_usrdir = path.join(sysrootdir, "usr")
             if not os.isdir(sysroot_usrdir) then os.mkdir(sysroot_usrdir) end
-            log.info("Installing Python dev headers into subos sysroot...")
-            __cp_tree_proot_safe(includedir, path.join(sysroot_usrdir, "include"))
+            log.info("Linking Python dev headers into subos sysroot ...")
+            sysroot.install_headers(includedir, path.join(sysroot_usrdir, "include"))
         end
     end
     return true
@@ -103,41 +104,4 @@ function uninstall()
     end
 
     return true
-end
-
--- Per-entry walk that replaces xmake's recursive `os.cp` on a directory.
--- See pkgs/g/glibc.lua for the full rationale. Short form:
---   - Dirs:     os.dirs("**") + os.mkdir         (runtime API)
---   - Files:    `find -type f` + os.cp file→file (runtime API for copy)
---   - Symlinks: `find -type l` + `ln -s`         (shell for both, runtime
---                                                 doesn't expose os.ln
---                                                 in package sandbox)
--- Each op is a single absolute-path syscall → proot-safe.
-function __cp_tree_proot_safe(src_dir, dst_dir)
-    if not os.isdir(src_dir) then return end
-    os.mkdir(dst_dir)
-    for _, d in ipairs(os.dirs(path.join(src_dir, "**"))) do
-        os.mkdir(path.join(dst_dir, path.relative(d, src_dir)))
-    end
-    local f = io.popen(string.format(
-        [[find "%s" \( -type f -o -type l \) -printf '%%y\t%%P\t%%l\n' 2>/dev/null]],
-        src_dir
-    ))
-    if not f then return end
-    for line in f:lines() do
-        local kind, rel, link_target = line:match("^(%a)\t([^\t]*)\t(.*)$")
-        if kind and rel and rel ~= "" then
-            local dst = path.join(dst_dir, rel)
-            os.mkdir(path.directory(dst))
-            if kind == "l" then
-                os.tryrm(dst)
-                if link_target ~= "" then
-                    os.execute(string.format([[ln -s "%s" "%s"]], link_target, dst))
-                end
-            else
-                os.cp(path.join(src_dir, rel), dst)
-            end
-        end
-    end
-    f:close()
 end

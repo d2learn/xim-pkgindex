@@ -25,7 +25,14 @@ package = {
             ["2026.2.26"] = {},
         },
         macosx = {
-            deps = {"node", "npm"},
+            -- brew is pulled in on macOS because several OpenClaw skills
+            -- (channel daemons, the ffmpeg-backed mlx-tts vendor binary,
+            -- the local podman/docker container runtime that
+            -- `openclaw --container` drives) expect Homebrew-managed
+            -- system libs to be reachable. Linux/Windows users typically
+            -- install those via the distro/winget; macOS is the platform
+            -- where brew is the de-facto answer.
+            deps = {"node", "npm", "brew"},
             ["latest"] = { ref = "2026.5.7" },
             ["2026.5.7"] = {},
             ["2026.2.26"] = {},

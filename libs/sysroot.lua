@@ -13,23 +13,22 @@ import("xim.libxpkg.fs")
 
 local sysroot = {}
 
--- Recursively materialize SRC_DIR into DST_DIR as a tree of symlinks.
+-- Symlink each top-level entry in SRC_DIR into DST_DIR.
 --
--- Why symlink instead of copy:
---   * Avoids the proot sandbox `Permission denied` triggered by `cp -r`
---     (recursive openat into an existing destination subtree).
---   * Each operation here (fs.mkdir_p / fs.symlink / fs.readlink /
---     fs.remove) is a single absolute-path syscall — translates
---     correctly under proot.
---   * No file duplication, sysroot view stays in sync with the package
---     install dir, and uninstalling the package correctly leaves
---     dangling links (headers should not be available without their
---     library).
+-- Only the immediate children of SRC_DIR are processed — directories
+-- are linked as a whole (not recursively descended). This keeps the
+-- number of proot-visible syscalls minimal (e.g. glibc: ~130 ops
+-- instead of ~477; linux-headers: 11 instead of 937) and avoids a
+-- proot heap-corruption bug triggered when hundreds of
+-- fs.symlink+fs.remove+fs.mkdir_p calls poison proot's talloc pool
+-- before a subsequent heavy operation (npm install 559 packages)
+-- in the same proot session.
 --
 -- Behavior:
---   * Regular files in SRC become symlinks in DST pointing at SRC/<rel>.
---   * Existing symlinks are preserved by reading their original target
---     and recreating the link with the same target in DST.
+--   * Top-level directories in SRC → symlink to the source dir itself
+--     (not a copy, not recursive descent). e.g. SRC/bits → DST/bits → SRC/bits
+--   * Top-level regular files in SRC → symlink to the source file.
+--   * Existing symlinks in SRC are re-linked with their original target.
 --   * Existing entries at DST are removed first (force-overwrite).
 --   * Missing SRC is a silent no-op.
 function sysroot.install_headers(src_dir, dst_dir)
@@ -37,14 +36,12 @@ function sysroot.install_headers(src_dir, dst_dir)
     fs.mkdir_p(dst_dir)
     for _, e in ipairs(fs.entries(src_dir) or {}) do
         local dst = path.join(dst_dir, e.name)
-        if e.type == "directory" then
-            sysroot.install_headers(e.path, dst)
-        elseif e.type == "symlink" then
-            fs.remove(dst)
+        fs.remove(dst)
+        if e.type == "symlink" then
             local target = fs.readlink(e.path)
             if target then fs.symlink(target, dst) end
         else
-            fs.remove(dst)
+            -- Both files and directories: symlink the entire entry
             fs.symlink(e.path, dst)
         end
     end

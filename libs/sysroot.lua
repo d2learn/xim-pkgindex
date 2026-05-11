@@ -13,83 +13,40 @@ import("xim.libxpkg.fs")
 
 local sysroot = {}
 
--- Install headers from SRC_DIR into DST_DIR with lazy directory promotion.
+-- Install headers from SRC_DIR into DST_DIR — strictly non-recursive.
 --
--- Default behavior: symlink each top-level entry as a whole (one symlink
--- per dir or file). This keeps proot syscall count minimal (~143 total
--- across all 4 header packages vs ~1813 with per-file recursion) and
--- avoids proot's talloc heap-corruption on large syscall runs.
+-- Only the immediate children of SRC_DIR are processed. Each entry
+-- that doesn't already exist in DST_DIR gets a single symlink; entries
+-- that already exist (from the host bind-mount or from another package)
+-- are skipped entirely.
 --
--- Multi-package merge (the "scsi/ problem"):
--- When two packages both ship a directory with the same name (e.g.
--- glibc has `scsi/{scsi.h, sg.h, ...}` and linux-headers has
--- `scsi/{scsi_bsg_fc.h, ...}`), the second package's install would
--- normally overwrite the first's symlink, losing the first's files.
---
--- Solution — "lazy promotion":
---   1. First package: DST/scsi doesn't exist → symlink to pkg-A/scsi  (1 op)
---   2. Second package: DST/scsi IS a symlink to a dir → PROMOTE:
---      - Read old target (pkg-A/scsi)
---      - Replace symlink with a real directory
---      - Symlink each entry from old target into the new real dir
---      - Symlink each entry from pkg-B/scsi into the new real dir
---   3. Third+ package: DST/scsi IS a real dir → just add our entries
---
--- This handles N packages with arbitrary overlapping directory names,
--- zero special-casing per directory. Non-conflicting entries stay as
--- whole-dir symlinks (zero overhead); only actual conflicts trigger
--- the promote-and-merge path.
+-- This "skip-if-exists" policy is correct for sysroot headers because:
+--   * If the host already has `/usr/include/sys/` (233 real dirs on a
+--     typical Ubuntu bind-mount), those headers are already usable by
+--     the subos GCC — we don't need to replace or merge them.
+--   * If a prior xlings package already symlinked `scsi/` → pkg-A's
+--     dir, and now pkg-B also has `scsi/`, pkg-B's entries are a
+--     superset concern of the caller (who should ship a merged dir
+--     or use a different name), not this helper's.
+--   * Crucially, this keeps the proot syscall count at ≤ N where N is
+--     the number of top-level entries in SRC_DIR (~130 for glibc),
+--     regardless of how large the destination tree is. The previous
+--     "recurse into existing real dirs" path blew up to 500+ ops when
+--     glibc's 20 subdirs overlapped with Ubuntu's host `/usr/include`
+--     (e.g. sys/ alone has 87 host entries), poisoning proot's talloc
+--     pool and crashing npm install in the same session.
 function sysroot.install_headers(src_dir, dst_dir)
     if not os.isdir(src_dir) then return end
     fs.mkdir_p(dst_dir)
     for _, e in ipairs(fs.entries(src_dir) or {}) do
         local dst = path.join(dst_dir, e.name)
 
-        if e.type == "directory" then
-            if fs.is_symlink(dst) then
-                -- PROMOTE: dst is a symlink to another package's dir.
-                -- Replace with a real dir and merge both packages' entries.
-                local old_target = fs.readlink(dst)
-                fs.remove(dst)
-                fs.mkdir_p(dst)
-                -- Re-link old package's entries
-                if old_target then
-                    for _, oe in ipairs(fs.entries(old_target) or {}) do
-                        local odst = path.join(dst, oe.name)
-                        if not fs.is_symlink(odst) and not fs.is_file(odst) then
-                            if oe.type == "symlink" then
-                                local t = fs.readlink(oe.path)
-                                if t then fs.symlink(t, odst) end
-                            else
-                                fs.symlink(oe.path, odst)
-                            end
-                        end
-                    end
-                end
-                -- Link our entries
-                for _, ne in ipairs(fs.entries(e.path) or {}) do
-                    local ndst = path.join(dst, ne.name)
-                    if not fs.is_symlink(ndst) and not fs.is_file(ndst) then
-                        if ne.type == "symlink" then
-                            local t = fs.readlink(ne.path)
-                            if t then fs.symlink(t, ndst) end
-                        else
-                            fs.symlink(ne.path, ndst)
-                        end
-                    end
-                end
-            elseif fs.is_directory(dst) then
-                -- dst is already a real dir (promoted by a prior merge).
-                -- Recursively add our entries.
-                sysroot.install_headers(e.path, dst)
-            else
-                -- dst exists but is a file — overwrite with our dir symlink
-                fs.remove(dst)
-                fs.symlink(e.path, dst)
-            end
+        -- Skip if anything already exists at dst — host bind-mount,
+        -- prior package symlink, or promoted dir. Don't touch it.
+        if fs.is_symlink(dst) or fs.is_file(dst) or fs.is_directory(dst) then
+            -- already present, skip
         else
-            -- File or symlink entry — simple overwrite
-            fs.remove(dst)
+            -- Entry doesn't exist yet → symlink it
             if e.type == "symlink" then
                 local target = fs.readlink(e.path)
                 if target then fs.symlink(target, dst) end

@@ -10,7 +10,7 @@ package = {
     docs = "https://llvm.org/docs/",
 
     type = "package",
-    archs = {"arm64"},
+    archs = {"x86_64", "arm64"},
     status = "stable",
     categories = {"compiler", "toolchain", "llvm"},
     keywords = {"llvm", "clang", "lld", "compiler", "linker"},
@@ -18,6 +18,20 @@ package = {
     xvm_enable = true,
 
     xpm = {
+        linux = {
+            deps = {
+                "xim:glibc@2.39",
+                "xim:linux-headers@5.11.1",
+            },
+            ["latest"] = { ref = "20.1.7" },
+            ["20.1.7"] = {
+                url = {
+                    GLOBAL = "https://github.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-linux-x86_64.tar.xz",
+                    CN = "https://gitcode.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-linux-x86_64.tar.xz",
+                },
+                sha256 = "ac9e4665368a52e03209a206a276a887a2019e64b9870cb93e59c5638d235130",
+            },
+        },
         macosx = {
             ["latest"] = { ref = "20.1.7" },
             ["20.1.7"] = {
@@ -30,6 +44,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.system")
 import("xim.libxpkg.log")
 
 local alias_apps = {
@@ -54,7 +69,6 @@ end
 
 local function collect_bin_apps(bindir)
     local apps = {}
-    local pattern = path.join(bindir, "*")
     local f = io.popen('ls -1 "' .. bindir .. '" 2>/dev/null')
     if f then
         for name in f:lines() do
@@ -80,37 +94,80 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mv(llvmdir, pkginfo.install_dir())
 
-    -- Make packaged clang/clang++ usable out-of-box on macOS.
-    local libdir = path.join(pkginfo.install_dir(), "lib")
+    if os.host() == "linux" then
+        __install_linux_cfg()
+    elseif os.host() == "macosx" then
+        __install_macosx_cfg()
+    end
+
+    return true
+end
+
+function __install_linux_cfg()
+    local install_dir = pkginfo.install_dir()
+    local bindir = path.join(install_dir, "bin")
+    local cxxinc = path.join(install_dir, "include", "c++", "v1")
+    local cxxinc_triple = path.join(install_dir, "include", "x86_64-unknown-linux-gnu", "c++", "v1")
+    local libcxx_dir = path.join(install_dir, "lib", "x86_64-unknown-linux-gnu")
+
+    local sysroot_dir = system.subos_sysrootdir()
+
+    -- Common flags: use bundled lld, compiler-rt, libunwind (no GCC dependency)
+    local common_flags = "-fuse-ld=lld\n"
+        .. "--rtlib=compiler-rt\n"
+        .. "--unwindlib=libunwind\n"
+
+    -- clang.cfg: C compiler config
+    local clang_cfg = common_flags
+    -- clang++.cfg: C++ compiler config (use bundled libc++)
+    local clangxx_cfg = common_flags
+        .. "-nostdinc++\n"
+        .. "-stdlib=libc++\n"
+        .. "-isystem " .. cxxinc .. "\n"
+        .. "-isystem " .. cxxinc_triple .. "\n"
+        .. "-L" .. libcxx_dir .. "\n"
+        .. "-Wl,-rpath," .. libcxx_dir .. "\n"
+
+    if sysroot_dir and sysroot_dir ~= "" then
+        local sysroot_lib = path.join(sysroot_dir, "lib")
+        local dynamic_linker = path.join(sysroot_lib, "ld-linux-x86-64.so.2")
+        local sysroot_flags = "--sysroot=" .. sysroot_dir .. "\n"
+            .. "-Wl,--dynamic-linker=" .. dynamic_linker .. "\n"
+            .. "-Wl,--enable-new-dtags,-rpath," .. sysroot_lib .. "\n"
+            .. "-Wl,-rpath-link," .. sysroot_lib .. "\n"
+        clang_cfg = sysroot_flags .. clang_cfg
+        clangxx_cfg = sysroot_flags .. clangxx_cfg
+    else
+        log.warn("subos sysroot not detected; clang will use system sysroot")
+    end
+
+    io.writefile(path.join(bindir, "clang.cfg"), clang_cfg)
+    io.writefile(path.join(bindir, "clang-20.cfg"), clang_cfg)
+    io.writefile(path.join(bindir, "clang++.cfg"), clangxx_cfg)
+end
+
+function __install_macosx_cfg()
     local cxxinc = path.join(pkginfo.install_dir(), "include", "c++", "v1")
     local sdkroot = nil
 
-    if os.host() == "macosx" then
-        local env_sdkroot = os.getenv("SDKROOT")
-        if env_sdkroot and env_sdkroot ~= "" and os.isdir(env_sdkroot) then
-            sdkroot = env_sdkroot
-        else
-            local candidates = {
-                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
-                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
-            }
-            for _, cand in ipairs(candidates) do
-                if os.isdir(cand) then
-                    sdkroot = cand
-                    break
-                end
+    local env_sdkroot = os.getenv("SDKROOT")
+    if env_sdkroot and env_sdkroot ~= "" and os.isdir(env_sdkroot) then
+        sdkroot = env_sdkroot
+    else
+        local candidates = {
+            "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        }
+        for _, cand in ipairs(candidates) do
+            if os.isdir(cand) then
+                sdkroot = cand
+                break
             end
         end
     end
 
     local clang_cfg = ""
     local clangxx_cfg = "-isystem" .. cxxinc .. "\n"
-        -- runtime conflict with system libc++
-        --.. "-L" .. libdir .. "\n"
-        --.. "-Wl,-rpath," .. libdir .. "\n"
-        --.. "-lc++\n"
-        --.. "-lc++abi\n"
-        --.. "-lunwind\n"
 
     if sdkroot and sdkroot ~= "" then
         clang_cfg = "--sysroot=" .. sdkroot .. "\n"
@@ -122,8 +179,6 @@ function install()
     io.writefile(path.join(pkginfo.install_dir(), "bin", "clang.cfg"), clang_cfg)
     io.writefile(path.join(pkginfo.install_dir(), "bin", "clang-20.cfg"), clang_cfg)
     io.writefile(path.join(pkginfo.install_dir(), "bin", "clang++.cfg"), clangxx_cfg)
-
-    return true
 end
 
 function config()
@@ -152,7 +207,36 @@ function config()
         end
     end
 
+    -- Register libc++ shared libraries for xvm
+    if os.host() == "linux" then
+        __config_linux_libs()
+    end
+
     return true
+end
+
+function __config_linux_libs()
+    local libcxx_dir = path.join(pkginfo.install_dir(), "lib", "x86_64-unknown-linux-gnu")
+    local binding = package.name .. "@" .. pkginfo.version()
+
+    local libs = {
+        "libc++.so", "libc++.so.1",
+        "libc++abi.so", "libc++abi.so.1",
+        "libunwind.so", "libunwind.so.1",
+    }
+
+    for _, lib in ipairs(libs) do
+        local libpath = path.join(libcxx_dir, lib)
+        if os.isfile(libpath) then
+            xvm.add(lib, {
+                type = "lib",
+                bindir = libcxx_dir,
+                filename = lib,
+                alias = lib,
+                binding = binding,
+            })
+        end
+    end
 end
 
 function uninstall()
@@ -167,6 +251,17 @@ function uninstall()
 
     for _, app in ipairs(alias_apps) do
         xvm.remove(app.name)
+    end
+
+    if os.host() == "linux" then
+        local libs = {
+            "libc++.so", "libc++.so.1",
+            "libc++abi.so", "libc++abi.so.1",
+            "libunwind.so", "libunwind.so.1",
+        }
+        for _, lib in ipairs(libs) do
+            xvm.remove(lib)
+        end
     end
 
     return true

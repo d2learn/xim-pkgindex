@@ -47,7 +47,7 @@ tests/
 | 层级 | 名称 | 标记 | 需要 xlings | 耗时 | 说明 |
 |------|------|------|-------------|------|------|
 | L0 | 静态分析 | `@mark.static` | 否 | <1s/包 | lua 语法、字段完整性、拼写检查 |
-| L1 | 索引注册 | `@mark.index` | 是 | <2s/包 | `xim --add-xpkg` 能否成功注册 |
+| L1 | 索引注册 | `@mark.index` | 是 | <2s/包 | `xlings install --add-xpkg` 能否成功注册 |
 | L2 | 隔离合规 | `@mark.isolation` | 否 | <1s/包 | subos 架构合规性检查 |
 | L3 | 安装卸载 | `@mark.lifecycle` | 是 | 10-180s/包 | install → config → verify → uninstall |
 | L4 | 功能验证 | `@mark.verify` | 是 | 5-30s/包 | 安装后程序可用性验证 |
@@ -313,7 +313,7 @@ class TestVerify:
 
 - [ ] L0: 必填字段、spec 版本、拼写检查
 - [ ] L2: xvm 调用方式、shell 配置、PATH 修改、API 版本
-- [ ] L1: xim --add-xpkg 注册 (需 xlings)
+- [ ] L1: xlings install --add-xpkg 注册 (需 xlings)
 - [ ] L3: install + uninstall (如果当前平台支持)
 - [ ] L4: 至少一个功能验证命令 (如 `--version`)
 

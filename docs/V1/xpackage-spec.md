@@ -326,8 +326,8 @@ end
 
 | 方法 | 说明 |
 |------|------|
-| `pkgmanager.install(target)` | 通过 xim CLI 安装子依赖 |
-| `pkgmanager.remove(target)` | 通过 xim CLI 卸载子依赖 |
+| `pkgmanager.install(target)` | 安装子依赖 |
+| `pkgmanager.remove(target)` | 卸载子依赖 |
 
 **elfpatch** (`xim.libxpkg.elfpatch`)
 

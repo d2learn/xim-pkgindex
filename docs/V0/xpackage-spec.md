@@ -1,4 +1,6 @@
-# XPackage Spec & Example
+> **⚠️ 本文档已废弃。** 请使用 [V1 规范](../V1/xpackage-spec.md)。V0 使用的 `import("xim.base.runtime")` 和 `os.exec("xvm add ...")` 已被替换为 `import("xim.libxpkg.pkginfo")` 和 `xvm.add()` API。
+
+# [已废弃] XPackage Spec & Example
 
 ## XPackage Spec
 

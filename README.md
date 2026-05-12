@@ -11,10 +11,14 @@ software, library, environment install/config ...
 
 ---
 
-## 更新包索引
+## 常用命令
 
 ```bash
-xim --update index
+xlings install gcc          # 安装包
+xlings search gcc           # 搜索包
+xlings remove gcc           # 卸载包
+xlings list                 # 列出已安装的包
+xlings update               # 更新包索引
 ```
 
 ## 包索引仓库

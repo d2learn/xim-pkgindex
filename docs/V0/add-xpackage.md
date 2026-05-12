@@ -1,4 +1,6 @@
-# 如何添加一个XPackage到包索引仓库(xim-pkgindex)?
+> **⚠️ 本文档已废弃。** 请使用 [V1 规范](../V1/add-xpackage.md)。V0 使用的 `xim` 命令和 `xim.base.runtime` API 已被移除。
+
+# [已废弃] 如何添加一个XPackage到包索引仓库(xim-pkgindex)?
 
 ## 第一步 - 创建一个[Add XPackage](https://github.com/openxlings/xim-pkgindex/issues/new/choose)
 

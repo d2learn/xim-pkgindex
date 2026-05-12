@@ -10,7 +10,7 @@ package = {
     docs = "https://llvm.org/docs/",
 
     type = "package",
-    archs = {"arm64"},
+    archs = {"x86_64", "arm64"},
     status = "stable",
     categories = {"compiler", "toolchain", "llvm"},
     keywords = {"llvm", "clang", "lld", "compiler", "linker"},
@@ -18,6 +18,16 @@ package = {
     xvm_enable = true,
 
     xpm = {
+        linux = {
+            ["latest"] = { ref = "20.1.7" },
+            ["20.1.7"] = {
+                url = {
+                    GLOBAL = "https://github.com/xlings-res/llvm/releases/download/20.1.7/llvm-core-20.1.7-linux-x86_64.tar.xz",
+                    CN = "https://gitcode.com/xlings-res/llvm/releases/download/20.1.7/llvm-core-20.1.7-linux-x86_64.tar.xz",
+                },
+                sha256 = "6074fa6f37f5dbd3e7b0468d4bf662a94362f8543719ed3b153db933f6d86ad6",
+            },
+        },
         macosx = {
             ["latest"] = { ref = "20.1.7" },
             ["20.1.7"] = {
@@ -80,37 +90,36 @@ function install()
     os.tryrm(pkginfo.install_dir())
     os.mv(llvmdir, pkginfo.install_dir())
 
-    -- Make packaged clang/clang++ usable out-of-box on macOS.
+    if os.host() == "macosx" then
+        __install_macosx_cfg()
+    end
+
+    return true
+end
+
+function __install_macosx_cfg()
     local libdir = path.join(pkginfo.install_dir(), "lib")
     local cxxinc = path.join(pkginfo.install_dir(), "include", "c++", "v1")
     local sdkroot = nil
 
-    if os.host() == "macosx" then
-        local env_sdkroot = os.getenv("SDKROOT")
-        if env_sdkroot and env_sdkroot ~= "" and os.isdir(env_sdkroot) then
-            sdkroot = env_sdkroot
-        else
-            local candidates = {
-                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
-                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
-            }
-            for _, cand in ipairs(candidates) do
-                if os.isdir(cand) then
-                    sdkroot = cand
-                    break
-                end
+    local env_sdkroot = os.getenv("SDKROOT")
+    if env_sdkroot and env_sdkroot ~= "" and os.isdir(env_sdkroot) then
+        sdkroot = env_sdkroot
+    else
+        local candidates = {
+            "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        }
+        for _, cand in ipairs(candidates) do
+            if os.isdir(cand) then
+                sdkroot = cand
+                break
             end
         end
     end
 
     local clang_cfg = ""
     local clangxx_cfg = "-isystem" .. cxxinc .. "\n"
-        -- runtime conflict with system libc++
-        --.. "-L" .. libdir .. "\n"
-        --.. "-Wl,-rpath," .. libdir .. "\n"
-        --.. "-lc++\n"
-        --.. "-lc++abi\n"
-        --.. "-lunwind\n"
 
     if sdkroot and sdkroot ~= "" then
         clang_cfg = "--sysroot=" .. sdkroot .. "\n"
@@ -122,8 +131,6 @@ function install()
     io.writefile(path.join(pkginfo.install_dir(), "bin", "clang.cfg"), clang_cfg)
     io.writefile(path.join(pkginfo.install_dir(), "bin", "clang-20.cfg"), clang_cfg)
     io.writefile(path.join(pkginfo.install_dir(), "bin", "clang++.cfg"), clangxx_cfg)
-
-    return true
 end
 
 function config()

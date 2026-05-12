@@ -1,4 +1,4 @@
-"""测试 llvm 包"""
+"""测试 llvm-tools 包"""
 import pytest
 from tests.lib.xpkg_parser import parse_xpkg
 from tests.lib.assertions import (
@@ -10,8 +10,8 @@ from tests.lib.assertions import (
 )
 from tests.lib.platform_utils import skip_if_not
 
-PKG = "llvm"
-PKG_FILE = "pkgs/l/llvm.lua"
+PKG = "llvm-tools"
+PKG_FILE = "pkgs/l/llvm-tools.lua"
 
 
 @pytest.fixture(scope='module')
@@ -63,55 +63,28 @@ class TestIsolation:
 
 class TestLifecycle:
     @pytest.mark.lifecycle
+    @skip_if_not('linux')
     def test_install(self):
         assert_install_succeeds(PKG)
 
 
 class TestVerify:
     @pytest.mark.verify
-    def test_clang(self):
-        assert_command_output("clang --version")
-
-    @pytest.mark.verify
-    def test_xvm_llvm(self):
-        assert_xvm_registered("llvm")
+    @skip_if_not('linux')
+    def test_clang_format(self):
+        assert_command_output("clang-format --version")
 
     @pytest.mark.verify
     @skip_if_not('linux')
-    def test_clang_compile_c(self):
-        assert_command_output(
-            r'''
-tmpdir="$(mktemp -d)"
-cat >"$tmpdir/hello.c" <<'SRC'
-#include <stdio.h>
-int main() { printf("hello from llvm clang c\n"); return 0; }
-SRC
-clang -fuse-ld=lld "$tmpdir/hello.c" -o "$tmpdir/hello"
-"$tmpdir/hello"
-''',
-            contains="hello from llvm clang c",
-        )
+    def test_clang_tidy(self):
+        assert_command_output("clang-tidy --version")
 
     @pytest.mark.verify
-    @skip_if_not('macosx')
-    def test_clangxx_cpp23_import_std(self):
-        assert_command_output(
-            r'''
-tmpdir="$(mktemp -d)"
-cat >"$tmpdir/main.cpp" <<'CPP'
-import std;
+    @skip_if_not('linux')
+    def test_clangd(self):
+        assert_command_output("clangd --version")
 
-int main() {
-    std::println("hello from llvm clang++ c++23");
-    return 0;
-}
-CPP
-resdir="$(clang++ --print-resource-dir)"
-llvm_home="$(cd "$resdir/../../.." && pwd)"
-stdcppm="$llvm_home/share/libc++/v1/std.cppm"
-clang++ -std=c++23 -fexperimental-library -x c++-module --precompile "$stdcppm" -o "$tmpdir/std.pcm"
-clang++ -std=c++23 -fexperimental-library "$tmpdir/main.cpp" -fmodule-file=std="$tmpdir/std.pcm" -o "$tmpdir/hello"
-"$tmpdir/hello"
-''',
-            contains="hello from llvm clang++ c++23",
-        )
+    @pytest.mark.verify
+    @skip_if_not('linux')
+    def test_xvm_llvm_tools(self):
+        assert_xvm_registered("llvm-tools")

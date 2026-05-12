@@ -15,47 +15,61 @@ xpkg包介绍文档: https://xlings.d2learn.org/documents/xpkg/intro.html
 
 ## 本地测试信息 | Local Test Info
 
-> Paste your test console information or picture here (note: xpakcage is your xpackage's filename
+> Paste your test console information or picture here (note: xpackage is your xpackage's filename)
 
-**step1: `xim --add-xpkg yourPath/xpackage.lua`**
+**step1: 添加到索引数据库**
 
-> test add to pkgindex database for xpackage
-
-...
-
-**step2: `xim -s xpackage`**
-
-> test search for xpackage
+```bash
+xlings install --add-xpkg yourPath/xpackage.lua
+```
 
 ...
 
-**step3: `xim -i xpackage`**
+**step2: 搜索包**
 
-> test install for xpackage
-
-...
-
-**step4: `xim -i xpackage`**
-
-> test installed for xpackage
+```bash
+xlings search xpackage
+```
 
 ...
 
-**step5: `xim -l xpackage`**
+**step3: 安装包**
 
-> test list for xpackage
-
-...
-
-**step6: `xim -r xpackage`**
-
-> test remove/uninstall for xpackage
+```bash
+xlings install xpackage
+```
 
 ...
 
-**step7: `xim -r xpackage`**
+**step4: 重复安装检测**
 
-> test uninstalled for xpackage
+```bash
+xlings install xpackage
+```
+
+...
+
+**step5: 列出已安装版本**
+
+```bash
+xlings list xpackage
+```
+
+...
+
+**step6: 卸载包**
+
+```bash
+xlings remove xpackage
+```
+
+...
+
+**step7: 重复卸载检测**
+
+```bash
+xlings remove xpackage
+```
 
 ...
 

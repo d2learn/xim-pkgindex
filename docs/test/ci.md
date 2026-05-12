@@ -29,7 +29,7 @@ on:
 ┌─────────────────────────┐
 │  index-registration     │  L1
 │  ・需要安装 xlings       │  ~30 秒
-│  ・xim --add-xpkg 验证  │
+│  ・xlings install --add-xpkg 验证  │
 └─────────────────────────┘
 ```
 
@@ -64,7 +64,7 @@ on:
 | **L1 Index Registration** | `pytest tests/ -m index --tb=short -q` |
 
 检查内容:
-- 每个包文件能被 `xim --add-xpkg` 成功注册到索引数据库
+- 每个包文件能被 `xlings install --add-xpkg` 成功注册到索引数据库
 
 ## 与现有 CI 的关系
 
@@ -72,7 +72,7 @@ on:
 
 | Workflow | 文件 | 关注点 |
 |----------|------|--------|
-| `ci-test.yml` | 原有 | 变更文件的 `xim --add-xpkg` 验证 + LD_LIBRARY_PATH lint |
+| `ci-test.yml` | 原有 | 变更文件的 `xlings install --add-xpkg` 验证 + LD_LIBRARY_PATH lint |
 | `ci-xpkg-test.yml` | 新增 | **全量**静态分析 + 隔离合规 + 索引注册 |
 
 主要区别:

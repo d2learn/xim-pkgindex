@@ -202,7 +202,7 @@ pytest tests/n/test_mypackage.py -m index -v
 
 | 断言函数 | 检查内容 |
 |----------|----------|
-| `assert_xim_add_succeeds(path)` | `xim --add-xpkg` 能成功注册到索引数据库 |
+| `assert_xim_add_succeeds(path)` | `xlings install --add-xpkg` 能成功注册到索引数据库 |
 
 ### L2: 隔离合规 (`@pytest.mark.isolation`)
 

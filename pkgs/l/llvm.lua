@@ -29,7 +29,7 @@ package = {
                     GLOBAL = "https://github.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-linux-x86_64.tar.xz",
                     CN = "https://gitcode.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-linux-x86_64.tar.xz",
                 },
-                sha256 = "11cedefe2a36b73abe42f9e1bd31cc1551e0bb4f7763b7c5944d4e9e1febc312",
+                sha256 = "b28ff325888d45f81cf76cd92655aabcc000235c6e89c34d5a6bb73bf5865fb2",
             },
         },
         macosx = {
@@ -223,6 +223,7 @@ function __config_linux_libs()
         "libc++.so", "libc++.so.1",
         "libc++abi.so", "libc++abi.so.1",
         "libunwind.so", "libunwind.so.1",
+        "libatomic.so", "libatomic.so.1",
     }
 
     for _, lib in ipairs(libs) do
@@ -258,6 +259,7 @@ function uninstall()
             "libc++.so", "libc++.so.1",
             "libc++abi.so", "libc++abi.so.1",
             "libunwind.so", "libunwind.so.1",
+            "libatomic.so", "libatomic.so.1",
         }
         for _, lib in ipairs(libs) do
             xvm.remove(lib)

@@ -29,7 +29,7 @@ package = {
                     GLOBAL = "https://github.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-linux-x86_64.tar.xz",
                     CN = "https://gitcode.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-linux-x86_64.tar.xz",
                 },
-                sha256 = "ac9e4665368a52e03209a206a276a887a2019e64b9870cb93e59c5638d235130",
+                sha256 = "11cedefe2a36b73abe42f9e1bd31cc1551e0bb4f7763b7c5944d4e9e1febc312",
             },
         },
         macosx = {

@@ -23,6 +23,7 @@ package = {
                 "xim:glibc@2.39",
                 "xim:linux-headers@5.11.1",
                 "xim:zlib@1.3.1",
+                "xim:libxml2@2.13.5",
             },
             ["latest"] = { ref = "20.1.7" },
             ["20.1.7"] = {

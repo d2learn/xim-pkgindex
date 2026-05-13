@@ -87,10 +87,15 @@ local function collect_bin_apps(bindir)
 end
 
 function install()
-    local llvmdir = pkginfo.install_file()
-        :replace(".tar.xz", "")
-        :replace(".tar.gz", "")
-        :replace(".zip", "")
+    -- The inner directory is always llvm-<version>-linux-x86_64 regardless
+    -- of the download filename (which may have a -v2 suffix for mirror reasons).
+    local llvmdir = "llvm-" .. pkginfo.version() .. "-linux-x86_64"
+    if os.host() == "macosx" then
+        llvmdir = pkginfo.install_file()
+            :replace(".tar.xz", "")
+            :replace(".tar.gz", "")
+            :replace(".zip", "")
+    end
     os.tryrm(pkginfo.install_dir())
     os.mv(llvmdir, pkginfo.install_dir())
 

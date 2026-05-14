@@ -2,7 +2,7 @@ package = {
     spec = "1",
 
     name = "bwrap",
-    description = "Bubblewrap — unprivileged sandboxing tool (setuid-less namespace sandbox)",
+    description = "Bubblewrap — namespace-based sandboxing tool (setuid mode for cross-distro compat)",
 
     homepage = "https://github.com/containers/bubblewrap",
     contributors = "https://github.com/containers/bubblewrap/graphs/contributors",
@@ -23,15 +23,19 @@ package = {
     xvm_enable = true,
 
     -- Mirrored at xlings-res/bwrap, built from upstream
-    -- containers/bubblewrap v0.11.2 source in Alpine 3.20
-    -- (musl 1.2.5, gcc 13.2, libcap 2.78). Single statically-linked
-    -- ELF (`bin/bwrap`, ~137 KB stripped). Upstream releases source
-    -- only — no prebuilt artifact ships for bwrap, hence the mirror.
+    -- containers/bubblewrap v0.11.2 source in Alpine 3.21
+    -- (musl libc, libcap-static), with:
+    --   meson setup -Dsupport_setuid=true -Drequire_userns=false ...
+    -- Single statically-linked ELF (`bin/bwrap`, ~142 KB stripped).
+    -- Upstream releases source only — no prebuilt artifact ships
+    -- for bwrap, hence the mirror.
     --
-    -- Runtime: bwrap is installed setuid root (chmod 4755) so it can
-    -- create user namespaces on kernels that disable
-    -- unprivileged_userns_clone. Same pattern as code.lua's
-    -- chrome-sandbox.
+    -- Runtime: install() chmods the binary 4755 (setuid root). With
+    -- support_setuid=true compiled in, this is the cross-distro path
+    -- that works on Ubuntu 24+ / Fedora / Debian / Alpine / WSL2
+    -- without depending on the host's AppArmor profile or kernel
+    -- unprivileged_userns_clone toggle. Same chmod pattern as
+    -- code.lua's chrome-sandbox.
     --
     -- XLINGS_RES sentinel resolves to:
     --   GLOBAL → github.com/xlings-res/bwrap/releases/download/<ver>/...

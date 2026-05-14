@@ -28,11 +28,10 @@ package = {
     -- ELF (`bin/bwrap`, ~137 KB stripped). Upstream releases source
     -- only — no prebuilt artifact ships for bwrap, hence the mirror.
     --
-    -- Runtime requirement (kernel side, not packaged here): bwrap
-    -- needs unprivileged user namespaces enabled
-    -- (`/proc/sys/kernel/unprivileged_userns_clone=1` on kernels that
-    -- gate it), or to run setuid. The package does not setuid the
-    -- binary — that's a deployment decision left to the user.
+    -- Runtime: bwrap is installed setuid root (chmod 4755) so it can
+    -- create user namespaces on kernels that disable
+    -- unprivileged_userns_clone. Same pattern as code.lua's
+    -- chrome-sandbox.
     --
     -- XLINGS_RES sentinel resolves to:
     --   GLOBAL → github.com/xlings-res/bwrap/releases/download/<ver>/...
@@ -55,6 +54,17 @@ function install()
         :replace(".zip", "")
         :replace(".tar.gz", "")
     os.mv(bwrapdir, pkginfo.install_dir())
+
+    -- setuid bwrap so it can create user namespaces on kernels that
+    -- disable unprivileged_userns_clone (same pattern as code.lua's
+    -- chrome-sandbox).
+    local bwrap = path.join(pkginfo.install_dir(), "bin", "bwrap")
+    if os.isfile(bwrap) then
+        log.info("Setting bwrap setuid root (sudo required)...")
+        os.exec("sudo chown root:root " .. bwrap)
+        os.exec("sudo chmod 4755 " .. bwrap)
+    end
+
     return true
 end
 

@@ -47,6 +47,7 @@ package = {
 
 import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
+import("xim.libxpkg.log")
 
 function install()
     os.tryrm(pkginfo.install_dir())

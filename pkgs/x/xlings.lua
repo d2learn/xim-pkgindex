@@ -36,7 +36,11 @@ package = {
     -- one version at a time.
     xpm = {
         linux = {
-            ["latest"] = { ref = "0.4.34" },
+            ["latest"] = { ref = "0.4.35" },
+            ["0.4.35"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.35/xlings-0.4.35-linux-x86_64.tar.gz",
+                sha256 = "f5278472e25282c771b0bc08d00d6355e4b51b6fa7f54e61537dd9a8829a2a38",
+            },
             ["0.4.34"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.34/xlings-0.4.34-linux-x86_64.tar.gz",
                 sha256 = "1ac30caada0045a6d6d2cd100d7e06fce632e8419c46131cc6d1b0bbfe83a599",
@@ -149,7 +153,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         macosx = {
-            ["latest"] = { ref = "0.4.34" },
+            ["latest"] = { ref = "0.4.35" },
+            ["0.4.35"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.35/xlings-0.4.35-macosx-arm64.tar.gz",
+                sha256 = "d6931c9d0e2872b95780d9a78776c3f669bc77ad808e4fdcf5fb691be3087b7f",
+            },
             ["0.4.34"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.34/xlings-0.4.34-macosx-arm64.tar.gz",
                 sha256 = "61093967c78e696e486c6db563ee27a951032cf4aa78474b9ec0bb4668a05fdb",
@@ -262,7 +270,11 @@ package = {
             ["0.3.0"] = "XLINGS_RES",
         },
         windows = {
-            ["latest"] = { ref = "0.4.34" },
+            ["latest"] = { ref = "0.4.35" },
+            ["0.4.35"] = {
+                url = "https://github.com/openxlings/xlings/releases/download/v0.4.35/xlings-0.4.35-windows-x86_64.zip",
+                sha256 = "944313bc644b15fbb5be8e15e4c7bdba1616940cb8e42c70953f7cb5e8a06936",
+            },
             ["0.4.34"] = {
                 url = "https://github.com/openxlings/xlings/releases/download/v0.4.34/xlings-0.4.34-windows-x86_64.zip",
                 sha256 = "8d7159309dca16153bd046cc226f3ce49966a1e8cfb6f6614695203e8185a595",

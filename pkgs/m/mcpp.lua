@@ -13,7 +13,7 @@ package = {
 
     -- xim pkg info
     type = "package",
-    archs = {"x86_64"},
+    archs = {"x86_64", "arm64"},
     status = "dev", -- 0.0.x: upstream is pre-1.0, expect breaking changes
     categories = {"build-tool", "cpp"},
     keywords = {"cpp", "c++", "build", "module", "package-manager"},
@@ -23,26 +23,24 @@ package = {
     xvm_enable = true,
 
     -- Mirrored at xlings-res/mcpp (byte-identical to upstream
-    -- mcpp-community/mcpp release artifacts, just renamed to
+    -- mcpp-community/mcpp release artifacts, renamed to
     -- xlings-res convention `mcpp-<ver>-<platform>-<arch>.<ext>`).
     --
     -- XLINGS_RES sentinel resolves to:
     --   GLOBAL → github.com/xlings-res/mcpp/releases/download/<ver>/...
     --   CN     → gitcode.com/xlings-res/mcpp/releases/download/<ver>/...
     --
-    -- The Linux tarball ships under `mcpp-<ver>-linux_x86_64/`
-    -- (note: upstream uses underscore in the inner dir name).
-    -- It contains:
-    --   bin/mcpp        — fully-static ELF (no .interp, empty
-    --                      DT_NEEDED — zero runtime deps)
-    --   mcpp            — POSIX shell launcher → exec bin/mcpp
+    -- Each tarball ships under `mcpp-<ver>-<platform>-<arch>/` and contains:
+    --   bin/mcpp        — statically linked binary
+    --   mcpp            — shell launcher → exec bin/mcpp
     --   LICENSE, README.md
-    -- xvm registers `bindir = <install>/bin` so the ELF is invoked
+    -- xvm registers `bindir = <install>/bin` so the binary is invoked
     -- directly; the shell launcher is only useful from the bundle root.
     xpm = {
         linux = {
             url_template = "https://github.com/mcpp-community/mcpp/releases/download/v{version}/mcpp-{version}-linux-x86_64.tar.gz",
-            ["latest"] = { ref = "0.0.15" },
+            ["latest"] = { ref = "0.0.16" },
+            ["0.0.16"] = "XLINGS_RES",
             ["0.0.15"] = "XLINGS_RES",
             ["0.0.14"] = "XLINGS_RES",
             ["0.0.13"] = "XLINGS_RES",
@@ -58,6 +56,10 @@ package = {
             ["0.0.2"] = "XLINGS_RES",
             ["0.0.1"] = "XLINGS_RES",
         },
+        macosx = {
+            ["latest"] = { ref = "0.0.16" },
+            ["0.0.16"] = "XLINGS_RES",
+        },
     },
 }
 
@@ -65,7 +67,8 @@ import("xim.libxpkg.pkginfo")
 import("xim.libxpkg.xvm")
 
 function install()
-    local mcpp_dir = "mcpp-" .. pkginfo.version() .. "-linux-x86_64"
+    local mcpp_dir = pkginfo.install_file()
+        :replace(".tar.gz", "")
     os.tryrm(pkginfo.install_dir())
     os.mv(mcpp_dir, pkginfo.install_dir())
     return true

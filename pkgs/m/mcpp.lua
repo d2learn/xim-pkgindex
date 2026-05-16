@@ -58,12 +58,7 @@ package = {
         },
         macosx = {
             ["latest"] = { ref = "0.0.16" },
-            ["0.0.16"] = {
-                url = {
-                    GLOBAL = "https://github.com/xlings-res/mcpp/releases/download/0.0.16/mcpp-0.0.16-macosx-arm64.tar.gz",
-                },
-                sha256 = "9067da8ff79a66d3c40605ca16c1148db651dab46ab1ebecd13f563c543670b6",
-            },
+            ["0.0.16"] = "XLINGS_RES",
         },
     },
 }

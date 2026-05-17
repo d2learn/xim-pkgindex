@@ -6,7 +6,7 @@ package = {
 
     authors = {"NanmiCoder"},
     maintainers = {"NanmiCoder"},
-    licenses = {"MIT"},
+    licenses = {"NON-COMMERCIAL LEARNING LICENSE 1.1"},
     repo = "https://github.com/NanmiCoder/MediaCrawler",
     homepage = "https://github.com/NanmiCoder/MediaCrawler",
 

@@ -31,7 +31,6 @@ package = {
             },
         },
         macosx = {
-            deps = {"python", "uv"},
             ["latest"] = { ref = "2026.4.30" },
             ["2026.4.30"] = {
                 url = "https://github.com/NanmiCoder/MediaCrawler/archive/f328ee35b55e25e8aaeb9c847fe8b622e3f3447f.tar.gz",

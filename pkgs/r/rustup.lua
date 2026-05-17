@@ -9,6 +9,7 @@ package = {
     name = "rustup",
     description = "An installer init tool for Rustup, the Rust toolchain installer",
 
+    licenses = {"MIT", "Apache-2.0"},
     repo = "https://github.com/rust-lang/rustup",
     docs = "https://rust-lang.github.io/rustup/installation/other.html",
 

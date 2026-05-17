@@ -41,6 +41,16 @@ package = {
                 sha256 = nil,
             },
         },
+        windows = {
+            ["latest"] = { ref = "20.1.7" },
+            ["20.1.7"] = {
+                url = {
+                    GLOBAL = "https://github.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-windows-x86_64.tar.xz",
+                    CN = "https://gitcode.com/xlings-res/llvm/releases/download/20.1.7/llvm-20.1.7-windows-x86_64.tar.xz",
+                },
+                sha256 = "d58bfad5577fda13e55a9eb14b4cf541806267efd0ef3f242e8354b738d2984b",
+            },
+        },
     },
 }
 
@@ -58,6 +68,19 @@ local alias_apps = {
     {name = "nm", alias = "llvm-nm"},
 }
 
+local alias_apps_windows = {
+    {name = "cc", alias = "clang.exe"},
+    {name = "c++", alias = "clang++.exe"},
+    {name = "cl", alias = "clang-cl.exe"},
+    {name = "link", alias = "lld-link.exe"},
+    {name = "ar", alias = "llvm-ar.exe"},
+    {name = "ranlib", alias = "llvm-ranlib.exe"},
+    {name = "strip", alias = "llvm-strip.exe"},
+    {name = "nm", alias = "llvm-nm.exe"},
+    {name = "lib", alias = "llvm-lib.exe"},
+    {name = "rc", alias = "llvm-rc.exe"},
+}
+
 local function is_registerable_bin(pathname)
     local name = path.filename(pathname)
     if name == nil or name == "" then
@@ -66,12 +89,22 @@ local function is_registerable_bin(pathname)
     if name:sub(-4) == ".cfg" then
         return false
     end
+    -- On Windows, skip .dll files (only register .exe)
+    if os.host() == "windows" and name:sub(-4) == ".dll" then
+        return false
+    end
     return os.isfile(pathname)
 end
 
 local function collect_bin_apps(bindir)
     local apps = {}
-    local f = io.popen('ls -1 "' .. bindir .. '" 2>/dev/null')
+    local cmd
+    if os.host() == "windows" then
+        cmd = 'dir /b "' .. bindir .. '" 2>nul'
+    else
+        cmd = 'ls -1 "' .. bindir .. '" 2>/dev/null'
+    end
+    local f = io.popen(cmd)
     if f then
         for name in f:lines() do
             local clean = name:gsub("[\r\n]+$", "")
@@ -89,14 +122,18 @@ local function collect_bin_apps(bindir)
 end
 
 function install()
-    -- The inner directory is always llvm-<version>-linux-x86_64 regardless
-    -- of the download filename (which may have a -v2 suffix for mirror reasons).
+    -- The inner directory naming convention per platform:
+    --   linux:   llvm-<version>-linux-x86_64
+    --   macosx:  derived from filename
+    --   windows: llvm-<version>-windows-x86_64
     local llvmdir = "llvm-" .. pkginfo.version() .. "-linux-x86_64"
     if os.host() == "macosx" then
         llvmdir = pkginfo.install_file()
             :replace(".tar.xz", "")
             :replace(".tar.gz", "")
             :replace(".zip", "")
+    elseif os.host() == "windows" then
+        llvmdir = "llvm-" .. pkginfo.version() .. "-windows-x86_64"
     end
     os.tryrm(pkginfo.install_dir())
     os.mv(llvmdir, pkginfo.install_dir())
@@ -202,7 +239,12 @@ function config()
         })
     end
 
-    for _, app in ipairs(alias_apps) do
+    local aliases = alias_apps
+    if os.host() == "windows" then
+        aliases = alias_apps_windows
+    end
+
+    for _, app in ipairs(aliases) do
         if os.isfile(path.join(bindir, app.alias)) then
             xvm.add(app.name, {
                 bindir = bindir,
@@ -257,7 +299,12 @@ function uninstall()
         xvm.remove(app)
     end
 
-    for _, app in ipairs(alias_apps) do
+    local aliases = alias_apps
+    if os.host() == "windows" then
+        aliases = alias_apps_windows
+    end
+
+    for _, app in ipairs(aliases) do
         xvm.remove(app.name)
     end
 

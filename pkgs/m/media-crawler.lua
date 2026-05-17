@@ -60,26 +60,34 @@ function install()
 
     local installdir = pkginfo.install_dir()
 
-    if __has_uv() then
-        -- Prefer uv; override index to standard PyPI (project defaults to CN mirror)
-        system.exec(string.format(
+    -- Try uv first; fall back to pip if uv fails or is absent
+    local use_uv = __has_uv()
+    if use_uv then
+        local ok = os.exec(string.format(
             [[cd "%s" && UV_INDEX_URL=https://pypi.org/simple/ uv venv && UV_INDEX_URL=https://pypi.org/simple/ uv sync]],
-            installdir))
-        system.exec(string.format(
-            [[cd "%s" && uv run playwright install chromium]], installdir))
-    else
-        -- Fallback: standard venv + pip
+            installdir), {try = true})
+        if not ok then use_uv = false end
+    end
+
+    if not use_uv then
         system.exec(string.format([[cd "%s" && python3 -m venv .venv]], installdir))
         local pip = path.join(installdir, ".venv", "bin", "pip")
+        system.exec(string.format([["%s" install --upgrade pip]], pip))
         system.exec(string.format([["%s" install -r "%s/requirements.txt"]], pip, installdir))
-        system.exec(string.format([["%s/bin/playwright" install chromium]], path.join(installdir, ".venv")))
+    end
+
+    -- Install playwright chromium
+    if use_uv then
+        system.exec(string.format([[cd "%s" && uv run playwright install chromium]], installdir))
+    else
+        system.exec(string.format([[cd "%s" && .venv/bin/playwright install chromium]], installdir))
     end
 
     -- Create launcher script
     local bindir = path.join(installdir, "bin")
     os.mkdir(bindir)
     local launcher = path.join(bindir, "media-crawler")
-    if __has_uv() then
+    if use_uv then
         io.writefile(launcher, string.format([[#!/bin/bash
 cd "%s"
 exec uv run main.py "$@"

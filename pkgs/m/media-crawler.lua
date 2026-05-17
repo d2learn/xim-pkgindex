@@ -50,24 +50,43 @@ function __source_dir()
     return path.join(dir, "MediaCrawler-f328ee35b55e25e8aaeb9c847fe8b622e3f3447f")
 end
 
+function __has_uv()
+    return os.iorun("uv --version") ~= nil
+end
+
 function install()
     os.tryrm(pkginfo.install_dir())
     os.cp(__source_dir(), pkginfo.install_dir())
 
-    -- Use uv to create venv and sync dependencies
-    system.exec(string.format([[cd "%s" && uv venv && uv sync]], pkginfo.install_dir()))
+    local installdir = pkginfo.install_dir()
 
-    -- Install playwright chromium browser
-    system.exec(string.format([[cd "%s" && uv run playwright install chromium]], pkginfo.install_dir()))
+    if __has_uv() then
+        -- Prefer uv for fast dependency resolution
+        system.exec(string.format([[cd "%s" && uv venv && uv sync]], installdir))
+        system.exec(string.format([[cd "%s" && uv run playwright install chromium]], installdir))
+    else
+        -- Fallback: standard venv + pip
+        system.exec(string.format([[cd "%s" && python3 -m venv .venv]], installdir))
+        local pip = path.join(installdir, ".venv", "bin", "pip")
+        system.exec(string.format([["%s" install -r "%s/requirements.txt"]], pip, installdir))
+        system.exec(string.format([["%s/bin/playwright" install chromium]], path.join(installdir, ".venv")))
+    end
 
     -- Create launcher script
-    local bindir = path.join(pkginfo.install_dir(), "bin")
+    local bindir = path.join(installdir, "bin")
     os.mkdir(bindir)
     local launcher = path.join(bindir, "media-crawler")
-    io.writefile(launcher, string.format([[#!/bin/bash
+    if __has_uv() then
+        io.writefile(launcher, string.format([[#!/bin/bash
 cd "%s"
 exec uv run main.py "$@"
-]], pkginfo.install_dir()))
+]], installdir))
+    else
+        io.writefile(launcher, string.format([[#!/bin/bash
+cd "%s"
+exec .venv/bin/python main.py "$@"
+]], installdir))
+    end
     os.exec(string.format([[chmod +x "%s"]], launcher))
 
     return true

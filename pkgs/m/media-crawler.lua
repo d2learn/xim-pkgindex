@@ -61,9 +61,12 @@ function install()
     local installdir = pkginfo.install_dir()
 
     if __has_uv() then
-        -- Prefer uv for fast dependency resolution
-        system.exec(string.format([[cd "%s" && uv venv && uv sync]], installdir))
-        system.exec(string.format([[cd "%s" && uv run playwright install chromium]], installdir))
+        -- Prefer uv; override index to standard PyPI (project defaults to CN mirror)
+        system.exec(string.format(
+            [[cd "%s" && UV_INDEX_URL=https://pypi.org/simple/ uv venv && UV_INDEX_URL=https://pypi.org/simple/ uv sync]],
+            installdir))
+        system.exec(string.format(
+            [[cd "%s" && uv run playwright install chromium]], installdir))
     else
         -- Fallback: standard venv + pip
         system.exec(string.format([[cd "%s" && python3 -m venv .venv]], installdir))
